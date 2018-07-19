@@ -1,3 +1,12 @@
+buildscript {
+    ext.kotlin_version = '1.2.51'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
 plugins {
     id 'java'
 }
@@ -12,6 +21,7 @@ repositories {
 }
 
 apply plugin: 'application'
+apply plugin: 'kotlin'
 
 
 dependencies {
@@ -26,17 +36,48 @@ dependencies {
 
 
     // crisnels lib
+    //HL7 Library
 
+    compile ('ca.uhn.hapi.fhir:hapi-fhir-base:2.2')
+            {
+                exclude(module: 'slf4j-log4j12')
+            }
+    compile ('ca.uhn.hapi.fhir:hapi-fhir-structures-dstu2:2.2')
+            {
+                exclude(module: 'slf4j-log4j12')
+            }
+    compile (group: 'ca.uhn.hapi', name: 'hapi-base', version: '2.3')
+            {
+                exclude(module: 'slf4j-log4j12')
+            }
+    compile (group: 'ca.uhn.hapi', name: 'hapi-structures-v23', version: '2.3')
+            {
+                exclude(module: 'slf4j-log4j12')
+            }
+    compile (group: 'ca.uhn.hapi', name: 'hapi-structures-v25', version: '2.3')
+            {
+                exclude(module: 'slf4j-log4j12')
+            }
+    compile (group: 'ca.uhn.hapi', name: 'hapi-hl7overhttp', version: '2.3')
+            {
+                exclude(module: 'slf4j-log4j12')
+            }
+    //SMB Credentials
+    compile (group: 'jcifs', name: 'jcifs', version: '1.3.17')
+            {
+                exclude(module:'servlet-api')
+            }
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     //
 }
 
 
-mainClassName = 'com.hisd3.utils.Application'
+mainClassName = 'com.hisd3.utils.ApplicationKt'
 jar {
     manifest {
         attributes(
                 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-                'Main-Class': 'com.hisd3.utils.Application'
+                'Main-Class': 'com.hisd3.utils.ApplicationKt'
         )
     }
     from(configurations.compile.collect { entry -> zipTree(entry) }) {
@@ -44,6 +85,16 @@ jar {
         exclude 'META-INF/*.SF'
         exclude 'META-INF/*.DSA'
         exclude 'META-INF/*.RSA'
+    }
+}
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
 }
 
