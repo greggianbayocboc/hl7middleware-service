@@ -1,0 +1,49 @@
+plugins {
+    id 'java'
+}
+
+group 'com.hisd3.utils'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'application'
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile "com.sparkjava:spark-core:2.7.2"
+    compile group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.13'
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
+    compile 'org.apache.httpcomponents:httpclient:4.5.4'
+    compile group: 'org.apache.httpcomponents', name: 'fluent-hc', version: '4.5.4'
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
+
+    // crisnels lib
+
+    //
+}
+
+
+mainClassName = 'com.hisd3.utils.Application'
+jar {
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'com.hisd3.utils.Application'
+        )
+    }
+    from(configurations.compile.collect { entry -> zipTree(entry) }) {
+        exclude 'META-INF/MANIFEST.MF'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+    }
+}
+
+
