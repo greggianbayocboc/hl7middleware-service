@@ -26,12 +26,13 @@ class   HL7ServiceListener {
         var server = context.newServer(port, useTls)
 
         val handler = ExampleReceiverApplication<Any>()
-
-  //      var handler = ExampleReceiverApplication<Any>(orderSlipRepository!!,labResultItemRepository!!)
+        val ormHandler =OrmOru<Any>()
+//      var handler = ExampleReceiverApplication<Any>(orderSlipRepository!!,labResultItemRepository!!)
 
 //        server.registerApplication("ADT", "A01", handler)
 //        server.registerApplication("ADT", "A04", handler)
-        server.registerApplication("ORU", "R01", handler)
+        server.registerApplication("ORU", "R01", ormHandler)
+
         //server.registerApplication(handler)
         server.registerConnectionListener(MyConnectionListener())
         server.setExceptionHandler(MyExceptionHandler())

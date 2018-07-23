@@ -1,5 +1,8 @@
 package com.hisd3.utils
 
+import ca.uhn.hl7v2.HL7Exception
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.hisd3.utils.Crud.UserDao
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
 import com.hisd3.utils.rest.JsonReceiver
@@ -8,21 +11,23 @@ import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
 import org.apache.commons.cli.Options
 import org.apache.commons.cli.ParseException
-import spark.Spark.get
-import spark.Spark.post
+import org.eclipse.jetty.websocket.api.StatusCode
+import spark.Request
+import spark.Spark.*
+import java.io.IOException
 
 class Application {
 
-    fun bootstrap(){
+    fun bootstrap() {
         get("/bootup") { req, res -> "Test" }
     }
+
 
     companion object {
 
         @Throws(ParseException::class)
         @JvmStatic
         fun main(args: Array<String>) {
-
 
             val options = Options()
             options.addOption("t", false, "display current time")
@@ -46,7 +51,6 @@ class Application {
                 println("Country Code Specified")
             }
 
-
             if (cmd.hasOption("t")) {
                 // print the date and time
                 println("Has T Specified")
@@ -57,19 +61,27 @@ class Application {
             if (cmd.hasOption("start"))
 
                 HL7ServiceListener().startLisenter()
-                get("/ping") { req, res -> "OK" }
-                get("/testsend"){req,res ->
-                   HL7Test().transmit()
+            get("/ping") { req, res -> "OK" }
+
+            path("/hl7middleware")
+            {
+                get("/testsend") { req, res ->
+                    HL7Test().transmit()
                 }
-                post("/hl7middleware"){req,res->{
-                    var reqBody = req.body()
-                        JsonReceiver().jsonParse(reqBody)
+
+                post("/jsonmsg") { req, res ->
+
+                    var data = req.body()
+                    try {
+                        JsonReceiver().jsonParse(data)
+                    } catch (e: IOException) {
+                        throw IllegalArgumentException(e.message)
                     }
                 }
 
             }
-
         }
     }
+}
 
 
