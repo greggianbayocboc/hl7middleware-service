@@ -2,7 +2,6 @@ package com.hisd3.utils.hl7service
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
-import ca.uhn.hl7v2.protocol.ReceivingApplication
 
 
 class   HL7ServiceListener {
@@ -26,7 +25,7 @@ class   HL7ServiceListener {
         var server = context.newServer(port, useTls)
 
         val handler = ExampleReceiverApplication<Any>()
-        val ormHandler =OrmOru<Any>()
+        val ormHandler =OruRo1Handler<Any>()
 //      var handler = ExampleReceiverApplication<Any>(orderSlipRepository!!,labResultItemRepository!!)
 
 //        server.registerApplication("ADT", "A01", handler)
@@ -37,7 +36,7 @@ class   HL7ServiceListener {
         server.registerConnectionListener(MyConnectionListener())
         server.setExceptionHandler(MyExceptionHandler())
         server.startAndWait()
-        System.out.println("Start HL7 Service Listener")
+        //System.out.println("Start HL7 Service Listener")
     }
 
 }

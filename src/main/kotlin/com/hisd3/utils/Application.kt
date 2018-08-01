@@ -73,7 +73,7 @@ class Application {
 
                     var data = req.body()
                     try {
-                        JsonReceiver().jsonParse(data)
+                        JsonReceiver().createOrmMsg(data)
                     } catch (e: IOException) {
                         throw IllegalArgumentException(e.message)
                     }

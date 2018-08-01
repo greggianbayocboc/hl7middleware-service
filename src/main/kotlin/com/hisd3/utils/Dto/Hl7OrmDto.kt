@@ -16,60 +16,60 @@ class Hl7OrmDto {
 }
 
 class Msh(
-        var messageCode: String?=null,
-        var messageTriggerEvent:String?=null,
-        var hospitalName:String?=null,
-        var sendingFacility: String?=null
+        var messageCode: String?="",
+        var messageTriggerEvent:String?="",
+        var hospitalName:String?="",
+        var sendingFacility: String?=""
 )
 class Pid(
-        var pidLastName:String?=null,
-        var pidFirstName:String?=null,
-        var pidExtName:String?=null,
-        var pidGender:String?=null,
-        var pidDob:DateTime?=null,
-        var pidCity:String?=null,
-        var pidCountry:String?=null,
-        var pidAddress:String?=null,
-        var pidProvince:String?=null,
-        var pidZip:String?=null,
-        var pidPatientId:String?=null,
-        var pidPatientNo:String?=null,
-        var pidCitizenship:String?=null
+        var pidLastName:String?="",
+        var pidFirstName:String?="",
+        var pidExtName:String?="",
+        var pidGender:String?="",
+        var pidDob:DateTime?=DateTime.now(),
+        var pidCity:String?="",
+        var pidCountry:String?="",
+        var pidAddress:String?="",
+        var pidProvince:String?="",
+        var pidZip:String?="",
+        var pidPatientId:String?="",
+        var pidPatientNo:String?="",
+        var pidCitizenship:String?=""
 )
 class Pv1(
-        var pv1VisitNumer:String?=null,
-        var pv1CaseNumer:String?=null,
-        var pv1PatientClass:String?=null,
-        var pv1RequestingDrId:String?=null,
-        var pv1RequestingDrFname:String?=null,
-        var pv1RequestingDrLname:String?=null,
-        var pv1RequestingDrMname:String?=null
+        var pv1VisitNumer:String?="",
+        var pv1CaseNumer:String?="",
+        var pv1PatientClass:String?="",
+        var pv1RequestingDrId:String?="",
+        var pv1RequestingDrFname:String?="",
+        var pv1RequestingDrLname:String?="",
+        var pv1RequestingDrMname:String?=""
 )
 class Orc(
-        var orcOrderControl:String?=null,
-        var orcPlacerOrderNumber:String?=null,
-        var orcRequestingDrId:String?=null,
-        var orcRequestingDrFname:String?=null,
-        var orcRequestingDrLname:String?=null,
-        var orcRequestingDrMname:String?=null
+        var orcOrderControl:String?="",
+        var orcPlacerOrderNumber:String?="",
+        var orcRequestingDrId:String?="",
+        var orcRequestingDrFname:String?="",
+        var orcRequestingDrLname:String?="",
+        var orcRequestingDrMname:String?=""
 )
 class Obr(
-        var obrPlaceOrderNumber:String?=null,
-        var obrFileOrderNumber:String?=null,
-        var obrServiceIdentifier:String?=null,
-        var obrServiceName:String?=null,
-        var obrPriority:String?=null,
-        var obrRequestDate:DateTime?=null,
-        var obrObservationDate:DateTime?=null
+        var obrPlaceOrderNumber:String?="",
+        var obrFileOrderNumber:String?="",
+        var obrServiceIdentifier:String?="",
+        var obrServiceName:String?="",
+        var obrPriority:String?="",
+        var obrRequestDate:DateTime?=DateTime.now(),
+        var obrObservationDate:DateTime?=DateTime.now()
 )
 
 class ReceivingFacility(
         var tcp: Boolean?=false,
-        var ipAddress:String?=null,
-        var port:String?=null,
-        var smbUrl:String?=null
+        var ipAddress:String?="",
+        var port:String?="",
+        var smbUrl:String?=""
 )
 class FacilityCredentials(
-        var userLogin:String?=null,
-        var passLogin:String?=null
+        var userLogin:String?="",
+        var passLogin:String?=""
 )
