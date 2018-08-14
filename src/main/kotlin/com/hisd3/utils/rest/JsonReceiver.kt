@@ -2,7 +2,8 @@ package com.hisd3.utils.rest
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
-import ca.uhn.hl7v2.model.v23.message.ORM_O01
+import ca.uhn.hl7v2.model.v27.segment.MSH
+import ca.uhn.hl7v2.model.v25.message.ORM_O01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.idgenerator.InMemoryIDGenerator
 import com.google.gson.Gson
@@ -28,11 +29,12 @@ class JsonReceiver {
         println(msgDto)
 
         var context = DefaultHapiContext()
-        var mcf = CanonicalModelClassFactory("2.3")
+        var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
 
             var orm = ORM_O01()
-            orm.initQuickstart(msgDto.msh.messageCode, msgDto.msh.messageTriggerEvent, "D")
+            orm.initQuickstart("ORM","O01","P")
+           // orm.initQuickstart(msgDto.msh.messageCode, msgDto.msh.messageTriggerEvent, "D")
             var parser = context.getPipeParser()
             parser.getParserConfiguration().setIdGenerator(InMemoryIDGenerator())
 //            val adt = p.parse(msg)
@@ -40,49 +42,56 @@ class JsonReceiver {
 
         // Populate the MSH Segment
         var msh = orm.getMSH()
-        msh.getSendingApplication().getNamespaceID().setValue(msgDto.msh.hospitalName)
+        msh.getSendingApplication().getNamespaceID().value = msgDto.msh.hospitalName
         msh.getSendingFacility().getNamespaceID().setValue(msgDto.msh.sendingFacility)
         msh.dateTimeOfMessage
 
         // Populate the PID Segment
         var pid = orm.getPATIENT().getPID()
-        pid.getPatientName(0).getFamilyName().value=(msgDto?.pid?.pidLastName)
-        pid.getPatientName(0).getGivenName().setValue(msgDto?.pid?.pidFirstName)
+        pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pid?.pidLastName
+        pid.getPatientName(0).getGivenName().value =msgDto?.pid?.pidFirstName
         pid.getPatientName(0).getSuffixEgJRorIII().setValue(msgDto?.pid?.pidExtName?:"")
-        pid.dateOfBirth.degreeOfPrecision.value = msgDto.pid?.pidDob?.toString("yyyyMMddHHmm")
+       // pid.dateTimeOfBirth.degreeOfPrecision.value = msgDto.pid?.pidDob?.toString("yyyyMMddHHmm")
         pid.getPatientAddress(0).getCity().setValue(msgDto.pid.pidCity)
         pid.getPatientAddress(0).getCountry().setValue(msgDto.pid.pidCountry)
-        pid.getPatientAddress(0).streetAddress.value=msgDto.pid.pidAddress
+        pid.getPatientAddress(0).streetAddress.streetName.value =msgDto.pid.pidAddress
         pid.getPatientAddress(0).stateOrProvince.value=msgDto?.pid?.pidProvince
         pid.getPatientAddress(0).zipOrPostalCode.value=msgDto?.pid?.pidZip
-        pid.getPid3_PatientIDInternalID(0).id.value = msgDto?.pid?.pidPatientNo
+        pid.patientID.idNumber.value = msgDto?.pid?.pidPatientNo
 
-        pid.pid8_Sex.value=msgDto?.pid?.pidGender
-        pid.citizenship.value=msgDto?.pid?.pidCitizenship
+        pid.administrativeSex.value =msgDto?.pid?.pidGender
+
 
         // Populate the PV1 Segment
         var pv1 = orm.getPATIENT().getPATIENT_VISIT().getPV1()
         pv1.getPatientClass().setValue(msgDto.pv1.pv1PatientClass)
-        pv1.visitNumber.id.value=msgDto.pv1.pv1VisitNumer
+        pv1.visitNumber.idNumber.value =msgDto.pv1.pv1VisitNumer
 
         pv1.getAttendingDoctor(0).givenName.value=msgDto.pv1.pv1RequestingDrFname
-        pv1.getAttendingDoctor(0).familyName.value=msgDto.pv1.pv1RequestingDrLname
+        pv1.getAttendingDoctor(0).familyName.surname.value=msgDto.pv1.pv1RequestingDrLname
         pv1.getAttendingDoctor(0).idNumber.value=msgDto.pv1.pv1RequestingDrId
 
         var orc = orm.getORDER(0).getORC()
         orc.orc1_OrderControl.value="NW"
-        orc.getPlacerOrderNumber(0).entityIdentifier.value =msgDto.orc.orcPlacerOrderNumber
+        orc.placerOrderNumber.universalID.value =msgDto.orc.orcPlacerOrderNumber
 
 
         // Populate the OBR Segment
         var obr = orm.getORDER(0).getORDER_DETAIL().getOBR()
-        obr.getPlacerOrderNumber(0).universalID.value = msgDto.obr.obrFileOrderNumber
+
+        obr.placerOrderNumber.universalID.value  = msgDto.obr.obrFileOrderNumber
         obr.getFillerOrderNumber().universalIDType.value =  msgDto.obr.obrFileOrderNumber
         obr.obr4_UniversalServiceIdentifier.ce1_Identifier.value=msgDto.obr.obrServiceIdentifier
         obr.obr4_UniversalServiceIdentifier.ce2_Text.value=msgDto.obr.obrServiceName
-        obr.requestedDateTime.degreeOfPrecision.value=msgDto.obr.obrRequestDate?.toString("yyyyMMddHHmm")
-        obr.observationEndDateTime.degreeOfPrecision.value = msgDto.obr.obrObservationDate?.toString("yyyyMMddHHmm")
-        obr.priority.value = msgDto.obr.obrPriority
+//        obr.requestedDateTime.degreeOfPrecision.value=msgDto.obr.obrRequestDate?.toString("yyyyMMddHHmm")
+//        obr.observationEndDateTime.degreeOfPrecision.value = msgDto.obr.obrObservationDate?.toString("yyyyMMddHHmm")
+        var priority:String?
+        if(msgDto.obr.obrPriority == true){
+            priority  = "STAT"
+        }else{
+            priority = "ROUTINE"
+        }
+        obr.priorityOBR.value = priority
 
         /*
          * In other situation, more segments and fields would be populated
@@ -107,7 +116,7 @@ class JsonReceiver {
         if (msgDto.recievingFacility.tcp == true) {
 
             try {
-                var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
+                var connection = context.newClient("127.0.0.1", 22223, useTls)
                 var initiator = connection.initiator
                 var response = initiator.sendAndReceive(orm)
 

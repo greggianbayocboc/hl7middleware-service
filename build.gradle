@@ -63,6 +63,9 @@ dependencies {
             {
                 exclude(module: 'slf4j-log4j12')
             }
+    compile group: 'ca.uhn.hapi', name: 'hapi-structures-v26', version: '2.3'
+    compile group: 'ca.uhn.hapi', name: 'hapi-structures-v27', version: '2.3'
+
     //SMB Credentials
     compile (group: 'jcifs', name: 'jcifs', version: '1.3.17')
             {

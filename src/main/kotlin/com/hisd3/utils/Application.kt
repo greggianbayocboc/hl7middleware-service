@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.hisd3.utils.Crud.UserDao
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
+import com.hisd3.utils.hl7service.Hl7DirectoryWatcher
 import com.hisd3.utils.rest.JsonReceiver
 import jdk.nashorn.internal.runtime.regexp.joni.Config.log
 import org.apache.commons.cli.DefaultParser
@@ -60,7 +61,8 @@ class Application {
 
             if (cmd.hasOption("start"))
 
-                HL7ServiceListener().startLisenter()
+            HL7ServiceListener().startLisenter()
+
             get("/ping") { req, res -> "OK" }
 
             path("/hl7middleware")
@@ -80,6 +82,7 @@ class Application {
                 }
 
             }
+            Hl7DirectoryWatcher().startDirWatching()
         }
     }
 }

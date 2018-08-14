@@ -26,7 +26,7 @@ class Pid(
         var pidFirstName:String?="",
         var pidExtName:String?="",
         var pidGender:String?="",
-        var pidDob:DateTime?=DateTime.now(),
+        var pidDob:String?="",
         var pidCity:String?="",
         var pidCountry:String?="",
         var pidAddress:String?="",
@@ -58,9 +58,9 @@ class Obr(
         var obrFileOrderNumber:String?="",
         var obrServiceIdentifier:String?="",
         var obrServiceName:String?="",
-        var obrPriority:String?="",
-        var obrRequestDate:DateTime?=DateTime.now(),
-        var obrObservationDate:DateTime?=DateTime.now()
+        var obrPriority:Boolean?=null,
+        var obrRequestDate:String?="",
+        var obrObservationDate:String?=""
 )
 
 class ReceivingFacility(

@@ -19,14 +19,12 @@ class   HL7ServiceListener {
         val useTls = false // Should we use TLS/SSL?
 
         var context = DefaultHapiContext()
-        var mcf = CanonicalModelClassFactory("2.3")
+        var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
 
         var server = context.newServer(port, useTls)
 
-        val handler = ExampleReceiverApplication<Any>()
         val ormHandler =OruRo1Handler<Any>()
-//      var handler = ExampleReceiverApplication<Any>(orderSlipRepository!!,labResultItemRepository!!)
 
 //        server.registerApplication("ADT", "A01", handler)
 //        server.registerApplication("ADT", "A04", handler)
