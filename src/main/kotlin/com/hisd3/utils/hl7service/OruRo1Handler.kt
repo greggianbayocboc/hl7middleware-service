@@ -132,7 +132,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
         params.msgXML=encodedMessage
         params.senderIp= sender.toString()
-        params.orderslipId=visitNumber
+        params.orderslipId=messageControlId
         params.pId=pId
         params.jsonList = MsgParse().msgToJson(theMessage)
 

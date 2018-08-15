@@ -12,6 +12,7 @@ import com.hisd3.utils.Dto.Hl7OrmDto
 import jcifs.smb.NtlmPasswordAuthentication
 import jcifs.smb.SmbFile
 import jcifs.smb.SmbFileOutputStream
+import org.joda.time.DateTime
 import org.json.JSONObject
 import org.omg.CORBA.Object
 import spark.Spark
@@ -42,16 +43,17 @@ class JsonReceiver {
 
         // Populate the MSH Segment
         var msh = orm.getMSH()
+        msh.messageControlID.value = msgDto.msh.messageControlId
         msh.getSendingApplication().getNamespaceID().value = msgDto.msh.hospitalName
         msh.getSendingFacility().getNamespaceID().setValue(msgDto.msh.sendingFacility)
-        msh.dateTimeOfMessage
+        msh.dateTimeOfMessage.time.value= DateTime.now().toString()
 
         // Populate the PID Segment
         var pid = orm.getPATIENT().getPID()
         pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pid?.pidLastName
         pid.getPatientName(0).getGivenName().value =msgDto?.pid?.pidFirstName
         pid.getPatientName(0).getSuffixEgJRorIII().setValue(msgDto?.pid?.pidExtName?:"")
-       // pid.dateTimeOfBirth.degreeOfPrecision.value = msgDto.pid?.pidDob?.toString("yyyyMMddHHmm")
+        pid.dateTimeOfBirth.degreeOfPrecision.value = msgDto.pid?.pidDob
         pid.getPatientAddress(0).getCity().setValue(msgDto.pid.pidCity)
         pid.getPatientAddress(0).getCountry().setValue(msgDto.pid.pidCountry)
         pid.getPatientAddress(0).streetAddress.streetName.value =msgDto.pid.pidAddress
@@ -83,8 +85,8 @@ class JsonReceiver {
         obr.getFillerOrderNumber().universalIDType.value =  msgDto.obr.obrFileOrderNumber
         obr.obr4_UniversalServiceIdentifier.ce1_Identifier.value=msgDto.obr.obrServiceIdentifier
         obr.obr4_UniversalServiceIdentifier.ce2_Text.value=msgDto.obr.obrServiceName
-//        obr.requestedDateTime.degreeOfPrecision.value=msgDto.obr.obrRequestDate?.toString("yyyyMMddHHmm")
-//        obr.observationEndDateTime.degreeOfPrecision.value = msgDto.obr.obrObservationDate?.toString("yyyyMMddHHmm")
+        obr.requestedDateTime.degreeOfPrecision.value=msgDto.obr.obrRequestDate
+        obr.observationEndDateTime.degreeOfPrecision.value = msgDto.obr.obrObservationDate
         var priority:String?
         if(msgDto.obr.obrPriority == true){
             priority  = "STAT"

@@ -19,7 +19,8 @@ class Msh(
         var messageCode: String?="",
         var messageTriggerEvent:String?="",
         var hospitalName:String?="",
-        var sendingFacility: String?=""
+        var sendingFacility: String?="",
+        var messageControlId:String?=null
 )
 class Pid(
         var pidLastName:String?="",
