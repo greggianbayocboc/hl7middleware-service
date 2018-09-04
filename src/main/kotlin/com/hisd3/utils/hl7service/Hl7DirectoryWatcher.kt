@@ -27,12 +27,12 @@ class Hl7DirectoryWatcher {
 
        var ntlmPasswordAuthentication = NtlmPasswordAuthentication("127.0.0.1","Administrator", "ZEAlot007!")
 
-       val path = "smb://127.0.0.1/Shared"
+       val path = "smb://127.0.0.1/Shared/Inbox"
 
        val sFile = SmbFile(path, ntlmPasswordAuthentication)
        val paths =sFile.uncPath
        System.out.println(paths)
-//       val myDir = Paths.get("c:/Shared")
+//     val myDir = Paths.get("c:/Shared")
        val myDir = Paths.get(paths)
         System.out.println(myDir)
        try {

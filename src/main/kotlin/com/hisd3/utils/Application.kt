@@ -31,9 +31,15 @@ class Application {
         fun main(args: Array<String>) {
 
             val options = Options()
-            options.addOption("t", false, "display current time")
-            options.addOption("c", true, "country code")
-            options.addOption("listen_dir", true, "remote directory path")
+
+            options.addOption("hisd3host", true, "HIS Host/Machine")
+            options.addOption("hisPort", false, "HIS Port")
+            options.addOption("ris", true, "RIS Host/Machine")
+            options.addOption("risPort", false, "RIS Port")
+            options.addOption("lis", true, "LIS Host/Machine")
+            options.addOption("dir", false, "Directory")
+            options.addOption("user", true, "username")
+            options.addOption("password", true, "password")
             options.addOption("start", false, "start hl7 rest service")
 
             val formatter = HelpFormatter()
@@ -43,7 +49,9 @@ class Application {
             val cmd = parser.parse(options, args)
 
             val countryCode = cmd.getOptionValue("c")
-
+            val hisd3Host = cmd.getOptionValue("hisd3Host")
+            val risHost = cmd.getOptionValue("risHost")
+            val lisHost = cmd.getOptionValue("lisHost")
             if (countryCode == null) {
                 // print default date
 
@@ -80,7 +88,6 @@ class Application {
                         throw IllegalArgumentException(e.message)
                     }
                 }
-
             }
             Hl7DirectoryWatcher().startDirWatching()
         }

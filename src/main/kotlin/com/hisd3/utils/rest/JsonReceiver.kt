@@ -118,7 +118,7 @@ class JsonReceiver {
         if (msgDto.recievingFacility.tcp == true) {
 
             try {
-                var connection = context.newClient("127.0.0.1", 22223, useTls)
+                var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
                 var initiator = connection.initiator
                 var response = initiator.sendAndReceive(orm)
 
@@ -137,8 +137,8 @@ class JsonReceiver {
             try {
                 /** writting files to shared folder in a network wiht credentials**/
                 val ntlmPasswordAuthentication = NtlmPasswordAuthentication(msgDto.recievingFacility.ipAddress, msgDto.facilityCredentials.userLogin, msgDto.facilityCredentials.passLogin)
-                val user = msgDto.facilityCredentials.userLogin+":"+msgDto.facilityCredentials.passLogin
-                val auth = NtlmPasswordAuthentication(user)
+//                val user = msgDto.facilityCredentials.userLogin+":"+msgDto.facilityCredentials.passLogin
+//                val auth = NtlmPasswordAuthentication(user)
 
                 val smbUrl = "smb://"+msgDto.recievingFacility.ipAddress+"/"+msgDto.recievingFacility.smbUrl+"/New"
                 val directory = SmbFile(smbUrl,ntlmPasswordAuthentication)
@@ -152,15 +152,15 @@ class JsonReceiver {
                     e.printStackTrace()
                 }
 
-                val path = "smb://"+msgDto.recievingFacility.ipAddress+"/"+msgDto.recievingFacility.smbUrl+"/New"+msgDto.pv1.pv1VisitNumer+".hl7"
+                val path = "smb://"+msgDto.recievingFacility.ipAddress+"/"+msgDto.recievingFacility.smbUrl+"/Outbox"+msgDto.msh.messageControlId+".hl7"
                 val sFile = SmbFile(path, ntlmPasswordAuthentication)
                 var sfos =  SmbFileOutputStream(sFile)
                 sfos.write(encodedMessage.toByteArray())
                 sfos.close()
 
                 /*** writting files in local shared folder***/
-                var file = Paths.get("//localhost/Shared/Outbox/"+msgDto.pv1.pv1VisitNumer+".hl7")
-                Files.write(file,encodedMessage.toByteArray())
+//                var file = Paths.get("//localhost/Shared/Outbox/"+msgDto.msh.messageControlId+".hl7")
+//                Files.write(file,encodedMessage.toByteArray())
 
                 return gson.toJson("ok")
 
