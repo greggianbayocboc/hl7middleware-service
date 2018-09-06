@@ -23,7 +23,7 @@ import java.nio.file.Paths
 
 class JsonReceiver {
 
-    fun createOrmMsg(data: String): String? {
+    fun createOrmMsg(data: String, risHost: String?, risPort:String?,smbUrl:String?,smbUser:String?,smbPass:String?,smbHost:String?): String? {
         var gson = Gson()
 
             val msgDto = gson.fromJson(data, Hl7OrmDto::class.java)
@@ -38,7 +38,8 @@ class JsonReceiver {
            // orm.initQuickstart(msgDto.msh.messageCode, msgDto.msh.messageTriggerEvent, "D")
             var parser = context.getPipeParser()
             parser.getParserConfiguration().setIdGenerator(InMemoryIDGenerator())
-//            val adt = p.parse(msg)
+
+//          val adt = p.parse(msg)
 
 
         // Populate the MSH Segment
@@ -115,10 +116,19 @@ class JsonReceiver {
 //                throw IllegalArgumentException(e.message)
 //                throw HL7Exception(e)
 //            }
+        val hostPc = if(risHost!=null) risHost else msgDto.recievingFacility.ipAddress
+        val hostPort = if(risPort!=null) risPort else msgDto.recievingFacility.port
+        val smbhostPc = if(smbHost !=null)smbHost else  msgDto.recievingFacility.ipAddress
+        val username = if(smbUser!=null)smbUser else msgDto.facilityCredentials.userLogin
+        val password = if(smbPass!=null) smbPass else msgDto.facilityCredentials.passLogin
+        val smbHostUrl :String? = if (smbUrl !=null) smbUrl else msgDto.recievingFacility.smbUrl
+
         if (msgDto.recievingFacility.tcp == true) {
 
             try {
-                var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
+
+//                var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
+                var connection = context.newClient(hostPc, hostPort!!.toInt(), useTls)
                 var initiator = connection.initiator
                 var response = initiator.sendAndReceive(orm)
 
@@ -134,14 +144,16 @@ class JsonReceiver {
         }
         else{
 
+
             try {
                 /** writting files to shared folder in a network wiht credentials**/
-                val ntlmPasswordAuthentication = NtlmPasswordAuthentication(msgDto.recievingFacility.ipAddress, msgDto.facilityCredentials.userLogin, msgDto.facilityCredentials.passLogin)
+
+                val ntlmPasswordAuthentication = NtlmPasswordAuthentication(smbhostPc,username, password)
 //                val user = msgDto.facilityCredentials.userLogin+":"+msgDto.facilityCredentials.passLogin
 //                val auth = NtlmPasswordAuthentication(user)
 
-                val smbUrl = "smb://"+msgDto.recievingFacility.ipAddress+"/"+msgDto.recievingFacility.smbUrl+"/New"
-                val directory = SmbFile(smbUrl,ntlmPasswordAuthentication)
+                val shared = smbHostUrl+"/Order"
+                val directory = SmbFile(shared,ntlmPasswordAuthentication)
 
                 try{
                     if (! directory.exists()) {
@@ -152,7 +164,7 @@ class JsonReceiver {
                     e.printStackTrace()
                 }
 
-                val path = "smb://"+msgDto.recievingFacility.ipAddress+"/"+msgDto.recievingFacility.smbUrl+"/Outbox"+msgDto.msh.messageControlId+".hl7"
+                val path = smbHostUrl+"/Order"+msgDto.msh.messageControlId+".hl7"
                 val sFile = SmbFile(path, ntlmPasswordAuthentication)
                 var sfos =  SmbFileOutputStream(sFile)
                 sfos.write(encodedMessage.toByteArray())

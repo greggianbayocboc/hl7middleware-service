@@ -13,7 +13,7 @@ class   HL7ServiceListener {
 //    internal var labResultItemRepository: LabResultItemRepository? = null
 
 
-    public fun startLisenter() {
+    fun startLisenter() {
 
         var port = 22222 // The port to listen on
         val useTls = false // Should we use TLS/SSL?

@@ -20,15 +20,19 @@ class Hl7DirectoryWatcher {
 //    @Inject
 //    internal var hl7configrepository: Hl7ConfigRepository?=null
 
-    fun startDirWatching() {
+    fun startDirWatching( smbHost:String?,smbUser:String?,smbPass:String?,smburl:String?) {
+
        System.out.println("Start HL7 Directory Watcher")
 
        //var globalHl7Config = hl7configrepository?.findGlobalConfigEnabled()?.firstOrNull()
 
-       var ntlmPasswordAuthentication = NtlmPasswordAuthentication("127.0.0.1","Administrator", "ZEAlot007!")
+//       var ntlmPasswordAuthentication:NtlmPasswordAuthentication;
 
-       val path = "smb://127.0.0.1/Shared/Inbox"
 
+       var ntlmPasswordAuthentication = NtlmPasswordAuthentication(smbHost,smbUser, smbPass)
+
+//       val path = "smb://127.0.0.1/Shared/Inbox"
+       val path = smburl+"/Report"
        val sFile = SmbFile(path, ntlmPasswordAuthentication)
        val paths =sFile.uncPath
        System.out.println(paths)

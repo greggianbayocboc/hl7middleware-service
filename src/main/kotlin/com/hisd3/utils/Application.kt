@@ -33,13 +33,14 @@ class Application {
             val options = Options()
 
             options.addOption("hisd3host", true, "HIS Host/Machine")
-            options.addOption("hisPort", false, "HIS Port")
+            options.addOption("hisd3Port", true, "HIS Port")
             options.addOption("ris", true, "RIS Host/Machine")
-            options.addOption("risPort", false, "RIS Port")
-            options.addOption("lis", true, "LIS Host/Machine")
-            options.addOption("dir", false, "Directory")
-            options.addOption("user", true, "username")
-            options.addOption("password", true, "password")
+            options.addOption("risPort", true, "RIS Port")
+            options.addOption("smbHost", true, "SMB Host/Machine")
+            options.addOption("smburl", true, "SMB smburl")
+            options.addOption("smbDir", true, "Directory")
+            options.addOption("user", true, "smb username")
+            options.addOption("password", true, "smb password")
             options.addOption("start", false, "start hl7 rest service")
 
             val formatter = HelpFormatter()
@@ -49,9 +50,18 @@ class Application {
             val cmd = parser.parse(options, args)
 
             val countryCode = cmd.getOptionValue("c")
-            val hisd3Host = cmd.getOptionValue("hisd3Host")
-            val risHost = cmd.getOptionValue("risHost")
-            val lisHost = cmd.getOptionValue("lisHost")
+
+//            val hisd3Host = cmd.getOptionValue("hisd3Host")
+//            val hisd3Port = cmd.getOptionValue("hisd3Port")
+
+            val risHost = cmd.getOptionValue("rishost")?:null
+            val risPort = cmd.getOptionValue("risport")?:null
+
+            val smbHost = cmd.getOptionValue("smbhost")?:null
+            val smbUrl = cmd.getOptionValue("smburl")?:null
+            val smbUser = cmd.getOptionValue("user")?:null
+            val smbPass = cmd.getOptionValue("password")?:null
+
             if (countryCode == null) {
                 // print default date
 
@@ -72,7 +82,10 @@ class Application {
             HL7ServiceListener().startLisenter()
 
             get("/ping") { req, res -> "OK" }
+            get("/showvars") { req, res ->
 
+                println("ris =" + risHost + "\nrisport =" + risPort + "\nsmbhost =" + smbHost + "\nsmburl =" + smbUrl + "\n")
+            }
             path("/hl7middleware")
             {
                 get("/testsend") { req, res ->
@@ -83,13 +96,13 @@ class Application {
 
                     var data = req.body()
                     try {
-                        JsonReceiver().createOrmMsg(data)
+                        JsonReceiver().createOrmMsg(data,risHost,risPort,smbUrl,smbUser,smbPass,smbHost)
                     } catch (e: IOException) {
                         throw IllegalArgumentException(e.message)
                     }
                 }
             }
-            Hl7DirectoryWatcher().startDirWatching()
+            Hl7DirectoryWatcher().startDirWatching(smbHost,smbUser,smbPass,smbUrl)
         }
     }
 }

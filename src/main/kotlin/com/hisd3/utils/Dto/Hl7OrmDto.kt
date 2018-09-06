@@ -66,11 +66,11 @@ class Obr(
 
 class ReceivingFacility(
         var tcp: Boolean?=false,
-        var ipAddress:String?="",
-        var port:String?="",
-        var smbUrl:String?=""
+        var ipAddress:String?=null,
+        var port:String?=null,
+        var smbUrl:String?=null
 )
 class FacilityCredentials(
-        var userLogin:String?="",
-        var passLogin:String?=""
+        var userLogin:String?=null,
+        var passLogin:String?=null
 )
