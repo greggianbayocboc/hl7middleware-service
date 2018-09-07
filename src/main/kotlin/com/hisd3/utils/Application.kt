@@ -54,13 +54,13 @@ class Application {
 //            val hisd3Host = cmd.getOptionValue("hisd3Host")
 //            val hisd3Port = cmd.getOptionValue("hisd3Port")
 
-            val risHost = cmd.getOptionValue("rishost")?:null
-            val risPort = cmd.getOptionValue("risport")?:null
+            val risHost = cmd.getOptionValue("rishost")?:"127.0.0.1"
+            val risPort = cmd.getOptionValue("risport")?:"22223"
 
-            val smbHost = cmd.getOptionValue("smbhost")?:null
-            val smbUrl = cmd.getOptionValue("smburl")?:null
-            val smbUser = cmd.getOptionValue("user")?:null
-            val smbPass = cmd.getOptionValue("password")?:null
+            val smbHost = cmd.getOptionValue("smbhost")?:"172.0.0.1"
+            val smbUrl = cmd.getOptionValue("smburl")?:"smb://172.0.0.1/shared"
+            val smbUser = cmd.getOptionValue("user")?:"user"
+            val smbPass = cmd.getOptionValue("password")?:"password"
 
             if (countryCode == null) {
                 // print default date

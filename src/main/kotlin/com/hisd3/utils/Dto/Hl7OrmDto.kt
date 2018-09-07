@@ -20,7 +20,7 @@ class Msh(
         var messageTriggerEvent:String?="",
         var hospitalName:String?="",
         var sendingFacility: String?="",
-        var messageControlId:String?=null
+        var messageControlId:String?=""
 )
 class Pid(
         var pidLastName:String?="",
@@ -44,7 +44,9 @@ class Pv1(
         var pv1RequestingDrId:String?="",
         var pv1RequestingDrFname:String?="",
         var pv1RequestingDrLname:String?="",
-        var pv1RequestingDrMname:String?=""
+        var pv1RequestingDrMname:String?="",
+        var bed:String?="",
+        var pv1Room:String?=""
 )
 class Orc(
         var orcOrderControl:String?="",
@@ -59,18 +61,18 @@ class Obr(
         var obrFileOrderNumber:String?="",
         var obrServiceIdentifier:String?="",
         var obrServiceName:String?="",
-        var obrPriority:Boolean?=null,
+        var obrPriority:Boolean?=false,
         var obrRequestDate:String?="",
         var obrObservationDate:String?=""
 )
 
 class ReceivingFacility(
         var tcp: Boolean?=false,
-        var ipAddress:String?=null,
-        var port:String?=null,
-        var smbUrl:String?=null
+        var ipAddress:String?="",
+        var port:String?="",
+        var smbUrl:String?=""
 )
 class FacilityCredentials(
-        var userLogin:String?=null,
-        var passLogin:String?=null
+        var userLogin:String?="",
+        var passLogin:String?=""
 )

@@ -12,7 +12,6 @@ import com.hisd3.utils.Dto.Hl7OrmDto
 import jcifs.smb.NtlmPasswordAuthentication
 import jcifs.smb.SmbFile
 import jcifs.smb.SmbFileOutputStream
-import org.joda.time.DateTime
 import org.json.JSONObject
 import org.omg.CORBA.Object
 import spark.Spark
@@ -20,6 +19,14 @@ import spark.Spark.post
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import org.eclipse.jetty.util.component.LifeCycle.start
+import jdk.nashorn.internal.objects.NativeDate.getTime
+import org.joda.time.DateTime
+import java.time.LocalDate
+import java.time.LocalTime
+
 
 class JsonReceiver {
 
@@ -45,16 +52,20 @@ class JsonReceiver {
         // Populate the MSH Segment
         var msh = orm.getMSH()
         msh.messageControlID.value = msgDto.msh.messageControlId
-        msh.getSendingApplication().getNamespaceID().value = msgDto.msh.hospitalName
-        msh.getSendingFacility().getNamespaceID().setValue(msgDto.msh.sendingFacility)
-        msh.dateTimeOfMessage.time.value= DateTime.now().toString()
+        msh.getSendingApplication().getNamespaceID().value = "HISD3"
+        msh.getSendingFacility().getNamespaceID().setValue(msgDto.msh.hospitalName)
+
+        val current = LocalDateTime.now()
+        val formatter = DateTimeFormatter.BASIC_ISO_DATE
+        val formatted = current.format(formatter)
+        msh.dateTimeOfMessage.time.value=formatted
 
         // Populate the PID Segment
         var pid = orm.getPATIENT().getPID()
         pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pid?.pidLastName
         pid.getPatientName(0).getGivenName().value =msgDto?.pid?.pidFirstName
         pid.getPatientName(0).getSuffixEgJRorIII().setValue(msgDto?.pid?.pidExtName?:"")
-        pid.dateTimeOfBirth.degreeOfPrecision.value = msgDto.pid?.pidDob
+        pid.dateTimeOfBirth.time.value = msgDto.pid?.pidDob
         pid.getPatientAddress(0).getCity().setValue(msgDto.pid.pidCity)
         pid.getPatientAddress(0).getCountry().setValue(msgDto.pid.pidCountry)
         pid.getPatientAddress(0).streetAddress.streetName.value =msgDto.pid.pidAddress
@@ -69,7 +80,8 @@ class JsonReceiver {
         var pv1 = orm.getPATIENT().getPATIENT_VISIT().getPV1()
         pv1.getPatientClass().setValue(msgDto.pv1.pv1PatientClass)
         pv1.visitNumber.idNumber.value =msgDto.pv1.pv1VisitNumer
-
+        pv1.patientType.value=msgDto.pv1.pv1PatientClass
+        pv1.assignedPatientLocation.bed.value=msgDto.pv1.bed
         pv1.getAttendingDoctor(0).givenName.value=msgDto.pv1.pv1RequestingDrFname
         pv1.getAttendingDoctor(0).familyName.surname.value=msgDto.pv1.pv1RequestingDrLname
         pv1.getAttendingDoctor(0).idNumber.value=msgDto.pv1.pv1RequestingDrId
@@ -77,17 +89,20 @@ class JsonReceiver {
         var orc = orm.getORDER(0).getORC()
         orc.orc1_OrderControl.value="NW"
         orc.placerOrderNumber.universalID.value =msgDto.orc.orcPlacerOrderNumber
-
+        orc.orderStatus.value="SC"
+        orc.getEnteredBy(0).idNumber.value=msgDto.pv1.pv1RequestingDrId
+        orc.getEnteredBy(0).familyName.surname.value =msgDto.pv1.pv1RequestingDrMname
+        orc.enteringOrganization.identifier.value= msgDto.msh.hospitalName
 
         // Populate the OBR Segment
         var obr = orm.getORDER(0).getORDER_DETAIL().getOBR()
 
         obr.placerOrderNumber.universalID.value  = msgDto.obr.obrFileOrderNumber
         obr.getFillerOrderNumber().universalIDType.value =  msgDto.obr.obrFileOrderNumber
-        obr.obr4_UniversalServiceIdentifier.ce1_Identifier.value=msgDto.obr.obrServiceIdentifier
-        obr.obr4_UniversalServiceIdentifier.ce2_Text.value=msgDto.obr.obrServiceName
-        obr.requestedDateTime.degreeOfPrecision.value=msgDto.obr.obrRequestDate
-        obr.observationEndDateTime.degreeOfPrecision.value = msgDto.obr.obrObservationDate
+        obr.universalServiceIdentifier.identifier.value = msgDto.obr.obrServiceIdentifier
+        obr.universalServiceIdentifier.text.value = msgDto.obr.obrServiceName
+        obr.requestedDateTime.time.value =msgDto.obr.obrRequestDate
+        obr.observationDateTime.time.value  = msgDto.obr.obrObservationDate
         var priority:String?
         if(msgDto.obr.obrPriority == true){
             priority  = "STAT"
@@ -116,19 +131,14 @@ class JsonReceiver {
 //                throw IllegalArgumentException(e.message)
 //                throw HL7Exception(e)
 //            }
-        val hostPc = if(risHost!=null) risHost else msgDto.recievingFacility.ipAddress
-        val hostPort = if(risPort!=null) risPort else msgDto.recievingFacility.port
-        val smbhostPc = if(smbHost !=null)smbHost else  msgDto.recievingFacility.ipAddress
-        val username = if(smbUser!=null)smbUser else msgDto.facilityCredentials.userLogin
-        val password = if(smbPass!=null) smbPass else msgDto.facilityCredentials.passLogin
-        val smbHostUrl :String? = if (smbUrl !=null) smbUrl else msgDto.recievingFacility.smbUrl
+
 
         if (msgDto.recievingFacility.tcp == true) {
 
             try {
 
 //                var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
-                var connection = context.newClient(hostPc, hostPort!!.toInt(), useTls)
+                var connection = context.newClient(risHost, risPort!!.toInt(), useTls)
                 var initiator = connection.initiator
                 var response = initiator.sendAndReceive(orm)
 
@@ -148,11 +158,11 @@ class JsonReceiver {
             try {
                 /** writting files to shared folder in a network wiht credentials**/
 
-                val ntlmPasswordAuthentication = NtlmPasswordAuthentication(smbhostPc,username, password)
+                val ntlmPasswordAuthentication = NtlmPasswordAuthentication(smbHost,smbUser, smbPass)
 //                val user = msgDto.facilityCredentials.userLogin+":"+msgDto.facilityCredentials.passLogin
 //                val auth = NtlmPasswordAuthentication(user)
 
-                val shared = smbHostUrl+"/Order"
+                val shared = smbUrl+"/Order"
                 val directory = SmbFile(shared,ntlmPasswordAuthentication)
 
                 try{
@@ -164,7 +174,7 @@ class JsonReceiver {
                     e.printStackTrace()
                 }
 
-                val path = smbHostUrl+"/Order"+msgDto.msh.messageControlId+".hl7"
+                val path = smbUrl+"/Order"+msgDto.msh.messageControlId+".hl7"
                 val sFile = SmbFile(path, ntlmPasswordAuthentication)
                 var sfos =  SmbFileOutputStream(sFile)
                 sfos.write(encodedMessage.toByteArray())
