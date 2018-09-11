@@ -64,7 +64,7 @@ class JsonReceiver {
         pid.getPatientAddress(0).stateOrProvince.value=msgDto?.pidProvince
         pid.getPatientAddress(0).zipOrPostalCode.value=msgDto?.pidZip
         pid.patientID.idNumber.value = msgDto?.pidPatientNo
-
+        pid.getPatientIdentifierList(0).idNumber.value=msgDto?.pidPatientNo
         pid.administrativeSex.value =msgDto?.pidGender
 
 
@@ -85,7 +85,8 @@ class JsonReceiver {
         orc.getEnteredBy(0).idNumber.value=msgDto.pv1RequestingDrId
         orc.getEnteredBy(0).familyName.surname.value =msgDto.pv1RequestingDrMname
         orc.enteringOrganization.identifier.value= msgDto.hospitalName
-
+        orc.placerOrderNumber.entityIdentifier.value = msgDto?.obrFileOrderNumber
+        orc.fillerOrderNumber.entityIdentifier.value = msgDto?.obrFileOrderNumber
         // Populate the OBR Segment
         var obr = orm.getORDER(0).getORDER_DETAIL().getOBR()
 
@@ -104,6 +105,7 @@ class JsonReceiver {
         }
         obr.priorityOBR.value = priority
         obr.getOrderingProvider(0).idNumber
+        obr.scheduledDateTime.time.value=msgDto.obrRequestDate
 
         /*
          * In other situation, more segments and fields would be populated
@@ -174,7 +176,7 @@ class JsonReceiver {
         pid.getPatientAddress(0).stateOrProvince.value=msgDto?.pidProvince
         pid.getPatientAddress(0).zipOrPostalCode.value=msgDto?.pidZip
         pid.patientID.idNumber.value = msgDto?.pidPatientNo
-
+        pid.getPatientIdentifierList(0).idNumber.value=msgDto?.pidPatientNo
         pid.administrativeSex.value =msgDto?.pidGender
 
         // Populate the PV1 Segment
