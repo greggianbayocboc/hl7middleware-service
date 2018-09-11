@@ -2,7 +2,10 @@ package com.hisd3.utils
 
 import ca.uhn.hl7v2.HL7Exception
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.hisd3.utils.Crud.UserDao
+import com.hisd3.utils.Dto.Hl7OrmDto
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
 import com.hisd3.utils.hl7service.Hl7DirectoryWatcher
@@ -14,6 +17,7 @@ import org.apache.commons.cli.Options
 import org.apache.commons.cli.ParseException
 import org.eclipse.jetty.websocket.api.StatusCode
 import spark.Request
+import spark.Response
 import spark.Spark.*
 import java.io.IOException
 
@@ -49,60 +53,60 @@ class Application {
             val parser = DefaultParser()
             val cmd = parser.parse(options, args)
 
-            val countryCode = cmd.getOptionValue("c")
+            val risHost = cmd.getOptionValue("rishost") ?: "127.0.0.1"
+            val risPort = cmd.getOptionValue("risport") ?: "22223"
 
-//            val hisd3Host = cmd.getOptionValue("hisd3Host")
-//            val hisd3Port = cmd.getOptionValue("hisd3Port")
+            val smbHost = cmd.getOptionValue("smbhost") ?: "172.0.0.1"
+            val smbUrl = cmd.getOptionValue("smburl") ?: "smb://172.0.0.1/shared"
+            val smbUser = cmd.getOptionValue("user") ?: "user"
+            val smbPass = cmd.getOptionValue("password") ?: "password"
+            val msgReceiver = JsonReceiver()
+            val serviceListen = HL7ServiceListener()
+            val watcher = Hl7DirectoryWatcher()
 
-            val risHost = cmd.getOptionValue("rishost")?:"127.0.0.1"
-            val risPort = cmd.getOptionValue("risport")?:"22223"
 
-            val smbHost = cmd.getOptionValue("smbhost")?:"172.0.0.1"
-            val smbUrl = cmd.getOptionValue("smburl")?:"smb://172.0.0.1/shared"
-            val smbUser = cmd.getOptionValue("user")?:"user"
-            val smbPass = cmd.getOptionValue("password")?:"password"
+            if (cmd.hasOption("start")) {
 
-            if (countryCode == null) {
-                // print default date
+                serviceListen.startLisenter()
+                watcher.startDirWatching(smbHost, smbUser, smbPass, smbUrl)
 
-            } else {
-                // print date for country specified by countryCode
-                println("Country Code Specified")
-            }
+                path( "/tests"){
 
-            if (cmd.hasOption("t")) {
-                // print the date and time
-                println("Has T Specified")
-            } else {
-                // print the date
-            }
+                    get("/showvars") { req, res ->
+                        "ris =" + risHost + "\nrisport =" + risPort + "\nsmbhost =" + smbHost + "\nsmburl =" + smbUrl + "\n"
+                    }
+                    get("/ping") { req, res -> "OK" }
 
-            if (cmd.hasOption("start"))
-
-            HL7ServiceListener().startLisenter()
-
-            get("/ping") { req, res -> "OK" }
-            get("/showvars") { req, res ->
-
-                println("ris =" + risHost + "\nrisport =" + risPort + "\nsmbhost =" + smbHost + "\nsmburl =" + smbUrl + "\n")
-            }
-            path("/hl7middleware")
-            {
-                get("/testsend") { req, res ->
-                    HL7Test().transmit()
-                }
-
-                post("/jsonmsg") { req, res ->
-
-                    var data = req.body()
-                    try {
-                        JsonReceiver().createOrmMsg(data,risHost,risPort,smbUrl,smbUser,smbPass,smbHost)
-                    } catch (e: IOException) {
-                        throw IllegalArgumentException(e.message)
+                    get("/testsend") { req, res ->
+                        HL7Test().transmit()
                     }
                 }
+                path("/") {
+
+                    before("jsonmsg"){req,res ->
+
+                        if(!req.body()?.isNullOrEmpty()!!) {
+
+                                var data = req.body()
+                           // println("data=" + data)
+                                var gson = Gson()
+                                if (!data.isEmpty()) {
+                                   val msgDto :Hl7OrmDto  = gson.fromJson(data, Hl7OrmDto::class.java)
+
+                                   when (msgDto.messageCode){
+                                       "ADT_A04" ->{msgReceiver.createAdtMsg(msgDto, risHost, risPort, smbUrl, smbUser, smbPass, smbHost)}
+
+                                       "ORM_O01" ->{msgReceiver.createOrmMsg(msgDto, risHost, risPort, smbUrl, smbUser, smbPass, smbHost)}
+                                   }
+
+                                }
+
+                        }
+                    }
+
+                }
             }
-            Hl7DirectoryWatcher().startDirWatching(smbHost,smbUser,smbPass,smbUrl)
+
         }
     }
 }

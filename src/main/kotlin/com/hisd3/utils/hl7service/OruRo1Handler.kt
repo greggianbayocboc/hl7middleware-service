@@ -95,7 +95,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
         val p = context.getGenericParser()
 
-
+        var str = theMessage.toString()
         var xmlparser = context.getXMLParser()
         var encodedMessage = xmlparser.encode(theMessage)
 
@@ -130,7 +130,8 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val httpclient = HttpClientBuilder.create().build()
         val params =  Msgformat()
 
-        params.msgXML=encodedMessage
+        //params.msgXML=encodedMessage
+        params.msgXML=str
         params.senderIp= sender.toString()
         params.orderslipId=messageControlId
         params.pId=pId

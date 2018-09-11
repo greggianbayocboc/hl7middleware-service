@@ -38,7 +38,6 @@ class Hl7DirectoryWatcher {
        System.out.println(paths)
 //     val myDir = Paths.get("c:/Shared")
        val myDir = Paths.get(paths)
-        System.out.println(myDir)
        try {
            val watcher = FileSystems.getDefault().newWatchService()
            var key = myDir.register(watcher,
