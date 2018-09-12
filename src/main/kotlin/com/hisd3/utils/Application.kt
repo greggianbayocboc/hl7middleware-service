@@ -100,8 +100,12 @@ class Application {
                                    }
 
                                 }
-
+                            res.status(200)
+                        }else{
+                            halt(401,"req.body is empty")
                         }
+
+
                     }
 
                 }

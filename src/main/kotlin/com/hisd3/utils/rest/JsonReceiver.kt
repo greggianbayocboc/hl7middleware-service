@@ -212,14 +212,13 @@ class JsonReceiver {
         val useTls = false // Should we use TLS/SSL?
 
             try {
-
 //              var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
                 var connection = context.newClient(risHost, risPort!!.toInt(), useTls)
                 var initiator = connection.initiator
                 var response = initiator.sendAndReceive(rawmsg)
 
                 connection.close()
-                return gson.toJson(response)
+                return gson.toJson("ok")
 
             } catch (e: IOException) {
                 throw IllegalArgumentException(e.message)
@@ -258,8 +257,6 @@ class JsonReceiver {
             /*** writting files in local shared folder***/
 //                var file = Paths.get("//localhost/Shared/Outbox/"+msgDto.msh.messageControlId+".hl7")
 //                Files.write(file,encodedMessage.toByteArray())
-
-
 
         }catch(e: IOException) {
             throw IllegalArgumentException(e.message)
