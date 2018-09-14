@@ -35,6 +35,7 @@ class Msgformat{
      var orderslipId:String?=""
      var pId:String?=""
      var jsonList:String? = null
+    var casenum:String?=null
 }
 
 class LabResultItemDTO {
@@ -105,16 +106,17 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val msh= getMSH(msg)
         val pid = getPID(msg)
         val pv1 = getPV1(msg)
-
+        val obr= getOBR(msg)
         //Getting the orderslip number located in the visit number
 
         var visitNumber = pv1.visitNumber.idNumber.value
-        var pId = pid.patientID.idNumber.value
+        var pId = pid.getPatientIdentifierList(0).idNumber.value
+        val casenum = pv1.visitNumber.idNumber.value
         //var patientId = pid.pid2_PatientIDExternalID.id.value.toString()?:""
 
         var orc = getORC(msg)
         val messageControlId = msh.messageControlID.value
-
+        val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
         var sender = theMetadata.get("SENDING_IP")
 
@@ -133,7 +135,8 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         //params.msgXML=encodedMessage
         params.msgXML=str
         params.senderIp= sender.toString()
-        params.orderslipId=messageControlId
+        params.orderslipId=accession
+        params.casenum = casenum
         params.pId=pId
         params.jsonList = MsgParse().msgToJson(theMessage)
 
@@ -186,6 +189,9 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
     private  fun getOBX(oru : ORU_R01): OBX{
         return oru.patienT_RESULT.ordeR_OBSERVATION.observation.obx
+    }
+    private  fun getOBR(oru : ORU_R01): OBR{
+        return oru.patienT_RESULT.ordeR_OBSERVATION.obr
     }
 
 }

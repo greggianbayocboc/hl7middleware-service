@@ -83,29 +83,37 @@ class Application {
                 }
                 path("/") {
 
-                    before("jsonmsg"){req,res ->
+                    post("jsonmsg"){req,res ->
 
                         if(!req.body()?.isNullOrEmpty()!!) {
 
                                 var data = req.body()
                            // println("data=" + data)
                                 var gson = Gson()
-                                if (!data.isEmpty()) {
+
                                    val msgDto :Hl7OrmDto  = gson.fromJson(data, Hl7OrmDto::class.java)
 
-                                   when (msgDto.messageCode){
-                                       "ADT_A04" ->{msgReceiver.createAdtMsg(msgDto, risHost, risPort, smbUrl, smbUser, smbPass, smbHost)}
+                            try {
+                                when (msgDto.messageCode) {
+                                    "ADT_A04" -> {
+                                        msgReceiver.createAdtMsg(msgDto, risHost, risPort, smbUrl, smbUser, smbPass, smbHost)
+                                    }
 
-                                       "ORM_O01" ->{msgReceiver.createOrmMsg(msgDto, risHost, risPort, smbUrl, smbUser, smbPass, smbHost)}
-                                   }
-
+                                    "ORM_O01" -> {
+                                        msgReceiver.createOrmMsg(msgDto, risHost, risPort, smbUrl, smbUser, smbPass, smbHost)
+                                    }
                                 }
-                            res.status(200)
+                            }catch (e:Exception){
+                                res.status(500)
+
+                                return@post Unit
+
+                            }
                         }else{
                             halt(401,"req.body is empty")
                         }
-
-
+                        res.status(200)
+                        "ok"
                     }
 
                 }

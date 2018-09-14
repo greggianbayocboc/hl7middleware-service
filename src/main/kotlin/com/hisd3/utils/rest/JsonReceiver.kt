@@ -9,9 +9,11 @@ import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.idgenerator.InMemoryIDGenerator
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.Hl7OrmDto
+import com.hisd3.utils.customtypes.IntegratedFacilities
 import jcifs.smb.NtlmPasswordAuthentication
 import jcifs.smb.SmbFile
 import jcifs.smb.SmbFileOutputStream
+import spark.Response
 import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -21,7 +23,7 @@ import java.time.format.DateTimeFormatter
 class JsonReceiver {
 
 
-    fun createOrmMsg(msgDto: Hl7OrmDto, risHost: String?, risPort:String?,smbUrl:String?,smbUser:String?,smbPass:String?,smbHost:String?) {
+    fun createOrmMsg(msgDto: Hl7OrmDto, risHost: String?, risPort:String?,smbUrl:String?,smbUser:String?,smbPass:String?,smbHost:String?):String? {
         var gson = Gson()
 //
 //            val msgDto = gson.fromJson(data, Hl7OrmDto::class.java)
@@ -65,6 +67,7 @@ class JsonReceiver {
         pid.getPatientAddress(0).zipOrPostalCode.value=msgDto?.pidZip
         pid.patientID.idNumber.value = msgDto?.pidPatientNo
         pid.getPatientIdentifierList(0).idNumber.value=msgDto?.pidPatientNo
+        pid.getPatientIdentifierList(0).checkDigit.value=""
         pid.administrativeSex.value =msgDto?.pidGender
 
 
@@ -129,17 +132,17 @@ class JsonReceiver {
 //            }
 
 
-            if (msgDto.tcp == true) {
-                httpSender(risHost,risPort,orm)
+            if (msgDto.integratedFacilities == IntegratedFacilities.RIS) {
+                return   httpSender(risHost,risPort,orm)
             }
 
             else {
-                dirWritter(msgDto, smbHost, smbUser, smbPass, smbUrl, encodedMessage)
+                return  dirWritter(msgDto, smbHost, smbUser, smbPass, smbUrl, encodedMessage)
             }
-           return
+
         }
 
-    fun createAdtMsg(msgDto: Hl7OrmDto, risHost: String?, risPort:String?,smbUrl:String?,smbUser:String?,smbPass:String?,smbHost:String?){
+    fun createAdtMsg(msgDto: Hl7OrmDto, risHost: String?, risPort:String?,smbUrl:String?,smbUser:String?,smbPass:String?,smbHost:String?):String? {
 
 
         var context = DefaultHapiContext()
@@ -172,11 +175,11 @@ class JsonReceiver {
         pid.dateTimeOfBirth.time.value = msgDto?.pidDob
         pid.getPatientAddress(0).getCity().setValue(msgDto.pidCity)
         pid.getPatientAddress(0).getCountry().setValue(msgDto.pidCountry)
-        pid.getPatientAddress(0).streetAddress.streetName.value =msgDto.pidAddress
         pid.getPatientAddress(0).stateOrProvince.value=msgDto?.pidProvince
         pid.getPatientAddress(0).zipOrPostalCode.value=msgDto?.pidZip
         pid.patientID.idNumber.value = msgDto?.pidPatientNo
         pid.getPatientIdentifierList(0).idNumber.value=msgDto?.pidPatientNo
+        pid.getPatientIdentifierList(0).checkDigit.value=""
         pid.administrativeSex.value =msgDto?.pidGender
 
         // Populate the PV1 Segment
@@ -192,17 +195,15 @@ class JsonReceiver {
         var  encodedMessage = parser.encode(adt)
         val useTls = false // Should we use TLS/SSL?
 
-        if (msgDto.tcp == true) {
-            httpSender(risHost,risPort,adt)
-        }
+        if (msgDto.integratedFacilities == IntegratedFacilities.RIS) return   httpSender(risHost,risPort,adt)
 
         else {
-            dirWritter(msgDto, smbHost, smbUser, smbPass, smbUrl, encodedMessage)
+            return    dirWritter(msgDto, smbHost, smbUser, smbPass, smbUrl, encodedMessage)
         }
-       return
+
     }
 
-    fun httpSender(risHost: String?,risPort: String?,rawmsg:Message):String? {
+    fun httpSender(risHost: String?,risPort: String?,rawmsg:Message): String? {
 
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")
@@ -210,25 +211,28 @@ class JsonReceiver {
 
         var gson = Gson()
         val useTls = false // Should we use TLS/SSL?
-
+        var connection = context.newClient(risHost, risPort!!.toInt(), useTls)
             try {
 //              var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
-                var connection = context.newClient(risHost, risPort!!.toInt(), useTls)
+
                 var initiator = connection.initiator
                 var response = initiator.sendAndReceive(rawmsg)
 
-                connection.close()
-                return gson.toJson("ok")
+               // connection.close()
+                return response.encode()
 
             } catch (e: IOException) {
-                throw IllegalArgumentException(e.message)
+               //throw IllegalArgumentException(e.message)
                 throw HL7Exception(e)
             }
+        finally {
+            connection.close()
+        }
          }
         }
 
 
-    fun dirWritter(msgDto: Hl7OrmDto,smbHost: String?,smbUser: String?,smbPass: String?,smbUrl: String?,encodedMessage: String):String?{
+    fun dirWritter(msgDto: Hl7OrmDto,smbHost: String?,smbUser: String?,smbPass: String?,smbUrl: String?,encodedMessage: String): String? {
 
         var gson = Gson()
         try {

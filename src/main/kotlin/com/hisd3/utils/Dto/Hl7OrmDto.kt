@@ -1,5 +1,6 @@
 package com.hisd3.utils.Dto
 
+import com.hisd3.utils.customtypes.IntegratedFacilities
 import javafx.scene.input.DataFormat
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -66,6 +67,7 @@ class Hl7OrmDto {
     var ipAddress:String?=null
     var port:Int?=null
     var smbUrl:String?=null
+    var integratedFacilities: IntegratedFacilities?=null
 
     var userLogin:String?=null
     var passLogin:String?=null
