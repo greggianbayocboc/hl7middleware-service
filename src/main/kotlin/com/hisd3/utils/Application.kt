@@ -19,6 +19,7 @@ import org.eclipse.jetty.websocket.api.StatusCode
 import spark.Request
 import spark.Response
 import spark.Spark.*
+import sun.plugin2.util.PojoUtil.toJson
 import java.io.IOException
 
 class Application {
@@ -82,7 +83,7 @@ class Application {
                     }
                 }
                 path("/") {
-
+                    post("hello") { req, res -> "Hello World" }
                     post("jsonmsg"){req,res ->
 
                         if(!req.body()?.isNullOrEmpty()!!) {
@@ -102,18 +103,23 @@ class Application {
                                     "ORM_O01" -> {
                                         msgReceiver.createOrmMsg(msgDto, risHost, risPort, smbUrl, smbUser, smbPass, smbHost)
                                     }
+                                    else ->"Sorry, Option not available yet"
                                 }
                             }catch (e:Exception){
-                                res.status(500)
+                               throw IllegalArgumentException(e)
+   //                             res.status(500)
+  //                              res.body(e.message)
 
+                                println(e.message)
                                 return@post Unit
 
                             }
                         }else{
                             halt(401,"req.body is empty")
                         }
-                        res.status(200)
-                        "ok"
+//                        res.body()
+//                        res.status(200)
+//                        "ok"
                     }
 
                 }

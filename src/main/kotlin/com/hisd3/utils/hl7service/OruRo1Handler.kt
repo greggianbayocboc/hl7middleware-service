@@ -35,7 +35,8 @@ class Msgformat{
      var orderslipId:String?=""
      var pId:String?=""
      var jsonList:String? = null
-    var casenum:String?=null
+     var casenum:String?=null
+     var docEmpId:String?=null
 }
 
 class LabResultItemDTO {
