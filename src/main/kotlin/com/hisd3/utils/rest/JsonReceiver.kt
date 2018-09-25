@@ -8,6 +8,7 @@ import ca.uhn.hl7v2.model.v25.message.ORM_O01
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.idgenerator.InMemoryIDGenerator
 import com.google.gson.Gson
+import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.Hl7OrmDto
 import com.hisd3.utils.customtypes.IntegratedFacilities
 import jcifs.smb.NtlmPasswordAuthentication
@@ -23,7 +24,7 @@ import java.time.format.DateTimeFormatter
 class JsonReceiver {
 
 
-    fun createOrmMsg(msgDto: Hl7OrmDto, risHost: String?, risPort:String?,smbUrl:String?,smbUser:String?,smbPass:String?,smbHost:String?):String? {
+    fun createOrmMsg(msgDto: Hl7OrmDto, args:ArgDto):String? {
         var gson = Gson()
 //
 //            val msgDto = gson.fromJson(data, Hl7OrmDto::class.java)
@@ -133,16 +134,16 @@ class JsonReceiver {
 
 
             if (msgDto.integratedFacilities == IntegratedFacilities.RIS) {
-                return   httpSender(risHost,risPort,orm)
+                return   httpSender(args,orm)
             }
 
             else {
-                return  dirWritter(msgDto, smbHost, smbUser, smbPass, smbUrl, encodedMessage)
+                return  dirWritter(msgDto, args, encodedMessage)
             }
 
         }
 
-    fun createAdtMsg(msgDto: Hl7OrmDto, risHost: String?, risPort:String?,smbUrl:String?,smbUser:String?,smbPass:String?,smbHost:String?):String? {
+    fun createAdtMsg(msgDto: Hl7OrmDto,args: ArgDto):String? {
 
 
         var context = DefaultHapiContext()
@@ -195,23 +196,22 @@ class JsonReceiver {
         var  encodedMessage = parser.encode(adt)
         val useTls = false // Should we use TLS/SSL?
 
-        if (msgDto.integratedFacilities == IntegratedFacilities.RIS) return   httpSender(risHost,risPort,adt)
+        if (msgDto.integratedFacilities == IntegratedFacilities.RIS) return   httpSender(args,adt)
 
         else {
-            return    dirWritter(msgDto, smbHost, smbUser, smbPass, smbUrl, encodedMessage)
+            return    dirWritter(msgDto,args, encodedMessage)
         }
 
     }
 
-    fun httpSender(risHost: String?,risPort: String?,rawmsg:Message): String? {
+    fun httpSender(args:ArgDto,rawmsg:Message): String? {
 
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
 
-        var gson = Gson()
         val useTls = false // Should we use TLS/SSL?
-        var connection = context.newClient(risHost, risPort!!.toInt(), useTls)
+        var connection = context.newClient(args.risHost, args.risPort!!.toInt(), useTls)
             try {
 //              var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
 
@@ -225,22 +225,22 @@ class JsonReceiver {
                //throw IllegalArgumentException(e.message)
                 throw HL7Exception(e)
             }
-        finally {
-            connection.close()
-        }
+            finally {
+                connection.close()
+            }
          }
         }
 
 
-    fun dirWritter(msgDto: Hl7OrmDto,smbHost: String?,smbUser: String?,smbPass: String?,smbUrl: String?,encodedMessage: String): String? {
+    fun dirWritter(msgDto: Hl7OrmDto,args:ArgDto,encodedMessage: String): String? {
 
         var gson = Gson()
         try {
             /** writting files to shared folder in a network wiht credentials**/
 
-            val ntlmPasswordAuthentication = NtlmPasswordAuthentication(smbHost,smbUser, smbPass)
+            val ntlmPasswordAuthentication = NtlmPasswordAuthentication(args.smbHost,args.smbUser, args.smbPass)
 
-            val shared = smbUrl+"/Order"
+            val shared = args.smbUrl+"/Order"
             val directory = SmbFile(shared,ntlmPasswordAuthentication)
 
                 try{
@@ -252,7 +252,7 @@ class JsonReceiver {
                     e.printStackTrace()
                 }
 
-                val path = smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
+                val path = args.smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
                 val sFile = SmbFile(path, ntlmPasswordAuthentication)
                 var sfos =  SmbFileOutputStream(sFile)
                 sfos.write(encodedMessage.toByteArray())

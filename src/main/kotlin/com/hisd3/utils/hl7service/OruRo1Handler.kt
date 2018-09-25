@@ -1,17 +1,22 @@
 package com.hisd3.utils.hl7service
 
+import ca.uhn.hl7v2.AcknowledgmentCode
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
 import ca.uhn.hl7v2.model.v25.group.ORU_R01_ORDER_OBSERVATION
+import ca.uhn.hl7v2.model.v25.message.ACK
 import ca.uhn.hl7v2.model.v25.message.ORU_R01
 import ca.uhn.hl7v2.model.v25.segment.*
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import ca.uhn.hl7v2.parser.PipeParser
 import ca.uhn.hl7v2.protocol.ReceivingApplication
 import ca.uhn.hl7v2.protocol.ReceivingApplicationException
 import ca.uhn.hl7v2.util.Terser
 import com.google.gson.Gson
+import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.ResultsDTO
+import com.sun.org.apache.xpath.internal.Arg
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.IOUtils
 import org.apache.http.HttpHeaders
@@ -28,6 +33,7 @@ import org.joda.time.Years
 import java.io.IOException
 import java.nio.charset.Charset
 import java.util.*
+import javax.xml.parsers.DocumentBuilderFactory
 
 class Msgformat{
      var msgXML:String?=""
@@ -37,6 +43,7 @@ class Msgformat{
      var jsonList:String? = null
      var casenum:String?=null
      var docEmpId:String?=null
+     var attachment:String?=null
 }
 
 class LabResultItemDTO {
@@ -74,6 +81,11 @@ class LabResultItemDTO {
 }
 
 class OruRo1Handler<E> : ReceivingApplication<Message> {
+    var argument = ArgDto()
+    constructor(arges:ArgDto)
+    {
+        argument = arges
+    }
 
     /**
      * {@inheritDoc}
@@ -85,24 +97,29 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
     /**
      * {@inheritDoc}
      */
-    @Throws(ReceivingApplicationException::class, HL7Exception::class)
-    override fun processMessage(theMessage: Message, theMetadata: Map<String, Any>): Message {
+     @Throws(ReceivingApplicationException::class, HL7Exception::class)
+     override fun processMessage(theMessage: Message?, theMetadata: MutableMap<String, Any>?): Message? {
 
+        var gson = Gson()
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
         println("Received message:\n")
 
        // System.out.println("Meta=>" + theMetadata)
-
         val p = context.getGenericParser()
+
+        val terser = Terser(theMessage)
+        val zdc = terser.get("/.ZDC(0)-3")
+       // println("ZDC:" +zdc.toString())
+
 
         var str = theMessage.toString()
         var xmlparser = context.getXMLParser()
         var encodedMessage = xmlparser.encode(theMessage)
 
 
-        var msg = p.parse(encodedMessage) as ca.uhn.hl7v2.model.v25.message.ORU_R01
+        var msg = p.parse(str) as ca.uhn.hl7v2.model.v25.message.ORU_R01
 
         val msh= getMSH(msg)
         val pid = getPID(msg)
@@ -113,17 +130,17 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         var visitNumber = pv1.visitNumber.idNumber.value
         var pId = pid.getPatientIdentifierList(0).idNumber.value
         val casenum = pv1.visitNumber.idNumber.value
-        //var patientId = pid.pid2_PatientIDExternalID.id.value.toString()?:""
+        var doctorEmpId = obr.principalResultInterpreter.nameOfPerson.idNumber.value
 
         var orc = getORC(msg)
         val messageControlId = msh.messageControlID.value
         val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
-        var sender = theMetadata.get("SENDING_IP")
+        var sender = theMetadata!!.get("SENDING_IP")
 
         //Parsing xml to json
-
-        val post = HttpPost("http://localhost:8080/restapi/msgreceiver/hl7postResult")
+        val post = HttpPost("http://"+argument.hisd3host+":"+argument.hisd3host+"/restapi/msgreceiver/hl7postResult")
+//        val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
 
         val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
         val encodedAuth = Base64.encodeBase64(
@@ -134,39 +151,45 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val params =  Msgformat()
 
         //params.msgXML=encodedMessage
+        params.attachment = zdc
         params.msgXML=str
         params.senderIp= sender.toString()
         params.orderslipId=accession
         params.casenum = casenum
         params.pId=pId
-        params.jsonList = MsgParse().msgToJson(theMessage)
+        params.docEmpId = doctorEmpId
+        params.jsonList = MsgParse().msgToJson(theMessage!!)
 
         post.setHeader(HttpHeaders.CONTENT_TYPE,"application/json")
 
-        var gson = Gson()
+
         post.entity = StringEntity(gson.toJson(params))
+//        parsingXml(encodedMessage)
+        var ack: Message
         try{
             var response = httpclient.execute(post)
-           // println(response.statusLine.statusCode)
+            println(response)
+            if(response.statusLine.statusCode == 200){
+                try{
+                    ack = theMessage.generateACK()
+                }catch (e: IOException){
+                    throw HL7Exception(e)
+                }
+
+            }else{
+                try{
+                  ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(response.entity.content.toString()))
+                }catch(e: IOException){
+                    throw HL7Exception(e)
+                }
+
+            }
         }
         catch (e: IOException){
-            e.printStackTrace()
+            throw  ReceivingApplicationException(e)
         }
-
-
-       // System.out.println(IOUtils.toString(post.entity.content))
-
-        try {
-            var acknowlege = theMessage.generateACK()
-            return acknowlege
-
-
-        } catch (e: IOException) {
-            throw HL7Exception(e)
-        }
-
+        return ack
     }
-
 
     private fun getMSH(oru: ORU_R01): MSH {
         return oru.msh
@@ -175,7 +198,6 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
     private fun getPID(oru: ORU_R01): PID {
         //return oru.response.patient.pid
         return oru.patienT_RESULT.patient.pid
-
     }
 
     private fun getPV1(oru: ORU_R01): PV1 {
@@ -193,6 +215,21 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
     }
     private  fun getOBR(oru : ORU_R01): OBR{
         return oru.patienT_RESULT.ordeR_OBSERVATION.obr
+    }
+
+    fun parsingXml (xmlMsg :String){
+
+        var fXmlFile = xmlMsg
+        var dbFactory = DocumentBuilderFactory.newInstance()
+        var dBuilder = dbFactory.newDocumentBuilder()
+        var doc = dBuilder.parse(fXmlFile)
+
+        doc.getDocumentElement().normalize()
+        System.out.println("Root element :" + doc.getDocumentElement().getNodeName())
+
+        var nList = doc.getElementsByTagName("ZDC")
+
+        println( "ZDC:" +nList.toString())
     }
 
 }

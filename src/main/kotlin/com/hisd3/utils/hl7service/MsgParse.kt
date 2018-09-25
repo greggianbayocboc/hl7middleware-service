@@ -24,6 +24,7 @@ class MsgParse {
         val pid = getPID(oru)
         val pv1 = getPV1(oru)
         val orc = getORC(oru)
+        val obrervation= getOBR(msg)
 
         var messageControlId = msh.getMessageControlID().getValue()
         var obr:OBR? = null
@@ -97,8 +98,11 @@ class MsgParse {
         var patientId = pid.patientID.idNumber.value
         var primaryPhy = pv1.getReferringDoctor(0).givenName.value + " " + pv1.getReferringDoctor(0).familyName.surname.value
         var ward = pv1.assignedPatientLocation.bed.value ?: ""
+        var resultInterpreter = obrervation?.principalResultInterpreter.nameOfPerson.cnn3_GivenName.value + obrervation?.principalResultInterpreter.nameOfPerson.cnn2_FamilyName.value
+        var interpreterID = obrervation?.principalResultInterpreter.nameOfPerson.idNumber.value
 
-
+        params.put("interpreterID",interpreterID)
+        params.put("resultInterpreter",resultInterpreter)
         params.put("revenuecenter", sendingFacilty)
         params.put("patientname", patientFull)
         params.put("patientno", patientId)
@@ -106,7 +110,7 @@ class MsgParse {
         data.parameterData = params
         data.labResultsList = dataList
         var gson = Gson()
-        println(data)
+    //    println(data)
         return gson.toJson(data)
     }
 
@@ -132,5 +136,8 @@ class MsgParse {
 
     private fun getOBX(oru: ORU_R01): OBX {
         return oru.patienT_RESULT.ordeR_OBSERVATION.observation.obx
+    }
+    private  fun getOBR(oru : ORU_R01): OBR{
+        return oru.patienT_RESULT.ordeR_OBSERVATION.obr
     }
 }

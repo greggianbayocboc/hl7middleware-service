@@ -2,6 +2,7 @@ package com.hisd3.utils.hl7service
 
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
+import com.hisd3.utils.Dto.ArgDto
 
 
 class   HL7ServiceListener {
@@ -13,7 +14,7 @@ class   HL7ServiceListener {
 //    internal var labResultItemRepository: LabResultItemRepository? = null
 
 
-    fun startLisenter() {
+    fun startLisenter( args:ArgDto) {
 
         var port = 22222 // The port to listen on
         val useTls = false // Should we use TLS/SSL?
@@ -24,7 +25,7 @@ class   HL7ServiceListener {
 
         var server = context.newServer(port, useTls)
 
-        val ormHandler =OruRo1Handler<Any>()
+        val ormHandler = OruRo1Handler<Any>(args)
 
 //        server.registerApplication("ADT", "A01", handler)
 //        server.registerApplication("ADT", "A04", handler)

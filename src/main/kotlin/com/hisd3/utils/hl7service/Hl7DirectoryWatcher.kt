@@ -1,5 +1,6 @@
 package com.hisd3.utils.hl7service
 
+import com.hisd3.utils.Dto.ArgDto
 import jcifs.smb.NtlmPasswordAuthentication
 import jcifs.smb.SmbFile
 import java.io.IOException
@@ -20,7 +21,7 @@ class Hl7DirectoryWatcher {
 //    @Inject
 //    internal var hl7configrepository: Hl7ConfigRepository?=null
 
-    fun startDirWatching( smbHost:String?,smbUser:String?,smbPass:String?,smburl:String?) {
+    fun startDirWatching( args:ArgDto) {
 
        System.out.println("Start HL7 Directory Watcher")
 
@@ -29,10 +30,10 @@ class Hl7DirectoryWatcher {
 //       var ntlmPasswordAuthentication:NtlmPasswordAuthentication;
 
 
-       var ntlmPasswordAuthentication = NtlmPasswordAuthentication(smbHost,smbUser, smbPass)
+       var ntlmPasswordAuthentication = NtlmPasswordAuthentication(args.smbHost,args.smbUser, args.smbPass)
 
 //       val path = "smb://127.0.0.1/Shared/Inbox"
-       val path = smburl+"/Report"
+       val path = args.smbUrl+"/Report"
        val sFile = SmbFile(path, ntlmPasswordAuthentication)
        val paths =sFile.uncPath
        System.out.println(paths)

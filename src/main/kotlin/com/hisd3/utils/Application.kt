@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hisd3.utils.Crud.UserDao
+import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.Hl7OrmDto
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
@@ -54,28 +55,29 @@ class Application {
             val parser = DefaultParser()
             val cmd = parser.parse(options, args)
 
-            val risHost = cmd.getOptionValue("rishost") ?: "127.0.0.1"
-            val risPort = cmd.getOptionValue("risport") ?: "22223"
+            var args = ArgDto()
+                args.hisd3host =cmd.getOptionValue("hisd3host")?:"127.0.0.1"
+                args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
+                args.risHost = cmd.getOptionValue("rishost") ?: "127.0.0.1"
+                args.risPort = cmd.getOptionValue("risport") ?: "22223"
+                args.smbHost = cmd.getOptionValue("smbhost") ?: "172.0.0.1"
+                args.smbUrl = cmd.getOptionValue("smburl") ?: "smb://172.0.0.1/shared"
+                args.smbUser = cmd.getOptionValue("user") ?: "user"
+                args.smbPass = cmd.getOptionValue("password") ?: "password"
 
-            val smbHost = cmd.getOptionValue("smbhost") ?: "172.0.0.1"
-            val smbUrl = cmd.getOptionValue("smburl") ?: "smb://172.0.0.1/shared"
-            val smbUser = cmd.getOptionValue("user") ?: "user"
-            val smbPass = cmd.getOptionValue("password") ?: "password"
-            val msgReceiver = JsonReceiver()
-            val serviceListen = HL7ServiceListener()
-            val watcher = Hl7DirectoryWatcher()
 
+            var gson = Gson()
 
             if (cmd.hasOption("start")) {
 
-                serviceListen.startLisenter()
-                watcher.startDirWatching(smbHost, smbUser, smbPass, smbUrl)
+                HL7ServiceListener().startLisenter(args)
+                Hl7DirectoryWatcher().startDirWatching(args)
 
                 path( "/tests"){
-
-                    get("/showvars") { req, res ->
-                        "ris =" + risHost + "\nrisport =" + risPort + "\nsmbhost =" + smbHost + "\nsmburl =" + smbUrl + "\n"
+                    var argumentsData = gson.toJson(args)
+                    get("/showvars") { req, res -> argumentsData
                     }
+
                     get("/ping") { req, res -> "OK" }
 
                     get("/testsend") { req, res ->
@@ -83,25 +85,21 @@ class Application {
                     }
                 }
                 path("/") {
-                    post("hello") { req, res -> "Hello World" }
                     post("jsonmsg"){req,res ->
 
                         if(!req.body()?.isNullOrEmpty()!!) {
 
-                                var data = req.body()
-                           // println("data=" + data)
-                                var gson = Gson()
-
-                                   val msgDto :Hl7OrmDto  = gson.fromJson(data, Hl7OrmDto::class.java)
+                            var data = req.body()
+                            val msgDto :Hl7OrmDto  = gson.fromJson(data, Hl7OrmDto::class.java)
 
                             try {
                                 when (msgDto.messageCode) {
                                     "ADT_A04" -> {
-                                        msgReceiver.createAdtMsg(msgDto, risHost, risPort, smbUrl, smbUser, smbPass, smbHost)
+                                        JsonReceiver().createAdtMsg(msgDto, args)
                                     }
 
                                     "ORM_O01" -> {
-                                        msgReceiver.createOrmMsg(msgDto, risHost, risPort, smbUrl, smbUser, smbPass, smbHost)
+                                        JsonReceiver().createOrmMsg(msgDto, args)
                                     }
                                     else ->"Sorry, Option not available yet"
                                 }
