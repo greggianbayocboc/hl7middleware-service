@@ -110,7 +110,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val p = context.getGenericParser()
 
         val terser = Terser(theMessage)
-        val zdc = terser.get("/.ZDC(0)-3")
+        var zdc = terser.get("/.ZDC(0)-3")
        // println("ZDC:" +zdc.toString())
 
 
@@ -139,7 +139,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         var sender = theMetadata!!.get("SENDING_IP")
 
         //Parsing xml to json
-        val post = HttpPost("http://"+argument.hisd3host+":"+argument.hisd3host+"/restapi/msgreceiver/hl7postResult")
+        val post = HttpPost("http://"+argument.hisd3host+":"+argument.hisd3Port+"/restapi/msgreceiver/hl7postResult")
 //        val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
 
         val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
@@ -161,8 +161,6 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.jsonList = MsgParse().msgToJson(theMessage!!)
 
         post.setHeader(HttpHeaders.CONTENT_TYPE,"application/json")
-
-
         post.entity = StringEntity(gson.toJson(params))
 //        parsingXml(encodedMessage)
         var ack: Message

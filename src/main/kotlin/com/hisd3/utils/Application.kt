@@ -60,7 +60,7 @@ class Application {
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
                 args.risHost = cmd.getOptionValue("rishost") ?: "127.0.0.1"
                 args.risPort = cmd.getOptionValue("risport") ?: "22223"
-                args.smbHost = cmd.getOptionValue("smbhost") ?: "172.0.0.1"
+                args.smbHost = cmd.getOptionValue("smbhost") ?: "127.0.0.1"
                 args.smbUrl = cmd.getOptionValue("smburl") ?: "smb://172.0.0.1/shared"
                 args.smbUser = cmd.getOptionValue("user") ?: "user"
                 args.smbPass = cmd.getOptionValue("password") ?: "password"
