@@ -2,8 +2,12 @@ package com.hisd3.utils.Dto
 
 import java.util.HashMap
 
-class ResultsDTO{
-
-    var parameterData: HashMap<String, Any?>? = null
+class LabResultDTO{
+    var parameterData = Paramdata()
     var labResultsList : ArrayList<Any>?=null
 }
+
+class Paramdata (
+        var interpreter :String? = null,
+        var interpreterId :String?=null
+)

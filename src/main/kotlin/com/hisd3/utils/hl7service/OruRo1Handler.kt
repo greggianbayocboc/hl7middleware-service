@@ -15,7 +15,6 @@ import ca.uhn.hl7v2.protocol.ReceivingApplicationException
 import ca.uhn.hl7v2.util.Terser
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
-import com.hisd3.utils.Dto.ResultsDTO
 import com.sun.org.apache.xpath.internal.Arg
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.IOUtils
@@ -81,6 +80,7 @@ class LabResultItemDTO {
 }
 
 class OruRo1Handler<E> : ReceivingApplication<Message> {
+
     var argument = ArgDto()
     constructor(arges:ArgDto)
     {
@@ -110,7 +110,13 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val p = context.getGenericParser()
 
         val terser = Terser(theMessage)
-        var zdc = terser.get("/.ZDC(0)-3")
+        var zdc :String? = null
+
+        try{
+          zdc =  terser.get("/.ZDC(0)-3")
+        }catch (e:Exception){
+          println(e)
+        }
        // println("ZDC:" +zdc.toString())
 
 

@@ -5,7 +5,7 @@ import ca.uhn.hl7v2.model.v25.group.ORU_R01_ORDER_OBSERVATION
 import ca.uhn.hl7v2.model.v25.message.ORU_R01
 import ca.uhn.hl7v2.model.v25.segment.*
 import com.google.gson.Gson
-import com.hisd3.utils.Dto.ResultsDTO
+import com.hisd3.utils.Dto.LabResultDTO
 import java.util.ArrayList
 import java.util.HashMap
 
@@ -16,7 +16,7 @@ class MsgParse {
 
         val dataList = ArrayList<Any>()
         val params = HashMap<String, Any?>()
-        var data = ResultsDTO()
+        var data = LabResultDTO()
 
         val oru = msg as ORU_R01
 
@@ -101,13 +101,15 @@ class MsgParse {
         var resultInterpreter = obrervation?.principalResultInterpreter.nameOfPerson.cnn3_GivenName.value + obrervation?.principalResultInterpreter.nameOfPerson.cnn2_FamilyName.value
         var interpreterID = obrervation?.principalResultInterpreter.nameOfPerson.idNumber.value
 
-        params.put("interpreterID",interpreterID)
-        params.put("resultInterpreter",resultInterpreter)
-        params.put("revenuecenter", sendingFacilty)
-        params.put("patientname", patientFull)
-        params.put("patientno", patientId)
+        data.parameterData.interpreter = resultInterpreter
+        data.parameterData.interpreterId = interpreterID
+//        params.put("interpreterID",interpreterID)
+//        params.put("responsibleobserver",resultInterpreter)
+//        params.put("revenuecenter", sendingFacilty)
+//        params.put("patientname", patientFull)
+//        params.put("patientno", patientId)
 
-        data.parameterData = params
+//        data.parameterData = params
         data.labResultsList = dataList
         var gson = Gson()
     //    println(data)

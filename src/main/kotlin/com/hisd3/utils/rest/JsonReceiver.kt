@@ -236,7 +236,7 @@ class JsonReceiver {
 
         var gson = Gson()
         try {
-            /** writting files to shared folder in a network wiht credentials**/
+            /** writing files to shared folder in a network with credentials**/
 
             val ntlmPasswordAuthentication = NtlmPasswordAuthentication(args.smbHost,args.smbUser, args.smbPass)
 
@@ -258,7 +258,7 @@ class JsonReceiver {
                 sfos.write(encodedMessage.toByteArray())
                 sfos.close()
 
-            /*** writting files in local shared folder***/
+            /*** writing files in local shared folder***/
 //                var file = Paths.get("//localhost/Shared/Outbox/"+msgDto.msh.messageControlId+".hl7")
 //                Files.write(file,encodedMessage.toByteArray())
 

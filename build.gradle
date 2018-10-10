@@ -69,15 +69,15 @@ dependencies {
             {
                 exclude(module: 'slf4j-log4j12')
             }
-    compile group: 'ca.uhn.hapi', name: 'hapi-structures-v26', version: '2.3'
+    compile (group: 'ca.uhn.hapi', name: 'hapi-structures-v26', version: '2.3')
+             {
+                 exclude(module: 'slf4j-log4j12')
+             }
+    compile (group: 'ca.uhn.hapi', name: 'hapi-structures-v27', version: '2.3')
     {
                     exclude(module: 'slf4j-log4j12')
                 }
-    compile group: 'ca.uhn.hapi', name: 'hapi-structures-v27', version: '2.3'
-    {
-                    exclude(module: 'slf4j-log4j12')
-                }
-    compile group: 'ca.uhn.hapi', name: 'hapi-structures-v28', version: '2.3'
+    compile (group: 'ca.uhn.hapi', name: 'hapi-structures-v28', version: '2.3')
     {
                     exclude(module: 'slf4j-log4j12')
                 }
