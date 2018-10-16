@@ -3,6 +3,7 @@ package com.hisd3.utils
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.Hl7OrmDto
+import com.hisd3.utils.Sockets.WSocketHandler
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
 import com.hisd3.utils.hl7service.Hl7DirectoryWatcher
@@ -11,7 +12,17 @@ import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
 import org.apache.commons.cli.Options
 import org.apache.commons.cli.ParseException
+import org.eclipse.jetty.websocket.api.Session
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
+import org.eclipse.jetty.websocket.api.annotations.WebSocket
 import spark.Spark.*
+import spark.kotlin.port
+import spark.kotlin.staticFiles
+
+
+
 
 class Application
 
@@ -21,13 +32,12 @@ class Application
 
      @Throws(ParseException::class)
      fun main(args: Array<String>) {
-
-         port(4567)
          staticFiles.location("/public")
+         port(4567)
          staticFiles.expireTime(600L)
+         webSocket("/chat", WSocketHandler::class.java)
 
-
-            val options = Options()
+         val options = Options()
 
             options.addOption("hisd3host", true, "HIS Host/Machine")
             options.addOption("hisd3Port", true, "HIS Port")
@@ -47,7 +57,7 @@ class Application
             val cmd = parser.parse(options, args)
 
             var args = ArgDto()
-                args.hisd3host =cmd.getOptionValue("hisd3Host")?:"127.0.0.1"
+                args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"127.0.0.1"
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 args.risPort = cmd.getOptionValue("risPort") ?: "22223"
@@ -115,6 +125,7 @@ class Application
             }
 
  }
+
 
 
 

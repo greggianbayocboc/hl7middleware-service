@@ -2,7 +2,7 @@ package com.hisd3.utils.Dto
 
 class ArgDto {
 
-    var hisd3host:String?="127.0.0.1"
+    var hisd3Host:String?="127.0.0.1"
     var hisd3Port:String?="8080"
     var risHost:String? = "127.0.0.1"
     var risPort:String? =  "22223"

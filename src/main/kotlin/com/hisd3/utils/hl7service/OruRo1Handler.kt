@@ -145,7 +145,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         var sender = theMetadata!!.get("SENDING_IP")
 
         //Parsing xml to json
-        val post = HttpPost("http://"+argument.hisd3host+":"+argument.hisd3Port+"/restapi/msgreceiver/hl7postResult")
+        val post = HttpPost("http://"+argument.hisd3Host+":"+argument.hisd3Port+"/restapi/msgreceiver/hl7postResult")
 //        val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
 
         val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
