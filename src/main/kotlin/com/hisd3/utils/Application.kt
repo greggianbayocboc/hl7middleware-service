@@ -1,40 +1,26 @@
 package com.hisd3.utils
 
-import ca.uhn.hl7v2.HL7Exception
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.hisd3.utils.Crud.UserDao
 import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.Hl7OrmDto
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
 import com.hisd3.utils.hl7service.Hl7DirectoryWatcher
 import com.hisd3.utils.rest.JsonReceiver
-import jdk.nashorn.internal.runtime.regexp.joni.Config.log
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
 import org.apache.commons.cli.Options
 import org.apache.commons.cli.ParseException
-import org.eclipse.jetty.websocket.api.StatusCode
-import spark.Request
-import spark.Response
 import spark.Spark.*
-import sun.plugin2.util.PojoUtil.toJson
-import java.io.IOException
 
-class Application {
+class Application
 
     fun bootstrap() {
         get("/bootup") { req, res -> "Test" }
     }
 
-
-    companion object {
-
-        @Throws(ParseException::class)
-        @JvmStatic
-        fun main(args: Array<String>) {
+     @Throws(ParseException::class)
+     fun main(args: Array<String>) {
 
             val options = Options()
 
@@ -123,8 +109,7 @@ class Application {
                 }
             }
 
-        }
-    }
-}
+ }
+
 
 
