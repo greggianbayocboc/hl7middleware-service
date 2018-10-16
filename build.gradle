@@ -12,7 +12,7 @@ plugins {
 }
 
 group 'com.hisd3.utils'
-version '1.0-SNAPSHOT'
+version '1.0.0'
 
 sourceCompatibility = 1.8
 
@@ -94,6 +94,15 @@ dependencies {
 
 mainClassName = 'com.hisd3.utils.ApplicationKt'
 jar {
+
+    baseName = 'hl7middleware'
+    version =  version
+    archiveName = 'hl7middleware.jar'
+    manifest {
+        attributes 'Implementation-Title' : 'HISD3 App Hl7 Middleware',
+                'Implementation-Version': version
+    }
+
     manifest {
         attributes(
                 'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
@@ -119,3 +128,13 @@ compileTestKotlin {
 }
 
 
+task generateNewVersionFile{
+    delete "${project.projectDir}/src/main/resources/VERSION"
+    def outputDir = file("${project.projectDir}/src/main/resources/")
+    new File(outputDir, "VERSION").write("$project.version")
+}
+
+
+processResources{
+    dependsOn generateNewVersionFile
+}

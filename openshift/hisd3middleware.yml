@@ -4,7 +4,7 @@ items:
 - apiVersion: v1
   kind: Service
   metadata:
-    name: hisd3-middleware
+    name: hisd3-hl7middleware
   spec:
     type: ClusterIP
     ports:
@@ -13,11 +13,77 @@ items:
       targetPort: 4567
       protocol: TCP
     selector:
-      app: hisd3-middleware
+      app: hisd3-hl7middleware
 - apiVersion: v1
   kind: ConfigMap
   metadata:
-    name: hisd3-configmap
+    name: hl7middleware-configmap
   data:
     hisd3.smburl   : "smb://127.0.0.1/shared"
     hisd3.hisd3Port: "8080"
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: hl7middleware-imagestream
+  spec:
+    tags:
+     - name: hl7middleware
+       importPolicy:
+         scheduled: true
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: hisd3-hl7middleware
+    labels:
+      app: hl7middleware
+  spec:
+    replicas: 1
+    selector:
+        app: hisd3-hl7middleware
+    triggers:
+          - type: "ConfigChange"
+          - imageChangeParams:
+              automatic: true
+              containerNames:
+               - "hisd3-hl7middleware"
+              from:
+                 kind: "ImageStreamTag"
+                 name: "hl7middleware-imagestream:hl7middleware"
+                 namespace: "hisd3demo"
+            type: "ImageChange"
+
+    template:
+      metadata:
+        labels:
+          app: hisd3-hl7middleware
+      spec:
+        serviceAccountName: hisd3-sa
+        containers:
+        - name: hisd3-hl7middleware
+          image: docker-registry-default.apps.172.16.10.6.nip.io/hisd3demo/hl7middleware-imagestream:hl7middleware
+          ports:
+          - containerPort: 8080
+          args:
+              - --spring.profiles.active=prod
+          readinessProbe:
+                        httpGet:
+                          path: /ping
+                          port: 8080
+                          httpHeaders:
+                          - name: X-Custom-Header
+                            value: Awesome
+                        initialDelaySeconds: 10
+                        periodSeconds: 30
+                        successThreshold: 1
+                        timeoutSeconds: 20
+          livenessProbe:
+                httpGet:
+                  path: /api/public/ping
+                  port: 8080
+                  httpHeaders:
+                  - name: X-Custom-Header
+                    value: Awesome
+                initialDelaySeconds: 10
+                periodSeconds: 20
+                successThreshold: 1
+                timeoutSeconds: 20
