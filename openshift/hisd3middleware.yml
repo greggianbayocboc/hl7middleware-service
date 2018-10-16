@@ -17,7 +17,7 @@ items:
 - apiVersion: v1
   kind: ConfigMap
   metadata:
-    name: special-config
+    name: hisd3-configmap
   data:
     hisd3.smburl   : "smb://127.0.0.1/shared"
     hisd3.hisd3Port: "8080"
