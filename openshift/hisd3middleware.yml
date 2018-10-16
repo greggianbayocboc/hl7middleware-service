@@ -19,6 +19,10 @@ items:
   metadata:
     name: hl7middleware-configmap
   data:
+    start          :
+    hisd3.smbHost  : "lis.ace-mc-bohol.com"
+    hisd3.smbUser  : "ace-mc-bohol\adminuser"
+    hisd3.smbPass  : "p@ssw0rd"
     hisd3.smburl   : "smb://127.0.0.1/shared"
     hisd3.hisd3Port: "8080"
 - apiVersion: v1
@@ -87,3 +91,7 @@ items:
                 periodSeconds: 20
                 successThreshold: 1
                 timeoutSeconds: 20
+    hisd3.hisd3Port: "80"
+    hisd3.hisd3host: "dev.hisd3-ace-mc-bohol.com"
+    hisd3.risHost  : "carestream.ace-mc-bohol.com"
+    hisd3.risPort  : "22222"
