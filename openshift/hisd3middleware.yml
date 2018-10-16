@@ -19,12 +19,14 @@ items:
   metadata:
     name: hl7middleware-configmap
   data:
-    start          :
     hisd3.smbHost  : "lis.ace-mc-bohol.com"
     hisd3.smbUser  : "ace-mc-bohol\adminuser"
     hisd3.smbPass  : "p@ssw0rd"
     hisd3.smburl   : "smb://127.0.0.1/shared"
-    hisd3.hisd3Port: "8080"
+    hisd3.hisd3Port: "80"
+    hisd3.hisd3host: "dev.hisd3-ace-mc-bohol.com"
+    hisd3.risHost  : "carestream.ace-mc-bohol.com"
+    hisd3.risPort  : "22222"
 - apiVersion: v1
   kind: ImageStream
   metadata:
@@ -61,18 +63,67 @@ items:
         labels:
           app: hisd3-hl7middleware
       spec:
-        serviceAccountName: hisd3-sa
+#        serviceAccountName: hisd3-sa
         containers:
         - name: hisd3-hl7middleware
           image: docker-registry-default.apps.172.16.10.6.nip.io/hisd3demo/hl7middleware-imagestream:hl7middleware
           ports:
           - containerPort: 8080
           args:
-              - --spring.profiles.active=prod
+              - -start
+              - "smbHost $(SMBHOST)"
+              - "smbUser $(SMBUSER)"
+              - "smbPass $(SMBPASS)"
+              - "smburl $(SMBURL)"
+              - "hisd3Port $(HISD3PORT)"
+              - "hisd3host $(HISD3HOST)"
+              - "risHost $(RISHOST)"
+              - "risPort $(RISPORT)"
+          env:
+              - name: SMBHOST
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbHost
+              - name: SMBUSER
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbUser
+              - name: SMBPASS
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbPass
+              - name: SMBURL
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smburl
+              - name: HISD3PORT
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.hisd3Port
+              - name: HISD3HOST
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.hisd3host
+              - name: RISHOST
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.risHost
+              - name: RISPORT
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.risPort
           readinessProbe:
                         httpGet:
-                          path: /ping
-                          port: 8080
+                          path: /tests/ping
+                          port: 4567
                           httpHeaders:
                           - name: X-Custom-Header
                             value: Awesome
@@ -82,8 +133,8 @@ items:
                         timeoutSeconds: 20
           livenessProbe:
                 httpGet:
-                  path: /api/public/ping
-                  port: 8080
+                  path: /tests/ping
+                  port: 4567
                   httpHeaders:
                   - name: X-Custom-Header
                     value: Awesome
@@ -91,7 +142,4 @@ items:
                 periodSeconds: 20
                 successThreshold: 1
                 timeoutSeconds: 20
-    hisd3.hisd3Port: "80"
-    hisd3.hisd3host: "dev.hisd3-ace-mc-bohol.com"
-    hisd3.risHost  : "carestream.ace-mc-bohol.com"
-    hisd3.risPort  : "22222"
+
