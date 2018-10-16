@@ -4,7 +4,7 @@ items:
 - apiVersion: v1
   kind: Service
   metadata:
-    name: hisd3-middleware
+    name: hisd3-hl7middleware
   spec:
     type: ClusterIP
     ports:
@@ -13,13 +13,12 @@ items:
       targetPort: 4567
       protocol: TCP
     selector:
-      app: hisd3-middleware
+      app: hisd3-hl7middleware
 - apiVersion: v1
   kind: ConfigMap
   metadata:
-    name: hisd3-configmap
+    name: hl7middleware-configmap
   data:
-    start          :
     hisd3.smbHost  : "lis.ace-mc-bohol.com"
     hisd3.smbUser  : "ace-mc-bohol\adminuser"
     hisd3.smbPass  : "p@ssw0rd"
@@ -28,3 +27,119 @@ items:
     hisd3.hisd3Host: "dev.hisd3-ace-mc-bohol.com"
     hisd3.risHost  : "carestream.ace-mc-bohol.com"
     hisd3.risPort  : "22222"
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: hl7middleware-imagestream
+  spec:
+    tags:
+     - name: hl7middleware
+       importPolicy:
+         scheduled: true
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: hisd3-hl7middleware
+    labels:
+      app: hl7middleware
+  spec:
+    replicas: 1
+    selector:
+        app: hisd3-hl7middleware
+    triggers:
+          - type: "ConfigChange"
+          - imageChangeParams:
+              automatic: true
+              containerNames:
+               - "hisd3-hl7middleware"
+              from:
+                 kind: "ImageStreamTag"
+                 name: "hl7middleware-imagestream:hl7middleware"
+                 namespace: "hisd3demo"
+            type: "ImageChange"
+
+    template:
+      metadata:
+        labels:
+          app: hisd3-hl7middleware
+      spec:
+#        serviceAccountName: hisd3-sa
+        containers:
+        - name: hisd3-hl7middleware
+          image: docker-registry-default.apps.172.16.10.6.nip.io/hisd3demo/hl7middleware-imagestream:hl7middleware
+          ports:
+          - containerPort: 8080
+          args:
+              - -start
+              - "smbHost $(SMBHOST)"
+              - "smbUser $(SMBUSER)"
+              - "smbPass $(SMBPASS)"
+              - "smburl $(SMBURL)"
+              - "hisd3Port $(HISD3PORT)"
+              - "hisd3host $(HISD3HOST)"
+              - "risHost $(RISHOST)"
+              - "risPort $(RISPORT)"
+          env:
+              - name: SMBHOST
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbHost
+              - name: SMBUSER
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbUser
+              - name: SMBPASS
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbPass
+              - name: SMBURL
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smburl
+              - name: HISD3PORT
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.hisd3Port
+              - name: HISD3HOST
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.hisd3host
+              - name: RISHOST
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.risHost
+              - name: RISPORT
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.risPort
+          readinessProbe:
+                        httpGet:
+                          path: /tests/ping
+                          port: 4567
+                          httpHeaders:
+                          - name: X-Custom-Header
+                            value: Awesome
+                        initialDelaySeconds: 10
+                        periodSeconds: 30
+                        successThreshold: 1
+                        timeoutSeconds: 20
+          livenessProbe:
+                httpGet:
+                  path: /tests/ping
+                  port: 4567
+                  httpHeaders:
+                  - name: X-Custom-Header
+                    value: Awesome
+                initialDelaySeconds: 10
+                periodSeconds: 20
+                successThreshold: 1
+                timeoutSeconds: 20
+
