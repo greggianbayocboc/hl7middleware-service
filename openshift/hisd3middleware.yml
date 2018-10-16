@@ -71,14 +71,22 @@ items:
           - containerPort: 8080
           args:
               - -start
-              - "smbHost $(SMBHOST)"
-              - "smbUser $(SMBUSER)"
-              - "smbPass $(SMBPASS)"
-              - "smburl $(SMBURL)"
-              - "hisd3Port $(HISD3PORT)"
-              - "hisd3host $(HISD3HOST)"
-              - "risHost $(RISHOST)"
-              - "risPort $(RISPORT)"
+              - "-smbHost"
+              - "$(SMBHOST)"
+              - "-smbUser"
+              - "$(SMBUSER)"
+              - "-smbPass"
+              - "$(SMBPASS)"
+              - "-smbUrl"
+              - "$(SMBURL)"
+              - "-hisd3Port"
+              - "$(HISD3PORT)"
+              - "-hisd3Host"
+              - "$(HISD3HOST)"
+              - "-risHost"
+              - "$(RISHOST)"
+              - "-risPort"
+              - "$(RISPORT)"
           env:
               - name: SMBHOST
                 valueFrom:
@@ -99,7 +107,7 @@ items:
                 valueFrom:
                       configMapKeyRef:
                         name: hl7middleware-configmap
-                        key: hisd3.smburl
+                        key: hisd3.smbUrl
               - name: HISD3PORT
                 valueFrom:
                       configMapKeyRef:
@@ -109,7 +117,7 @@ items:
                 valueFrom:
                       configMapKeyRef:
                         name: hl7middleware-configmap
-                        key: hisd3.hisd3host
+                        key: hisd3.hisd3Host
               - name: RISHOST
                 valueFrom:
                       configMapKeyRef:

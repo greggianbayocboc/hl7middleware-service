@@ -22,6 +22,13 @@ class Application
      @Throws(ParseException::class)
      fun main(args: Array<String>) {
 
+
+        /* println("Printing Arguments")
+         args.forEach {
+
+             println(it)
+         }*/
+
          port(4567)
          staticFiles.location("/public")
          staticFiles.expireTime(600L)
@@ -29,7 +36,7 @@ class Application
 
             val options = Options()
 
-            options.addOption("hisd3host", true, "HIS Host/Machine")
+            options.addOption("hisd3Host", true, "HIS Host/Machine")
             options.addOption("hisd3Port", true, "HIS Port")
             options.addOption("risHost", true, "RIS Host/Machine")
             options.addOption("risPort", true, "RIS Port")
