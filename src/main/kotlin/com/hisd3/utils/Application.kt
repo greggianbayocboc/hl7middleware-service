@@ -22,17 +22,22 @@ class Application
      @Throws(ParseException::class)
      fun main(args: Array<String>) {
 
+         port(4567)
+         staticFiles.location("/public")
+         staticFiles.expireTime(600L)
+
+
             val options = Options()
 
             options.addOption("hisd3host", true, "HIS Host/Machine")
             options.addOption("hisd3Port", true, "HIS Port")
-            options.addOption("ris", true, "RIS Host/Machine")
+            options.addOption("risHost", true, "RIS Host/Machine")
             options.addOption("risPort", true, "RIS Port")
             options.addOption("smbHost", true, "SMB Host/Machine")
-            options.addOption("smburl", true, "SMB smburl")
+            options.addOption("smbUrl", true, "SMB smburl")
             options.addOption("smbDir", true, "Directory")
-            options.addOption("user", true, "smb username")
-            options.addOption("password", true, "smb password")
+            options.addOption("smbUser", true, "smb username")
+            options.addOption("smbPass", true, "smb password")
             options.addOption("start", false, "start hl7 rest service")
 
             val formatter = HelpFormatter()
@@ -42,14 +47,14 @@ class Application
             val cmd = parser.parse(options, args)
 
             var args = ArgDto()
-                args.hisd3host =cmd.getOptionValue("hisd3host")?:"127.0.0.1"
+                args.hisd3host =cmd.getOptionValue("hisd3Host")?:"127.0.0.1"
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
-                args.risHost = cmd.getOptionValue("rishost") ?: "127.0.0.1"
-                args.risPort = cmd.getOptionValue("risport") ?: "22223"
-                args.smbHost = cmd.getOptionValue("smbhost") ?: "127.0.0.1"
-                args.smbUrl = cmd.getOptionValue("smburl") ?: "smb://172.0.0.1/shared"
-                args.smbUser = cmd.getOptionValue("user") ?: "user"
-                args.smbPass = cmd.getOptionValue("password") ?: "password"
+                args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
+                args.risPort = cmd.getOptionValue("risPort") ?: "22223"
+                args.smbHost = cmd.getOptionValue("smbHost") ?: "127.0.0.1"
+                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.0.0.1/shared"
+                args.smbUser = cmd.getOptionValue("smbUser") ?: "user"
+                args.smbPass = cmd.getOptionValue("smbPass") ?: "password"
 
 
             var gson = Gson()
