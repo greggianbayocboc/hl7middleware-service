@@ -12,6 +12,10 @@ items:
       port: 80
       targetPort: 4567
       protocol: TCP
+    - name: hl7
+      port: 22222
+      targetPort: 22222
+      protocol: TCP
     selector:
       app: hisd3-hl7middleware
 - apiVersion: v1
