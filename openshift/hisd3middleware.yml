@@ -12,6 +12,15 @@ items:
       port: 80
       targetPort: 4567
       protocol: TCP
+    selector:
+      app: hisd3-hl7middleware
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: hisd3-hl7service
+  spec:
+    type: NodePort
+    ports:
     - name: hl7
       port: 22222
       targetPort: 22222
