@@ -15,6 +15,8 @@ import ca.uhn.hl7v2.protocol.ReceivingApplicationException
 import ca.uhn.hl7v2.util.Terser
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
+import com.hisd3.utils.Dto.SocketMsg
+import com.hisd3.utils.Sockets.WSocketHandler
 import com.sun.org.apache.xpath.internal.Arg
 import org.apache.commons.codec.binary.Base64
 import org.apache.commons.io.IOUtils
@@ -26,6 +28,7 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.message.BasicNameValuePair
+import org.eclipse.jetty.websocket.api.annotations.WebSocket
 import org.joda.time.DateTime
 import org.joda.time.LocalDate
 import org.joda.time.Years
@@ -104,7 +107,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
-        println("Received message:\n")
+        //println("Received message:\n")
 
        // System.out.println("Meta=>" + theMetadata)
         val p = context.getGenericParser()
@@ -140,7 +143,8 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
         var orc = getORC(msg)
         val messageControlId = msh.messageControlID.value
-        val accession = obr.fillerOrderNumber.entityIdentifier.value
+        val accession = orc.fillerOrderNumber.entityIdentifier.value ?:orc.placerOrderNumber.entityIdentifier.value
+        //val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
         var sender = theMetadata!!.get("SENDING_IP")
 
@@ -149,6 +153,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 //        val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
 
         val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
+        //val auth = "adminuser" + ":" + "password"
         val encodedAuth = Base64.encodeBase64(
                 auth.toByteArray(Charset.forName("ISO-8859-1")))
         val authHeader = "Basic " + String(encodedAuth)
@@ -157,13 +162,13 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val params =  Msgformat()
 
         //params.msgXML=encodedMessage
-        params.attachment = zdc
+        params.attachment = zdc?:""
         params.msgXML=str
         params.senderIp= sender.toString()
-        params.orderslipId=accession
-        params.casenum = casenum
-        params.pId=pId
-        params.docEmpId = doctorEmpId
+        params.orderslipId=accession?:""
+        params.casenum = casenum?:""
+        params.pId=pId?:""
+        params.docEmpId = doctorEmpId?:""
         params.jsonList = MsgParse().msgToJson(theMessage!!)
 
         post.setHeader(HttpHeaders.CONTENT_TYPE,"application/json")
@@ -176,6 +181,8 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
             if(response.statusLine.statusCode == 200){
                 try{
                     ack = theMessage.generateACK()
+                    var msgStr :String
+
                 }catch (e: IOException){
                     throw HL7Exception(e)
                 }
@@ -191,6 +198,12 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         }
         catch (e: IOException){
             throw  ReceivingApplicationException(e)
+        }
+        finally {
+//            var formsg = SocketMsg()
+//            formsg.type="say"
+//            formsg.data = "dsdads"
+//            WSocketHandler().message(null,gson.toJson(formsg))
         }
         return ack
     }

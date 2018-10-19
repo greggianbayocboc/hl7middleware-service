@@ -1,42 +1,41 @@
-//Establish the WebSocket connection and set up event handlers
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/chat");
-webSocket.onmessage = function (msg) { updateChat(msg); };
-webSocket.onclose = function () { alert("WebSocket connection closed") };
+webSocket.onmessage = function (msg) {receievMsg(JSON.parse(msg.data)) }
+webSocket.onclose = function() { alert("Server Disconnect You"); }
 
-//Send message if "Send" is clicked
-id("send").addEventListener("click", function () {
-    sendMessage(id("message").value);
+webSocket.onopen = function() {
+    var name = "";
+    while (name == "") name = prompt("Enter your name");
+    sendMessage("join", name);
+}
+
+$("#send").click(function () {
+    sendMessage("say", $("#msg").val());
 });
-
-//Send message if enter is pressed in the input field
-id("message").addEventListener("keypress", function (e) {
-    if (e.keyCode === 13) { sendMessage(e.target.value); }
+$("#msg").keypress(function(e) {
+    if(e.which == 13) sendMessage("say", e.target.value);
 });
-
-//Send a message if it's not empty, then clear the input field
-function sendMessage(message) {
-    if (message !== "") {
-        webSocket.send(message);
-        id("message").value = "";
+function sendMessage(type, data) {
+    if (data !== "") {
+        webSocket.send(JSON.stringify({type: type, data: data}));
+        $("#msg").val("");
+        $("#msg").focus();
     }
 }
-
-//Update the chat-panel, and the list of connected users
-function updateChat(msg) {
-    var data = JSON.parse(msg.data);
-    insert("chat", data.userMessage);
-    id("userlist").innerHTML = "";
-    data.userlist.forEach(function (user) {
-        insert("userlist", "<li>" + user + "</li>");
-    });
+function receievMsg(msg) {
+    console.log("new msg",msg)
+    if (msg.msgType == "say") {
+        $("#chatbox").append("<p>"+msg.data+"</p>");
+    }
+    else if (msg.msgType == "join") {
+        addUser(msg.data);
+    }
+    else if (msg.msgType == "users") {
+        msg.data.forEach(function(el) { addUser(el); });
+    }
+    else if (msg.msgType == "left") {
+        $("#user-"+msg.data.id).remove();
+    }
 }
-
-//Helper function for inserting HTML as the first child of an element
-function insert(targetId, message) {
-    id(targetId).insertAdjacentHTML("afterbegin", message);
-}
-
-//Helper function for selecting element by id
-function id(id) {
-    return document.getElementById(id);
+function addUser(user) {
+    $("#userlist").append("<li id='user-"+user.id+"'>"+user.name+"</li>");
 }
