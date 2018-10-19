@@ -15,6 +15,19 @@ items:
     selector:
       app: hisd3-hl7middleware
 - apiVersion: v1
+  kind: Service
+  metadata:
+    name: hisd3-hl7service
+  spec:
+    type: NodePort
+    ports:
+    - name: hl7
+      port: 22222
+      targetPort: 22222
+      protocol: TCP
+    selector:
+      app: hisd3-hl7middleware
+- apiVersion: v1
   kind: ConfigMap
   metadata:
     name: hl7middleware-configmap
@@ -71,14 +84,22 @@ items:
           - containerPort: 8080
           args:
               - -start
-              - "smbHost $(SMBHOST)"
-              - "smbUser $(SMBUSER)"
-              - "smbPass $(SMBPASS)"
-              - "smburl $(SMBURL)"
-              - "hisd3Port $(HISD3PORT)"
-              - "hisd3host $(HISD3HOST)"
-              - "risHost $(RISHOST)"
-              - "risPort $(RISPORT)"
+              - "-smbHost"
+              - "$(SMBHOST)"
+              - "-smbUser"
+              - "$(SMBUSER)"
+              - "-smbPass"
+              - "$(SMBPASS)"
+              - "-smbUrl"
+              - "$(SMBURL)"
+              - "-hisd3Port"
+              - "$(HISD3PORT)"
+              - "-hisd3Host"
+              - "$(HISD3HOST)"
+              - "-risHost"
+              - "$(RISHOST)"
+              - "-risPort"
+              - "$(RISPORT)"
           env:
               - name: SMBHOST
                 valueFrom:
@@ -99,7 +120,7 @@ items:
                 valueFrom:
                       configMapKeyRef:
                         name: hl7middleware-configmap
-                        key: hisd3.smburl
+                        key: hisd3.smbUrl
               - name: HISD3PORT
                 valueFrom:
                       configMapKeyRef:
@@ -109,7 +130,7 @@ items:
                 valueFrom:
                       configMapKeyRef:
                         name: hl7middleware-configmap
-                        key: hisd3.hisd3host
+                        key: hisd3.hisd3Host
               - name: RISHOST
                 valueFrom:
                       configMapKeyRef:
