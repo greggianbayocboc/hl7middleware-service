@@ -10,4 +10,6 @@ class ArgDto {
     var smbUrl:String? =null
     var smbUser:String? = null
     var smbPass:String? = null
+    var hisd3USer:String? = null
+    var hisd3Pass:String? = null
 }

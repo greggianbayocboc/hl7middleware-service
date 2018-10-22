@@ -49,6 +49,8 @@ class Application
          val options = Options()
 
             options.addOption("hisd3Host", true, "HIS Host/Machine")
+            options.addOption("hisd3User", true, "HIS user")
+            options.addOption("hisd3Pass", true, "HIS password")
             options.addOption("hisd3Port", true, "HIS Port")
             options.addOption("risHost", true, "RIS Host/Machine")
             options.addOption("risPort", true, "RIS Port")
@@ -74,6 +76,8 @@ class Application
                 args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.0.0.1/shared"
                 args.smbUser = cmd.getOptionValue("smbUser") ?: "user"
                 args.smbPass = cmd.getOptionValue("smbPass") ?: "password"
+                args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "adminuser"
+                args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "password"
 
 
             var gson = Gson()

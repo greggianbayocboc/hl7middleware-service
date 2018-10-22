@@ -152,8 +152,8 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val post = HttpPost("http://"+argument.hisd3Host+":"+argument.hisd3Port+"/restapi/msgreceiver/hl7postResult")
 //        val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
 
-        val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
-        //val auth = "adminuser" + ":" + "password"
+        //val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
+        val auth = argument.hisd3USer + ":" + argument.hisd3Pass
         val encodedAuth = Base64.encodeBase64(
                 auth.toByteArray(Charset.forName("ISO-8859-1")))
         val authHeader = "Basic " + String(encodedAuth)
