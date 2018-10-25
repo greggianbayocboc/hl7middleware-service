@@ -20,25 +20,37 @@
 <div class="container-fluid full-height">
     <h4>Welcome to HISD3 Middleware</h4>
     <p>HAPI Library version 2.3</p>
-    <div class="row chat-text">
-        <div class="col-md-10 border chat-text" id="chatbox">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-12" id="demo">
+                </div>
+            </div>
         </div>
-        <div class="col-md-2 border chat-text">
-            <ul id="userlist"></ul>
+        <div class="col-md-6">
+            <div class="row chat-text">
+                <div class="col-md-10 border chat-text" id="chatbox" style="overflow-y: scroll;max-height: 300px;min-height: 300px">
+                </div>
+                <div class="col-md-2 border chat-text">
+                    <ul id="userlist"></ul>
+                </div>
+            </div>
+            <div class="row input-text border">
+                <div class="col-md-10">
+                    <input type="text" class="btn-block" id="msg" />
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-primary btn-block btn-lg" id="send">
+                        Send
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="row input-text border">
-        <div class="col-md-10">
-            <input type="text" class="btn-block" id="msg" />
-        </div>
-        <div class="col-md-2">
-            <button type="button" class="btn btn-primary btn-block btn-lg" id="send">
-                Send
-            </button>
-        </div>
-    </div>
+
 </div>
 <script src="websocket.js"></script>
+<script src="initialdata.js"></script>
 </body>
 </html>
 

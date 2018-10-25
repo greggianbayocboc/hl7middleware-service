@@ -20,6 +20,12 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket
 import spark.Spark.*
 import spark.kotlin.port
 import spark.kotlin.staticFiles
+import java.util.HashMap
+import j2html.TagCreator.header
+
+
+
+
 
 
 
@@ -29,6 +35,8 @@ class Application
     fun bootstrap() {
         get("/bootup") { req, res -> "Test" }
     }
+
+
 
      @Throws(ParseException::class)
      fun main(args: Array<String>) {
@@ -73,7 +81,7 @@ class Application
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 args.risPort = cmd.getOptionValue("risPort") ?: "22223"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "127.0.0.1"
-                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.0.0.1/shared"
+                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://hclab.ace-mc-bohol.com/shared"
                 args.smbUser = cmd.getOptionValue("smbUser") ?: "user"
                 args.smbPass = cmd.getOptionValue("smbPass") ?: "password"
                 args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "adminuser"
@@ -87,9 +95,26 @@ class Application
                 HL7ServiceListener().startLisenter(args)
                 Hl7DirectoryWatcher().startDirWatching(args)
 
+
                 path( "/tests"){
                     var argumentsData = gson.toJson(args)
-                    get("/showvars") { req, res -> argumentsData
+                    get("/showvars") { req, res ->
+
+                        val accessControlRequestHeaders = req
+                                .headers("Access-Control-Request-Headers")
+                        if (accessControlRequestHeaders != null) {
+                            res.header("Access-Control-Allow-Headers",
+                                    accessControlRequestHeaders)
+                        }
+
+                        val accessControlRequestMethod = req
+                                .headers("Access-Control-Request-Method")
+                        if (accessControlRequestMethod != null) {
+                            res.header("Access-Control-Allow-Methods",
+                                    accessControlRequestMethod)
+                        }
+
+                        argumentsData
                     }
 
                     get("/ping") { req, res -> "OK" }
@@ -138,6 +163,7 @@ class Application
             }
 
  }
+
 
 
 
