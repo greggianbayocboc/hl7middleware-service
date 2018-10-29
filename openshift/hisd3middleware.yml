@@ -33,7 +33,7 @@ items:
     name: hl7middleware-configmap
   data:
     hisd3.smbHost  : "hclab.ace-mc-bohol.com"
-    hisd3.smbUser  : "hclab\hid3user"
+    hisd3.smbUser  : "hclab\lisuser"
     hisd3.smbPass  : "p@ssw0rd"
     hisd3.smbUrl   : "smb://hclab.ace-mc-bohol.com/shared"
     hisd3.hisd3Port: "80"

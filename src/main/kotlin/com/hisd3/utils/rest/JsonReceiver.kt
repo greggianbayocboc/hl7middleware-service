@@ -162,7 +162,7 @@ class JsonReceiver {
         msh.messageControlID.value = msgDto?.messageControlId
         msh.getSendingApplication().getNamespaceID().value = "HISD3"
         msh.sendingFacility.namespaceID.value = msgDto.hospitalName
-
+        msh.receivingApplication.namespaceID.value ="HCLAB"
         val current = LocalDateTime.now()
         val formatter = DateTimeFormatter.BASIC_ISO_DATE
         val formatted = current.format(formatter)
@@ -240,7 +240,7 @@ class JsonReceiver {
 
             val ntlmPasswordAuthentication = NtlmPasswordAuthentication(args.smbHost,args.smbUser, args.smbPass)
 
-            val shared = args.smbUrl+"/Order"
+            val shared = args.smbUrl+"/Order/"
             val directory = SmbFile(shared,ntlmPasswordAuthentication)
 
                 try{
@@ -257,7 +257,7 @@ class JsonReceiver {
                 var sfos =  SmbFileOutputStream(sFile)
                 sfos.write(encodedMessage.toByteArray())
                 sfos.close()
-
+            println("Written file" + msgDto.messageControlId.toString())
             /*** writing files in local shared folder***/
 //                var file = Paths.get("//localhost/Shared/Outbox/"+msgDto.msh.messageControlId+".hl7")
 //                Files.write(file,encodedMessage.toByteArray())

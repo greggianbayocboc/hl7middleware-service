@@ -80,10 +80,10 @@ class Application
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 args.risPort = cmd.getOptionValue("risPort") ?: "22223"
-                args.smbHost = cmd.getOptionValue("smbHost") ?: "127.0.0.1"
-                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://hclab.ace-mc-bohol.com/shared"
-                args.smbUser = cmd.getOptionValue("smbUser") ?: "user"
-                args.smbPass = cmd.getOptionValue("smbPass") ?: "password"
+                args.smbHost = cmd.getOptionValue("smbHost") ?: "hclab.ace-mc-bohol.com"
+                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/hl7host"
+                args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"
+                args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"
                 args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "adminuser"
                 args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "password"
 
@@ -92,8 +92,7 @@ class Application
 
             if (cmd.hasOption("start")) {
 
-                HL7ServiceListener().startLisenter(args)
-                Hl7DirectoryWatcher().startDirWatching(args)
+
 
 
                 path( "/tests"){
@@ -160,6 +159,9 @@ class Application
                     }
 
                 }
+
+                HL7ServiceListener().startLisenter(args)
+                Hl7DirectoryWatcher().startDirWatching(args)
             }
 
  }
