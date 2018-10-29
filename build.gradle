@@ -38,6 +38,10 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-web', version: '3.0.4.RELEASE'
 
     // crisnels lib
+
+    // https://mvnrepository.com/artifact/com.j2html/j2html
+    compile group: 'com.j2html', name: 'j2html', version: '0.7'
+
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.6'
     //HL7 Library
 

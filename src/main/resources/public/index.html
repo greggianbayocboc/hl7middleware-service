@@ -1,19 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <title>Monitoring - HISD3 Middleware</title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>WebsSockets</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+    <style>
+        .full-height { height: 100%; }
+        .input-text  { height: 10%;  }
+        .chat-text   { height: 90%;  }
+        .border      { border: 1px black; }
+    </style>
 </head>
-<body>
-<h4>Welcome to HISD3 Middleware</h4>
-<p>HAPI Library version 2.3</p>
-<div id="chatControls">
-    <input id="message" placeholder="Type your message">
-    <button id="send">Send</button>
+<body class="full-height">
+<div class="container-fluid full-height">
+    <h4>Welcome to HISD3 Middleware</h4>
+    <p>HAPI Library version 2.3</p>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-12" id="demo">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="row chat-text">
+                <div class="col-md-10 border chat-text" id="chatbox" style="overflow-y: scroll;max-height: 300px;min-height: 300px">
+                </div>
+                <div class="col-md-2 border chat-text">
+                    <ul id="userlist"></ul>
+                </div>
+            </div>
+            <div class="row input-text border">
+                <div class="col-md-10">
+                    <input type="text" class="btn-block" id="msg" />
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-primary btn-block btn-lg" id="send">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
-<ul id="userlist"> <!-- Built by JS --> </ul>
-<div id="chat">    <!-- Built by JS --> </div>
-<!--<script src="websocketDemo.js"></script>-->
+<script src="websocket.js"></script>
+<script src="initialdata.js"></script>
 </body>
 </html>
+
+
