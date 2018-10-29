@@ -79,7 +79,7 @@ items:
 #        serviceAccountName: hisd3-sa
         containers:
         - name: hisd3-hl7middleware
-          image: docker-registry-default.apps.172.16.10.6.nip.io/hisd3demo/hl7middleware-imagestream:hl7middleware
+          image: docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream:hl7middleware
           ports:
           - containerPort: 8080
           args:

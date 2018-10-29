@@ -26,11 +26,11 @@ tagdemo(){
     
      if [ "$(uname)" = "Darwin" ]
      then
-      /usr/local/bin/docker  tag   hl7middleware:"$version"    docker-registry-default.apps.172.16.10.6.nip.io/hisd3demo/hl7middleware-imagestream:hl7middleware 
+      /usr/local/bin/docker  tag   hl7middleware:"$version"    docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream:hl7middleware 
    
      else
 
-     /usr/bin/docker  tag   hl7middleware:"$version"    docker-registry-default.apps.172.16.10.6.nip.io/hisd3demo/hl7middleware-imagestream:hl7middleware 
+     /usr/bin/docker  tag   hl7middleware:"$version"    docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream:hl7middleware 
    
      fi
      
@@ -41,11 +41,11 @@ pushimagesdemo(){
 
     if [ "$(uname)" = "Darwin" ]
      then
-     /usr/local/bin/docker  push docker-registry-default.apps.172.16.10.6.nip.io/hisd3demo/hl7middleware-imagestream
+     /usr/local/bin/docker  push docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream
    
      else
 
-      /usr/bin/docker  push  docker-registry-default.apps.172.16.10.6.nip.io/hisd3demo/hl7middleware-imagestream
+      /usr/bin/docker  push  docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream
    
      fi
      
