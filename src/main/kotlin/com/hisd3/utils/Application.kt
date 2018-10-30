@@ -81,9 +81,9 @@ class Application
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 args.risPort = cmd.getOptionValue("risPort") ?: "22223"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "hclab.ace-mc-bohol.com"
-                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/hl7host"
-                args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"
-                args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"
+                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://127.0.0.1/Shared"
+                args.smbUser = cmd.getOptionValue("smbUser") ?: "crisnil"
+                args.smbPass = cmd.getOptionValue("smbPass") ?: "cacuyado"
                 args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "adminuser"
                 args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "password"
 

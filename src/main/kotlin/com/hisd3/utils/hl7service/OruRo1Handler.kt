@@ -144,28 +144,29 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         var orc = getORC(msg)
         val messageControlId = msh.messageControlID.value
         val accession = orc.fillerOrderNumber.entityIdentifier.value ?:orc.placerOrderNumber.entityIdentifier.value
+        val orderID = obr.fillerOrderNumber.entityIdentifier.value
         //val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
         var sender = theMetadata!!.get("SENDING_IP")
 
         //Parsing xml to json
         val post = HttpPost("http://"+argument.hisd3Host+":"+argument.hisd3Port+"/restapi/msgreceiver/hl7postResult")
-//        val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
+//      val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
 
         //val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
         val auth = argument.hisd3USer + ":" + argument.hisd3Pass
         val encodedAuth = Base64.encodeBase64(
                 auth.toByteArray(Charset.forName("ISO-8859-1")))
         val authHeader = "Basic " + String(encodedAuth)
-        post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
+                post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
         val httpclient = HttpClientBuilder.create().build()
         val params =  Msgformat()
 
         //params.msgXML=encodedMessage
-        params.attachment = zdc?:""
+        params.attachment = zdc?:null
         params.msgXML=str
         params.senderIp= sender.toString()
-        params.orderslipId=accession?:""
+        params.orderslipId=orderID?:""
         params.casenum = casenum?:""
         params.pId=pId?:""
         params.docEmpId = doctorEmpId?:""
@@ -179,32 +180,20 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
             var response = httpclient.execute(post)
             println(response)
             if(response.statusLine.statusCode == 200){
-                try{
+
                     ack = theMessage.generateACK()
                     var msgStr :String
 
-                }catch (e: IOException){
-                    throw HL7Exception(e)
-                }
-
             }else{
-                try{
                   ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(response.entity.content.toString()))
-                }catch(e: IOException){
-                    throw HL7Exception(e)
-                }
-
             }
         }
         catch (e: IOException){
-            throw  ReceivingApplicationException(e)
+           // throw  ReceivingApplicationException(e)
+            ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
+
         }
-        finally {
-//            var formsg = SocketMsg()
-//            formsg.type="say"
-//            formsg.data = "dsdads"
-//            WSocketHandler().message(null,gson.toJson(formsg))
-        }
+        println("ack: "+ack)
         return ack
     }
 
