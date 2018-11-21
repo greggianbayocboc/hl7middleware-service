@@ -3,7 +3,9 @@ package com.hisd3.utils
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.Hl7OrmDto
+import com.hisd3.utils.Dto.obritem
 import com.hisd3.utils.Sockets.WSocketHandler
+import com.hisd3.utils.customtypes.IntegratedFacilities
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
 import com.hisd3.utils.hl7service.Hl7DirectoryWatcher
@@ -81,9 +83,9 @@ class Application
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 args.risPort = cmd.getOptionValue("risPort") ?: "22223"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "hclab.ace-mc-bohol.com"
-                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://127.0.0.1/Shared"
-                args.smbUser = cmd.getOptionValue("smbUser") ?: "crisnil"
-                args.smbPass = cmd.getOptionValue("smbPass") ?: "cacuyado"
+                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/Hl7Host"
+                args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"
+                args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"
                 args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "adminuser"
                 args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "password"
 
@@ -91,9 +93,6 @@ class Application
             var gson = Gson()
 
             if (cmd.hasOption("start")) {
-
-
-
 
                 path( "/tests"){
                     var argumentsData = gson.toJson(args)
@@ -120,6 +119,28 @@ class Application
 
                     get("/testsend") { req, res ->
                         HL7Test().transmit()
+                    }
+
+                    get("/testsendV2") { req, res ->
+                        val jData = Hl7OrmDto()
+                            jData.hospitalName = ""
+                            jData.pidPatientId = "P111111"
+                            jData.integratedFacilities = IntegratedFacilities.RIS
+                        val sampleObr = ArrayList<obritem>()
+                        
+                            for (i in 1..5) {
+                                var itemobr = obritem()
+                                itemobr.identifier = "PROCESSCODE" + i
+                                itemobr.nameservice = "Service" + i
+
+                                sampleObr.add(itemobr)
+                            }
+                            jData.obrArray = sampleObr
+                        try {
+                            JsonReceiver().createOrmMsg(jData, args)
+                        }catch (e : Exception){
+                            throw  e
+                        }
                     }
                 }
                 path("/") {
@@ -161,7 +182,11 @@ class Application
                 }
 
                 HL7ServiceListener().startLisenter(args)
-                Hl7DirectoryWatcher().startDirWatching(args)
+                try{
+                     Hl7DirectoryWatcher().startDirWatching(args)
+                }catch (e : Exception){
+                    throw e
+                }
             }
 
  }

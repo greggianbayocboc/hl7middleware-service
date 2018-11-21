@@ -3,6 +3,7 @@ package com.hisd3.utils.Dto
 import com.hisd3.utils.customtypes.IntegratedFacilities
 import javafx.scene.input.DataFormat
 import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
 import java.util.*
 
@@ -21,13 +22,15 @@ class Hl7OrmDto {
     var hospitalName:String?=null
     var sendingFacility: String?=null
     var messageControlId:String?=null
+    var sendingApplication:String?=null
+    var recievingApplication:String?=null
 
 
     var pidLastName:String?=null
     var pidFirstName:String?=null
     var pidExtName:String?=null
     var pidGender:String?=null
-    var pidDob:String?= ""
+    var pidDob: String?= null
     var pidCity:String?=null
     var pidCountry:String?=null
     var pidAddress:String?=null
@@ -61,7 +64,7 @@ class Hl7OrmDto {
     var obrPriority:Boolean?=false
     var obrRequestDate:String?=""
     var obrObservationDate:String?=""
-
+    var obrArray : ArrayList<obritem>?=null
 
     var tcp: Boolean?=false
     var ipAddress:String?=null
@@ -71,4 +74,15 @@ class Hl7OrmDto {
 
     var userLogin:String?=null
     var passLogin:String?=null
+}
+
+class obritem{
+    var identifier:String?=null
+    var nameservice:String?=null
+    var observationDate:String?=null
+    var orcRequestingDrId:String?=null
+    var orcRequestingDrFname:String?=null
+    var obrPriority:Boolean = false
+    var obrFileOrderNumber:String? = null
+    var orcPlacerOrderNumber:String?=null
 }

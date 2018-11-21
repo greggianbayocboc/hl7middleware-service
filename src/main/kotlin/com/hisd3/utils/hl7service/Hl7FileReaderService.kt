@@ -36,8 +36,8 @@ class Hl7FileReaderService {
                             var response = initiator?.sendAndReceive(next)
                             if (response is ACK) {
 
-                                val ack = response as ACK
-                                var ackcode = ack.getMSA().acknowledgmentCode.value
+//                                val ack = response as ACK
+                                var ackcode = response.getMSA().acknowledgmentCode.value
 
                                 if (ackcode != "AA") {
                                     theFile.close()
@@ -53,7 +53,6 @@ class Hl7FileReaderService {
                            // throw HL7Exception(e)
                             System.out.println("Didn't send out this message!")
                             conn?.close()
-                            conn = null
                             return false
                         }
 //                    conn?.close()
@@ -61,7 +60,6 @@ class Hl7FileReaderService {
                 }
             } catch (e: IOException) {
                 System.err.println("Missing file: "+e)
-
             }
         return null
     }
