@@ -82,7 +82,7 @@ class Application
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 args.risPort = cmd.getOptionValue("risPort") ?: "22223"
-                args.smbHost = cmd.getOptionValue("smbHost") ?: "hclab.ace-mc-bohol.com"
+                args.smbHost = cmd.getOptionValue("smbHost") ?: "HCLAB"
                 args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/Hl7Host"
                 args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"
                 args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"

@@ -10,6 +10,9 @@ import java.nio.file.WatchEvent
 import java.nio.file.FileSystems
 import java.nio.file.WatchKey
 import java.nio.file.StandardWatchEventKinds.*
+import jcifs.smb.SmbFileOutputStream
+
+
 
 
 class Hl7DirectoryWatcher {
@@ -29,29 +32,27 @@ class Hl7DirectoryWatcher {
 
        System.out.println("Start HL7 Directory Watcher")
 
-       //var globalHl7Config = hl7configrepository?.findGlobalConfigEnabled()?.firstOrNull()
+       var ntlmPasswordAuthentication = NtlmPasswordAuthentication(args.smbHost,args.smbUser, args.smbPass)
 
-//       var ntlmPasswordAuthentication:NtlmPasswordAuthentication;
-
-
-       var ntlmPasswordAuthentication = NtlmPasswordAuthentication(null,args.smbUser, args.smbPass)
-      //var ntlmPasswordAuthentication = NtlmPasswordAuthentication("172.16.10.9","lisuser","p@ssw0rd")
-      //val path = "smb://"+args.smbHost+"/hl7host/Result/"
        val smbpath = args.smbUrl+"/Result/"
-       val sFile = SmbFile(smbpath, ntlmPasswordAuthentication)
-       val paths =sFile.uncPath
+        var sFile :SmbFile
+        try {
+            sFile = SmbFile(smbpath, ntlmPasswordAuthentication)
 
-        if(sFile.list().isNotEmpty()){
-            System.out.println("Directory is not empty!")
-            fileScrapper(sFile,smbpath,ntlmPasswordAuthentication)
-        }
+        }catch (e:Exception){throw e}
+            if(sFile.list().isNotEmpty()){
+                System.out.println("Directory is not empty!")
+                fileScrapper(sFile,smbpath,ntlmPasswordAuthentication)
+            }
 
 
-       System.out.println(paths)
 
-        //val myDir = Paths.get("c:/Shared")
-       val myDir = Paths.get(paths)
        try {
+//           val myDir = Paths.get("c:/Shared")
+           val paths =sFile.uncPath
+           System.out.println(paths)
+           val myDir = Paths.get(paths)
+
              val watcher = myDir.watch()
                while(true){
                //The watcher blocks until an event is available

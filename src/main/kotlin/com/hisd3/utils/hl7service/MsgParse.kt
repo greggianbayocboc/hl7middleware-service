@@ -56,7 +56,7 @@ class MsgParse {
                 var item = LabResultItemDTO()
                 var obx = orderObs.getOBSERVATION(j).getOBX()
 
-                var values = obx.getObx5_ObservationValue()
+                var values = obx.getObservationValue()
 
                 if (obx.observationIdentifier.ce2_Text.value != null) {
                     item.fieldname = obx.observationIdentifier.ce2_Text.value
@@ -72,10 +72,10 @@ class MsgParse {
                 item.value = itemValue
 
                 if (obx.units?.ce1_Identifier?.value != null) {
-                    item.cu_units = obx.units.ce1_Identifier.value.toString() ?: ""
+                    item.cu_units = obx?.units?.ce1_Identifier?.value
                     //item.cu_units = obxResults.obx6_Units?.ce1_Identifier?.value?.toString() ?: ""
                 }
-                item.cu_referencerange = obx?.referencesRange.toString()
+                item.cu_referencerange = obx?.referencesRange?.value
                 //System.out.println("item" + item)
 
                 dataList.add(item)
@@ -83,23 +83,23 @@ class MsgParse {
             }
 
         }
-        if(obr?.obr4_UniversalServiceIdentifier?.ce2_Text!=null){
-                    var observation = obr.obr4_UniversalServiceIdentifier.ce2_Text.value
+        if(obr?.universalServiceIdentifier?.ce2_Text!=null){
+                    var observation = obr.universalServiceIdentifier.ce1_Identifier.value+"-"+ obr.universalServiceIdentifier.ce2_Text.value
                    params.put("observationrequest",observation)
                }else {
                     var observation = "TEST"
                     params.put("observationrequest",observation)
                 }
 
-        var sendingFacilty = msh.msh4_SendingFacility.name
-        var dob = pid.dateTimeOfBirth.time
+        var sendingApplication = msh.sendingApplication.toString()
+        var dob = pid.dateTimeOfBirth.time.value
         var patientFull = pid.getPatientName(0).givenName.value + " " + pid.getPatientName(0).familyName.surname.value
         var visitNumber = pv1.visitNumber.idNumber.value
         var patientId = pid.patientID.idNumber.value
         var primaryPhy = pv1.getReferringDoctor(0).givenName.value + " " + pv1.getReferringDoctor(0).familyName.surname.value
         var ward = pv1.assignedPatientLocation.bed.value ?: ""
-        var resultInterpreter = obrervation?.principalResultInterpreter.nameOfPerson.cnn3_GivenName.value + obrervation?.principalResultInterpreter.nameOfPerson.cnn2_FamilyName.value
-        var interpreterID = obrervation?.principalResultInterpreter.nameOfPerson.idNumber.value
+        var resultInterpreter = obrervation?.principalResultInterpreter.nameOfPerson.cnn3_GivenName.value + obrervation?.principalResultInterpreter.nameOfPerson.cnn2_FamilyName.value?:""
+        var interpreterID = obrervation?.principalResultInterpreter.nameOfPerson.idNumber.value?:""
 
         data.parameterData.interpreter = resultInterpreter
         data.parameterData.interpreterId = interpreterID
@@ -112,7 +112,7 @@ class MsgParse {
 //        data.parameterData = params
         data.labResultsList = dataList
         var gson = Gson()
-    //    println(data)
+        println(data)
         return gson.toJson(data)
     }
 

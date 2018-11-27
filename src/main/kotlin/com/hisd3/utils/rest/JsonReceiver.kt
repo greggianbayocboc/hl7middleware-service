@@ -111,11 +111,10 @@ class JsonReceiver {
 
         var orc = orm.getORDER(0).getORC()
         orc.orc1_OrderControl.value="NW"
-        orc.placerOrderNumber.universalID.value =msgDto.orcPlacerOrderNumber
         orc.orderStatus.value="SC"
         orc.dateTimeOfTransaction.time.value=i
-        orc.getEnteredBy(0).idNumber.value=msgDto.pv1RequestingDrId
-        orc.getEnteredBy(0).familyName.surname.value =msgDto.pv1RequestingDrMname
+        orc.getEnteredBy(0).idNumber.value=msgDto.orcRequestingDrId
+        orc.getEnteredBy(0).familyName.surname.value =msgDto.orcRequestingDrFname
         orc.enteringOrganization.identifier.value= msgDto.hospitalName
         orc.placerOrderNumber.entityIdentifier.value = msgDto?.obrFileOrderNumber
         orc.fillerOrderNumber.entityIdentifier.value = msgDto?.obrFileOrderNumber
@@ -243,7 +242,7 @@ class JsonReceiver {
         pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pidLastName
         pid.getPatientName(0).getGivenName().value =msgDto?.pidFirstName
         pid.getPatientName(0).getSuffixEgJRorIII().setValue(msgDto?.pidExtName?:"")
-        pid.dateTimeOfBirth.time.value = msgDto?.pidDob?.format(formatter2)
+        pid.dateTimeOfBirth.time.value = msgDto?.pidDob
         pid.getPatientAddress(0).getCity().setValue(msgDto.pidCity)
         pid.getPatientAddress(0).country.value=msgDto?.pidCountry
         pid.getPatientAddress(0).stateOrProvince.value=msgDto?.pidProvince

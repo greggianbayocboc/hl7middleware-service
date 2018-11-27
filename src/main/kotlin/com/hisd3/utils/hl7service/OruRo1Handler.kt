@@ -40,12 +40,14 @@ import javax.xml.parsers.DocumentBuilderFactory
 class Msgformat{
      var msgXML:String?=""
      var senderIp:String?=""
-     var orderslipId:String?=""
+     var orderslipId:String?=null
      var pId:String?=""
      var jsonList:String? = null
      var casenum:String?=null
      var docEmpId:String?=null
      var attachment:String?=null
+     var bacthnum:String?=null
+     var processCode:String?=null
 }
 
 class LabResultItemDTO {
@@ -136,15 +138,15 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val obr= getOBR(msg)
         //Getting the orderslip number located in the visit number
 
-        var visitNumber = pv1.visitNumber.idNumber.value
-        var pId = pid.getPatientIdentifierList(0).idNumber.value
-        val casenum = pv1.visitNumber.idNumber.value
-        var doctorEmpId = obr.principalResultInterpreter.nameOfPerson.idNumber.value
+        var visitNumber = pv1.visitNumber.idNumber.value?:""
+        var pId = pid.getPatientIdentifierList(0).idNumber.value?:terser.get("/PID-3")
+        val casenum = pv1.visitNumber.idNumber.value?:""
+        var doctorEmpId = obr.principalResultInterpreter.nameOfPerson.idNumber.value?:""
 
         var orc = getORC(msg)
-        val messageControlId = msh.messageControlID.value
-        val accession = orc.fillerOrderNumber.entityIdentifier.value ?:orc.placerOrderNumber.entityIdentifier.value
-        val orderID = obr.fillerOrderNumber.entityIdentifier.value
+        val messageControlId = msh.messageControlID.value?:""
+        val accession = orc.fillerOrderNumber.entityIdentifier.value ?:orc.placerOrderNumber.entityIdentifier.value?:""
+        val orderID = obr.fillerOrderNumber.entityIdentifier.value?:""
         //val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
         var sender = theMetadata!!.get("SENDING_IP")
@@ -166,7 +168,8 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.attachment = zdc?:null
         params.msgXML=str
         params.senderIp= sender.toString()
-        params.orderslipId=orderID?:""
+        params.bacthnum=orderID?:""
+        params.processCode=obr.universalServiceIdentifier.ce1_Identifier.value
         params.casenum = casenum?:""
         params.pId=pId?:""
         params.docEmpId = doctorEmpId?:""
@@ -182,7 +185,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
             if(response.statusLine.statusCode == 200){
 
                     ack = theMessage.generateACK()
-                    var msgStr :String
+                     println("ack: "+ack.toString())
 
             }else{
                   ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(response.entity.content.toString()))
