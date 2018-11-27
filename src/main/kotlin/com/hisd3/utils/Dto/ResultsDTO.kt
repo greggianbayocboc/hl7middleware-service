@@ -9,5 +9,6 @@ class LabResultDTO{
 
 class Paramdata (
         var interpreter :String? = null,
-        var interpreterId :String?=null
+        var interpreterId :String?=null,
+        var observationrequest :String?=null
 )

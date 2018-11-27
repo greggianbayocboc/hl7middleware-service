@@ -83,12 +83,12 @@ class MsgParse {
             }
 
         }
+        var observation:String? = null
         if(obr?.universalServiceIdentifier?.ce2_Text!=null){
-                    var observation = obr.universalServiceIdentifier.ce1_Identifier.value+"-"+ obr.universalServiceIdentifier.ce2_Text.value
-                   params.put("observationrequest",observation)
+                     observation = obr.universalServiceIdentifier.ce1_Identifier.value+"-"+ obr.universalServiceIdentifier.ce2_Text.value
                }else {
-                    var observation = "TEST"
-                    params.put("observationrequest",observation)
+                     observation = "TEST"
+
                 }
 
         var sendingApplication = msh.sendingApplication.toString()
@@ -101,6 +101,7 @@ class MsgParse {
         var resultInterpreter = obrervation?.principalResultInterpreter.nameOfPerson.cnn3_GivenName.value + obrervation?.principalResultInterpreter.nameOfPerson.cnn2_FamilyName.value?:""
         var interpreterID = obrervation?.principalResultInterpreter.nameOfPerson.idNumber.value?:""
 
+        data.parameterData.observationrequest = observation
         data.parameterData.interpreter = resultInterpreter
         data.parameterData.interpreterId = interpreterID
 //        params.put("interpreterID",interpreterID)
