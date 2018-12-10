@@ -64,6 +64,8 @@ class Hl7OrmDto {
     var obrPriority:Boolean?=false
     var obrRequestDate:String?=""
     var obrObservationDate:String?=""
+    var modalityType :String?=""
+    var diagnosticSev :String?=""
     var obrArray : ArrayList<obritem>?=null
 
     var tcp: Boolean?=false

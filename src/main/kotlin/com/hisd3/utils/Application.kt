@@ -6,30 +6,18 @@ import com.hisd3.utils.Dto.Hl7OrmDto
 import com.hisd3.utils.Dto.obritem
 import com.hisd3.utils.Sockets.WSocketHandler
 import com.hisd3.utils.customtypes.IntegratedFacilities
+import com.hisd3.utils.hl7service.CardioExams
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
-import com.hisd3.utils.hl7service.Hl7DirectoryWatcher
+import com.hisd3.utils.hl7service.LisJobHandler
 import com.hisd3.utils.rest.JsonReceiver
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
 import org.apache.commons.cli.Options
 import org.apache.commons.cli.ParseException
-import org.eclipse.jetty.websocket.api.Session
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
-import org.eclipse.jetty.websocket.api.annotations.WebSocket
 import spark.Spark.*
 import spark.kotlin.port
 import spark.kotlin.staticFiles
-import java.util.HashMap
-import j2html.TagCreator.header
-
-
-
-
-
-
 
 
 class Application
@@ -182,11 +170,13 @@ class Application
                 }
 
                 HL7ServiceListener().startLisenter(args)
-                try{
-                     Hl7DirectoryWatcher().startDirWatching(args)
-                }catch (e : Exception){
-                    throw e
-                }
+                LisJobHandler().LisDirectoryScanner(args)
+                CardioExams().cardiosched()
+//                try{
+//                     Hl7DirectoryWatcher().startDirWatching(args)
+//                }catch (e : Exception){
+//                    throw e
+//                }
             }
 
  }

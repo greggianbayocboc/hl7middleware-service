@@ -41,7 +41,7 @@ class Msgformat{
      var msgXML:String?=""
      var senderIp:String?=""
      var orderslipId:String?=null
-     var pId:String?=""
+     var pId:String?=null
      var jsonList:String? = null
      var casenum:String?=null
      var docEmpId:String?=null
@@ -112,13 +112,14 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         //println("Received message:\n")
 
        // System.out.println("Meta=>" + theMetadata)
-        val p = context.getGenericParser()
-
+       // val p = context.getGenericParser()
+        val parser = context.pipeParser
         val terser = Terser(theMessage)
         var zdc :String? = null
-
         try{
           zdc =  terser.get("/.ZDC(0)-3")
+
+
         }catch (e:Exception){
           println(e)
         }
@@ -130,23 +131,26 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         var encodedMessage = xmlparser.encode(theMessage)
 
 
-        var msg = p.parse(str) as ca.uhn.hl7v2.model.v25.message.ORU_R01
+        var msg = parser.parse(str) as ca.uhn.hl7v2.model.v25.message.ORU_R01
 
         val msh= getMSH(msg)
         val pid = getPID(msg)
         val pv1 = getPV1(msg)
         val obr= getOBR(msg)
+        val te2 =Terser(msg)
         //Getting the orderslip number located in the visit number
 
         var visitNumber = pv1.visitNumber.idNumber.value?:""
-        var pId = pid.getPatientIdentifierList(0).idNumber.value?:terser.get("/PID-3")
+        var terserpId = te2.get("/.PID-3")
+        var patientid = pid.patientIdentifierList[0].idNumber.value
+
         val casenum = pv1.visitNumber.idNumber.value?:""
         var doctorEmpId = obr.principalResultInterpreter.nameOfPerson.idNumber.value?:""
 
         var orc = getORC(msg)
         val messageControlId = msh.messageControlID.value?:""
         val accession = orc.fillerOrderNumber.entityIdentifier.value ?:orc.placerOrderNumber.entityIdentifier.value?:""
-        val orderID = obr.fillerOrderNumber.entityIdentifier.value?:""
+        val orderID = obr.placerOrderNumber.entityIdentifier.value?:""
         //val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
         var sender = theMetadata!!.get("SENDING_IP")
@@ -171,7 +175,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.bacthnum=orderID?:""
         params.processCode=obr.universalServiceIdentifier.ce1_Identifier.value
         params.casenum = casenum?:""
-        params.pId=pId?:""
+        params.pId = patientid ?: terserpId
         params.docEmpId = doctorEmpId?:""
         params.jsonList = MsgParse().msgToJson(theMessage!!)
 
@@ -196,7 +200,6 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
             ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
 
         }
-        println("ack: "+ack)
         return ack
     }
 

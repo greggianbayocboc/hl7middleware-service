@@ -85,10 +85,10 @@ class JsonReceiver {
        // pid.getPatientAddress(0).streetAddress.value = msgDto.pidAddress
         pid.getPatientAddress(0).stateOrProvince.value=msgDto?.pidProvince
         pid.getPatientAddress(0).zipOrPostalCode.value=msgDto?.pidZip
-        pid.patientID.idNumber.value = msgDto?.pidPatientNo
+        //pid.patientID.idNumber.value = msgDto?.pidPatientNo
         pid.getPatientIdentifierList(0).idNumber.value=msgDto?.pidPatientNo
-        pid.getPatientIdentifierList(0).checkDigit.value=""
-       pid.administrativeSex.value =msgDto?.pidGender
+        pid.administrativeSex.value =msgDto?.pidGender
+       // pid.patientID.checkDigit.value= msgDto?.obrFileOrderNumber
        // pid.getPatientIDInternalID(0).id.value  = msgDto?.pidPatientNo
 
       //  pid.pid8_Sex.value=msgDto?.pidGender
@@ -124,9 +124,9 @@ class JsonReceiver {
 
         if (msgDto?.obrArray !=null){
             val terser = Terser(orm)
-
+            obr.setIDOBR.value = "1"
             obr.placerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
-            obr.fillerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
+            //obr.fillerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
             obr.requestedDateTime.time.value=msgDto?.obrRequestDate
             var priority:String?
             if(msgDto?.obrPriority == true){
@@ -159,10 +159,9 @@ class JsonReceiver {
                     x++
                 }
         }else {
-
-            obr.placerOrderNumber.entityIdentifier.value = msgDto.obrFileOrderNumber
-            obr.getFillerOrderNumber().entityIdentifier.value = msgDto.obrFileOrderNumber
-            obr.setIDOBR.value = msgDto.obrFileOrderNumber
+            obr.setIDOBR.value = "1"
+            obr.placerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
+           // obr.fillerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
             obr.requestedDateTime.time.value = msgDto.obrRequestDate
             obr.observationDateTime.time.value = msgDto.obrObservationDate
             var priority: String?
@@ -177,6 +176,8 @@ class JsonReceiver {
 
             obr.universalServiceIdentifier.identifier.value = msgDto.obrServiceIdentifier
             obr.universalServiceIdentifier.text.value = msgDto.obrServiceName
+            obr.obr19_PlacerField2.value =msgDto.modalityType
+            obr.diagnosticServSectID.value = msgDto.diagnosticSev
         }
 
         /*
