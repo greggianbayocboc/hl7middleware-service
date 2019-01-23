@@ -203,8 +203,10 @@ class JsonReceiver {
 //            }
 
 
-            if (msgDto.integratedFacilities == IntegratedFacilities.RIS) {
-                return   httpSender(args,orm)
+            if (msgDto.recievingApplication == "RIS") {
+
+                    return   httpSender(args,orm,args?.ormRisPort?.toInt())
+
             }
 
             else {
@@ -268,7 +270,9 @@ class JsonReceiver {
         var  encodedMessage = parser.encode(adt)
         val useTls = false // Should we use TLS/SSL?
 
-        if (msgDto.integratedFacilities == IntegratedFacilities.RIS) return   httpSender(args,adt)
+        if (msgDto.recievingApplication == "RIS"){
+                return   httpSender(args,adt,args.adtRisPort?.toInt())
+        }
 
         else {
             return    dirWritter(msgDto,args, encodedMessage)
@@ -276,14 +280,15 @@ class JsonReceiver {
 
     }
 
-    fun httpSender(args:ArgDto,rawmsg:Message): String? {
+    fun httpSender(args:ArgDto,rawmsg:Message,port:Int?= null): String? {
 
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
 
         val useTls = false // Should we use TLS/SSL?
-        var connection = context.newClient(args.risHost, args.risPort!!.toInt(), useTls)
+//        var connection = context.newClient(args.risHost, args.risPort!!.toInt(), useTls)
+        var connection = context.newClient(args.risHost, 22223, useTls)
             try {
 //              var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
 
@@ -292,6 +297,7 @@ class JsonReceiver {
 
                // connection.close()
                 return response.encode()
+
 
             } catch (e: IOException) {
                //throw IllegalArgumentException(e.message)

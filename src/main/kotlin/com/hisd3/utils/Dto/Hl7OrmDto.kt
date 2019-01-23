@@ -72,7 +72,7 @@ class Hl7OrmDto {
     var ipAddress:String?=null
     var port:Int?=null
     var smbUrl:String?=null
-    var integratedFacilities: IntegratedFacilities?=null
+    var integratedFacilities:IntegratedFacilities?=null
 
     var userLogin:String?=null
     var passLogin:String?=null

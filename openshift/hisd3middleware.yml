@@ -39,7 +39,8 @@ items:
     hisd3.hisd3Port: "80"
     hisd3.hisd3Host: "demo.hisd3-ace-mc-bohol.com"
     hisd3.risHost  : "carestream.ace-mc-bohol.com"
-    hisd3.risPort  : "22222"
+    hisd3.ormRisPort  : "10101"
+    hisd3.adtRisPort  : "10100"
     hisd3.hisd3User : "adminuser"
     hisd3.hisd3Pass : "password"
 - apiVersion: v1
@@ -100,8 +101,10 @@ items:
               - "$(HISD3HOST)"
               - "-risHost"
               - "$(RISHOST)"
-              - "-risPort"
-              - "$(RISPORT)"
+              - "-ormRisPort"
+              - "$(ORMRISPORT)"
+              - "-adtRisPort"
+              - "$(ADTRISPORT)"
               - "-hisd3User"
               - "$(HISD3USER)"
               - "-hisd3PAss"
@@ -142,11 +145,16 @@ items:
                       configMapKeyRef:
                         name: hl7middleware-configmap
                         key: hisd3.risHost
-              - name: RISPORT
+              - name: ORMRISPORT
                 valueFrom:
                       configMapKeyRef:
                         name: hl7middleware-configmap
-                        key: hisd3.risPort
+                        key: hisd3.ormRisPort
+              - name: ADTRISPORT
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.adtRisPort
               - name: HISD3USER
                 valueFrom:
                       configMapKeyRef:

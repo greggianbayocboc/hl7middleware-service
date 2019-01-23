@@ -36,7 +36,7 @@ class LisJobHandler : org.quartz.Job {
                     .withIdentity("triggerA", "group1")
                     .startNow()
                     .withSchedule(simpleSchedule()
-                            .withIntervalInSeconds(5)
+                            .withIntervalInSeconds(60)
                             .repeatForever())
                     .build()
 

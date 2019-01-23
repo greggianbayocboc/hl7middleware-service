@@ -51,7 +51,8 @@ class Application
             options.addOption("hisd3Pass", true, "HIS password")
             options.addOption("hisd3Port", true, "HIS Port")
             options.addOption("risHost", true, "RIS Host/Machine")
-            options.addOption("risPort", true, "RIS Port")
+            options.addOption("ormRisPort", true, "ORM RIS Port")
+            options.addOption("adtRisPort", true, "ADT RIS Port")
             options.addOption("smbHost", true, "SMB Host/Machine")
             options.addOption("smbUrl", true, "SMB smburl")
             options.addOption("smbDir", true, "Directory")
@@ -69,7 +70,8 @@ class Application
                 args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"127.0.0.1"
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
-                args.risPort = cmd.getOptionValue("risPort") ?: "22223"
+                args.ormRisPort = cmd.getOptionValue("ormRisPort") ?: "10101"
+                args.adtRisPort = cmd.getOptionValue("adtRisPort") ?: "10100"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "HCLAB"
                 args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/Hl7Host"
                 args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"

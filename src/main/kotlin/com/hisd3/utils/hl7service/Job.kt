@@ -24,32 +24,37 @@ class JobA : Job {
         try {
             sFile = SmbFile(smbpath, auth)
 
+            if(sFile != null) {
+                try {
+                    System.out.println("Checking Unread Messages")
+                    if (sFile.list().isNotEmpty()) {
+                        System.out.println("Directory is not empty!")
+                        sFile.list().forEach {
+                            val url = smbpath + it
+                            val forprocess = SmbFile(url, auth)
 
-            try {
-                System.out.println("Checking Unread Messages")
-                if (sFile.list().isNotEmpty()) {
-                    System.out.println("Directory is not empty!")
-                    sFile.list().forEach {
-                        val url = smbpath + it
-                        val forprocess = SmbFile(url, auth)
+                            try {
+                                var inFile = SmbFileInputStream(forprocess)
+                                if (Hl7FileReaderService().readMessage(inFile, null)!!) {
+                                    forprocess.delete()
+                                }
+                            } catch (e: IOException) {
 
-                        try {
-                            var inFile = SmbFileInputStream(forprocess)
-                            if (Hl7FileReaderService().readMessage(inFile, null)!!) {
-                                forprocess.delete()
+                                println("error parsing" + e)
+                                throw e
                             }
-                        } catch (e: IOException) {
-                            println("error parsing" + e)
                         }
+                    } else {
+                        System.out.println("Directory is empty!")
                     }
-                } else {
-                    System.out.println("Directory is empty!")
-                }
-            } catch (e: Exception) {
-                throw e
+                }   catch (e: Exception) {
+                    throw e
+                    }
             }
         }catch (e:Exception){
-            throw e}
+            //println("Smb Connection "+ e)
+            throw e
+        }
     }
 
 }
