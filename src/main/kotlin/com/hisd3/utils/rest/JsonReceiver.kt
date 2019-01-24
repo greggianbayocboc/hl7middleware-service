@@ -87,6 +87,7 @@ class JsonReceiver {
         pid.getPatientAddress(0).zipOrPostalCode.value=msgDto?.pidZip
         //pid.patientID.idNumber.value = msgDto?.pidPatientNo
         pid.getPatientIdentifierList(0).idNumber.value=msgDto?.pidPatientNo
+        pid.getAlternatePatientIDPID(0).idNumber.value =msgDto?.pidAlternatePid
         pid.administrativeSex.value =msgDto?.pidGender
        // pid.patientID.checkDigit.value= msgDto?.obrFileOrderNumber
        // pid.getPatientIDInternalID(0).id.value  = msgDto?.pidPatientNo
@@ -126,7 +127,7 @@ class JsonReceiver {
             val terser = Terser(orm)
             obr.setIDOBR.value = "1"
             obr.placerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
-            //obr.fillerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
+            obr.fillerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
             obr.requestedDateTime.time.value=msgDto?.obrRequestDate
             var priority:String?
             if(msgDto?.obrPriority == true){
@@ -135,8 +136,6 @@ class JsonReceiver {
                 priority = "ROUTINE"
             }
             obr.priorityOBR.value = priority
-            obr
-
             var x  = 0
             for(obritem in msgDto?.obrArray!!)
                 {
@@ -161,7 +160,7 @@ class JsonReceiver {
         }else {
             obr.setIDOBR.value = "1"
             obr.placerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
-           // obr.fillerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
+            obr.fillerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
             obr.requestedDateTime.time.value = msgDto.obrRequestDate
             obr.observationDateTime.time.value = msgDto.obrObservationDate
             var priority: String?
@@ -175,8 +174,10 @@ class JsonReceiver {
             obr.scheduledDateTime.time.value = msgDto.obrRequestDate
 
             obr.universalServiceIdentifier.identifier.value = msgDto.obrServiceIdentifier
-            obr.universalServiceIdentifier.text.value = msgDto.obrServiceName
+            obr.universalServiceIdentifier.text.value = msgDto.serviceCategory +"-" + msgDto.obrServiceName
             obr.obr19_PlacerField2.value =msgDto.modalityType
+            obr.obr21_FillerField2.value=msgDto.modalityType
+            obr.obr24_DiagnosticServSectID.value="RX"
             obr.diagnosticServSectID.value = msgDto.diagnosticSev
         }
 

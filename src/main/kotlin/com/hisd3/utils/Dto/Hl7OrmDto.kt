@@ -39,6 +39,7 @@ class Hl7OrmDto {
     var pidPatientId:String?=null
     var pidPatientNo:String?=null
     var pidCitizenship:String?=null
+    var pidAlternatePid:String?=null
 
     var pv1VisitNumer:String?=null
     var pv1CaseNumer:String?=null
@@ -60,6 +61,7 @@ class Hl7OrmDto {
     var obrPlaceOrderNumber:String?=null
     var obrFileOrderNumber:String?=null
     var obrServiceIdentifier:String?=null
+    var serviceCategory:String?=null
     var obrServiceName:String?=null
     var obrPriority:Boolean?=false
     var obrRequestDate:String?=""
