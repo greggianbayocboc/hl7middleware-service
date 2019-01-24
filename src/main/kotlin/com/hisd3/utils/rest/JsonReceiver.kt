@@ -289,7 +289,7 @@ class JsonReceiver {
 
         val useTls = false // Should we use TLS/SSL?
 //        var connection = context.newClient(args.risHost, args.risPort!!.toInt(), useTls)
-        var connection = context.newClient(args.risHost, 22223, useTls)
+        var connection = context.newClient(args.risHost, port!!.toInt(), useTls)
             try {
 //              var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
 
