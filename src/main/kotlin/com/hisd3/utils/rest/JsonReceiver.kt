@@ -289,7 +289,7 @@ class JsonReceiver {
 
         val useTls = false // Should we use TLS/SSL?
 //        var connection = context.newClient(args.risHost, args.risPort!!.toInt(), useTls)
-        var connection = context.newClient(args.risHost, port!!.toInt(), useTls)
+        var connection = context.newClient(args.risHost, port!!, useTls)
             try {
 //              var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
 
@@ -308,7 +308,6 @@ class JsonReceiver {
                 connection.close()
             }
          }
-        }
 
 
     fun dirWritter(msgDto: Hl7OrmDto,args:ArgDto,encodedMessage: String): String? {
@@ -322,20 +321,20 @@ class JsonReceiver {
             val shared = args.smbUrl+"/Order/"
             val directory = SmbFile(shared,ntlmPasswordAuthentication)
 
-                try{
-                    if (! directory.exists()) {
-                        directory.mkdir()
-                    }
-                }catch(e: IOException) {
-                    throw IllegalArgumentException(e.message)
-                    e.printStackTrace()
+            try{
+                if (! directory.exists()) {
+                    directory.mkdir()
                 }
+            }catch(e: IOException) {
+                throw IllegalArgumentException(e.message)
+                e.printStackTrace()
+            }
 
-                val path = args.smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
-                val sFile = SmbFile(path, ntlmPasswordAuthentication)
-                var sfos =  SmbFileOutputStream(sFile)
-                sfos.write(encodedMessage.toByteArray())
-                sfos.close()
+            val path = args.smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
+            val sFile = SmbFile(path, ntlmPasswordAuthentication)
+            var sfos =  SmbFileOutputStream(sFile)
+            sfos.write(encodedMessage.toByteArray())
+            sfos.close()
             println("Written file" + msgDto.messageControlId.toString())
             /*** writing files in local shared folder***/
 //                var file = Paths.get("//localhost/Shared/Outbox/"+msgDto.msh.messageControlId+".hl7")
@@ -347,4 +346,8 @@ class JsonReceiver {
         }
         return gson.toJson("ok")
     }
+
+
+}
+
 

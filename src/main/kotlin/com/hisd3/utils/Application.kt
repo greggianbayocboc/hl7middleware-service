@@ -67,8 +67,9 @@ class Application
             val cmd = parser.parse(options, args)
 
             var args = ArgDto()
-                args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"127.0.0.1"
+                args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"http://127.0.0.1"
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
+//                args.risHost = cmd.getOptionValue("risHost") ?: "172.16.10.160"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 args.ormRisPort = cmd.getOptionValue("ormRisPort") ?: "10101"
                 args.adtRisPort = cmd.getOptionValue("adtRisPort") ?: "10100"
@@ -76,8 +77,8 @@ class Application
                 args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/Hl7Host"
                 args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"
                 args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"
-                args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "adminuser"
-                args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "password"
+                args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "admin"
+                args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "7yq7d&addL\$4CAAD"
 
 
             var gson = Gson()
@@ -108,7 +109,7 @@ class Application
                     get("/ping") { req, res -> "OK" }
 
                     get("/testsend") { req, res ->
-                        HL7Test().transmit()
+                        HL7Test().transmit(args)
                     }
 
                     get("/testsendV2") { req, res ->
@@ -172,8 +173,8 @@ class Application
                 }
 
                 HL7ServiceListener().startLisenter(args)
-                LisJobHandler().LisDirectoryScanner(args)
-                CardioExams().cardiosched()
+//                LisJobHandler().LisDirectoryScanner(args)
+//                CardioExams().cardiosched()
 //                try{
 //                     Hl7DirectoryWatcher().startDirWatching(args)
 //                }catch (e : Exception){

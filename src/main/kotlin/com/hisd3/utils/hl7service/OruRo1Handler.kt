@@ -17,25 +17,10 @@ import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.SocketMsg
 import com.hisd3.utils.Sockets.WSocketHandler
-import com.sun.org.apache.xpath.internal.Arg
-import org.apache.commons.codec.binary.Base64
-import org.apache.commons.io.IOUtils
-import org.apache.http.HttpHeaders
-import org.apache.http.NameValuePair
-import org.apache.http.client.entity.UrlEncodedFormEntity
-import org.apache.http.client.methods.HttpPost
-import org.apache.http.entity.StringEntity
-import org.apache.http.impl.client.HttpClientBuilder
-import org.apache.http.impl.client.HttpClients
-import org.apache.http.message.BasicNameValuePair
-import org.eclipse.jetty.websocket.api.annotations.WebSocket
-import org.joda.time.DateTime
-import org.joda.time.LocalDate
-import org.joda.time.Years
+import com.hisd3.utils.httpservice.HttpSenderToHis
+import org.apache.commons.lang3.StringUtils
 import java.io.IOException
-import java.nio.charset.Charset
-import java.util.*
-import javax.xml.parsers.DocumentBuilderFactory
+
 
 class Msgformat{
      var msgXML:String?=""
@@ -110,27 +95,38 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
         //println("Received message:\n")
-
        // System.out.println("Meta=>" + theMetadata)
-       // val p = context.getGenericParser()
+       // val pgen = context.getGenericParser()
+       // val hapiMsg = pgen.parse(theMessage.toString())
+
         val parser = context.pipeParser
+
         val terser = Terser(theMessage)
+        var zdcOrig :String? = null
         var zdc :String? = null
+
         try{
-          zdc =  terser.get("/.ZDC(0)-3")
 
+//          zdc =  terser.get("/.ZDC(0)-4")
+            zdcOrig = StringUtils.substring(
+                    theMessage.toString(),
+                    StringUtils.indexOf(theMessage.toString(),"ZDC"),
+                    theMessage.toString().length
+            )
 
+            zdc =  StringUtils.remove(zdcOrig,"ZDC|0|PDF|")
+            zdc=StringUtils.trim(zdc)
+            //println("ZDC:" +zdc)
         }catch (e:Exception){
+
           println(e)
         }
        // println("ZDC:" +zdc.toString())
 
 
-        var str = theMessage.toString()
+        var str = StringUtils.remove(theMessage.toString(),zdcOrig)
         var xmlparser = context.getXMLParser()
         var encodedMessage = xmlparser.encode(theMessage)
-
-
         var msg = parser.parse(str) as ca.uhn.hl7v2.model.v25.message.ORU_R01
 
         val msh= getMSH(msg)
@@ -150,22 +146,13 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         var orc = getORC(msg)
         val messageControlId = msh.messageControlID.value?:""
         val accession = orc.fillerOrderNumber.entityIdentifier.value ?:orc.placerOrderNumber.entityIdentifier.value?:""
-        val orderID = obr.placerOrderNumber.entityIdentifier.value?:""
+        val orderID = obr.placerOrderNumber.entityIdentifier.value?:obr.fillerOrderNumber.entityIdentifier.value
         //val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
         var sender = theMetadata!!.get("SENDING_IP")
 
         //Parsing xml to json
-        val post = HttpPost("http://"+argument.hisd3Host+":"+argument.hisd3Port+"/restapi/msgreceiver/hl7postResult")
-//      val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
 
-        //val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
-        val auth = argument.hisd3USer + ":" + argument.hisd3Pass
-        val encodedAuth = Base64.encodeBase64(
-                auth.toByteArray(Charset.forName("ISO-8859-1")))
-        val authHeader = "Basic " + String(encodedAuth)
-                post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
-        val httpclient = HttpClientBuilder.create().build()
         val params =  Msgformat()
 
         //params.msgXML=encodedMessage
@@ -179,29 +166,52 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.docEmpId = doctorEmpId?:""
         params.jsonList = MsgParse().msgToJson(theMessage!!)
 
-        post.setHeader(HttpHeaders.CONTENT_TYPE,"application/json")
-        post.entity = StringEntity(gson.toJson(params))
+        HttpSenderToHis().postToHis(params,argument)
 //        parsingXml(encodedMessage)
         var ack: Message
-        try{
-            var response = httpclient.execute(post)
-            println(response)
-            if(response.statusLine.statusCode == 200){
 
-                    ack = theMessage.generateACK()
-                     println("ack: "+ack.toString())
-
-            }else{
-                  ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(response.entity.content.toString()))
+            try{
+                ack = theMessage.generateACK()
+    //            var response = httpclient.execute(post)
+    //            println(response)
+    //            if(response.statusLine.statusCode == 200){
+    //
+    //                    ack = theMessage.generateACK()
+    //                     println("ack: "+ack.toString())
+    //
+    //            }else{
+    //                  ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(response.entity.content.toString()))
+    //            }
             }
-        }
-        catch (e: IOException){
-           // throw  ReceivingApplicationException(e)
-            ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
+            catch (e: IOException){
 
-        }
+                ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
+            }
         return ack
     }
+
+//    @Async
+//    open fun postToHis(params :Msgformat){
+//        val post = HttpPost(argument.hisd3Host+":"+argument.hisd3Port+"/restapi/msgreceiver/hl7postResult")
+////      val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
+//
+//        //val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
+//        val auth = argument.hisd3USer + ":" + argument.hisd3Pass
+//        val encodedAuth = Base64.encodeBase64(
+//                auth.toByteArray(Charset.forName("ISO-8859-1")))
+//        val authHeader = "Basic " + String(encodedAuth)
+//        post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
+//        val httpclient = HttpClientBuilder.create().build()
+//
+//        post.setHeader(HttpHeaders.CONTENT_TYPE,"application/json")
+//        val gson = Gson()
+//        post.entity = StringEntity(gson.toJson(params))
+//        try{
+//            var response = httpclient.execute(post)
+//        }catch (e:Exception)
+//        {throw e}
+//
+//    }
 
     private fun getMSH(oru: ORU_R01): MSH {
         return oru.msh
@@ -228,20 +238,4 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
     private  fun getOBR(oru : ORU_R01): OBR{
         return oru.patienT_RESULT.ordeR_OBSERVATION.obr
     }
-
-    fun parsingXml (xmlMsg :String){
-
-        var fXmlFile = xmlMsg
-        var dbFactory = DocumentBuilderFactory.newInstance()
-        var dBuilder = dbFactory.newDocumentBuilder()
-        var doc = dBuilder.parse(fXmlFile)
-
-        doc.getDocumentElement().normalize()
-        System.out.println("Root element :" + doc.getDocumentElement().getNodeName())
-
-        var nList = doc.getElementsByTagName("ZDC")
-
-        println( "ZDC:" +nList.toString())
-    }
-
 }
