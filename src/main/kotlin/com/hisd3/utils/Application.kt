@@ -4,7 +4,8 @@ import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.Hl7OrmDto
 import com.hisd3.utils.Dto.obritem
-import com.hisd3.utils.Sockets.WSocketHandler
+import com.hisd3.utils.Sockets.TutorialSocket
+import com.hisd3.utils.Sockets.WSocketChatHandler
 import com.hisd3.utils.customtypes.IntegratedFacilities
 import com.hisd3.utils.hl7service.CardioExams
 import com.hisd3.utils.hl7service.HL7ServiceListener
@@ -37,12 +38,12 @@ class Application
 
              println(it)
          }*/
-
-         port(4567)
+        // port(4567)
          staticFiles.location("/public")
          port(4567)
          staticFiles.expireTime(600L)
-         webSocket("/chat", WSocketHandler::class.java)
+         //webSocket("/chat",WSocketChatHandler::class.java)
+        // webSocket("/tutorialsokcet",TutorialSocket::class.java)
 
          val options = Options()
 
@@ -69,7 +70,7 @@ class Application
             var args = ArgDto()
                 args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"http://127.0.0.1"
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
-//                args.risHost = cmd.getOptionValue("risHost") ?: "172.16.10.160"
+               // args.risHost = cmd.getOptionValue("risHost") ?: "172.16.10.160"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 args.ormRisPort = cmd.getOptionValue("ormRisPort") ?: "10101"
                 args.adtRisPort = cmd.getOptionValue("adtRisPort") ?: "10100"
@@ -145,11 +146,18 @@ class Application
                             try {
                                 when (msgDto.messageCode) {
                                     "ADT_A04" -> {
-                                        JsonReceiver().createAdtMsg(msgDto, args)
+
+                                        var returndata =  JsonReceiver().createAdtMsg(msgDto, args)
+                                        res.status(200)
+                                        res.type("application/json")
+                                        res.body(returndata)
                                     }
 
                                     "ORM_O01" -> {
-                                        JsonReceiver().createOrmMsg(msgDto, args)
+                                        var resdata =JsonReceiver().createOrmMsg(msgDto, args)
+                                        res.status(200)
+                                        res.type("application/json")
+                                        res.body(resdata)
                                     }
                                     else ->"Sorry, Option not available yet"
                                 }

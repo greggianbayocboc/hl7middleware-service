@@ -15,11 +15,15 @@ import ca.uhn.hl7v2.protocol.ReceivingApplicationException
 import ca.uhn.hl7v2.util.Terser
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
-import com.hisd3.utils.Dto.SocketMsg
-import com.hisd3.utils.Sockets.WSocketHandler
+import com.hisd3.utils.Sockets.TutorialSocket
+import com.hisd3.utils.Sockets.WSocketChatHandler
 import com.hisd3.utils.httpservice.HttpSenderToHis
 import org.apache.commons.lang3.StringUtils
-import java.io.IOException
+import java.net.URI
+
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest
+import org.eclipse.jetty.websocket.client.WebSocketClient
+
 
 
 class Msgformat{
@@ -72,9 +76,11 @@ class LabResultItemDTO {
 class OruRo1Handler<E> : ReceivingApplication<Message> {
 
     var argument = ArgDto()
-    constructor(arges:ArgDto)
+    var socks = TutorialSocket()
+    constructor(arges:ArgDto,socket:TutorialSocket)
     {
         argument = arges
+        socks = socket
     }
 
     /**
@@ -151,6 +157,12 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         // Getting the sender IP
         var sender = theMetadata!!.get("SENDING_IP")
 
+        try {
+            println("trying socket messaging")
+            socks.onText(null,"crisnil")
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
         //Parsing xml to json
 
         val params =  Msgformat()
@@ -165,28 +177,15 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.pId = patientid ?: terserpId
         params.docEmpId = doctorEmpId?:""
         params.jsonList = MsgParse().msgToJson(theMessage!!)
-
-        HttpSenderToHis().postToHis(params,argument)
-//        parsingXml(encodedMessage)
         var ack: Message
-
-            try{
-                ack = theMessage.generateACK()
-    //            var response = httpclient.execute(post)
-    //            println(response)
-    //            if(response.statusLine.statusCode == 200){
-    //
-    //                    ack = theMessage.generateACK()
-    //                     println("ack: "+ack.toString())
-    //
-    //            }else{
-    //                  ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(response.entity.content.toString()))
-    //            }
-            }
-            catch (e: IOException){
-
-                ack =  theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
-            }
+        ack = try {
+            HttpSenderToHis().postToHis(params, argument)
+            theMessage.generateACK()
+        }catch (e: HL7Exception){
+            e.printStackTrace()
+            theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
+        }
+//        parsingXml(encodedMessage)
         return ack
     }
 

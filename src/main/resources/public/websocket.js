@@ -1,13 +1,11 @@
 var webSocket = new WebSocket("ws://" + location.hostname + ":" + location.port + "/chat");
 webSocket.onmessage = function (msg) {receievMsg(JSON.parse(msg.data)) }
 webSocket.onclose = function() { alert("Server Disconnect You"); }
-
 webSocket.onopen = function() {
-    var name = "";
-    while (name == "") name = prompt("Enter your name");
+    var name = "Crisnil";
+   // while (name == "") name = prompt("Enter your name");
     sendMessage("join", name);
 }
-
 $("#send").click(function () {
     sendMessage("say", $("#msg").val());
 });
@@ -22,7 +20,6 @@ function sendMessage(type, data) {
     }
 }
 function receievMsg(msg) {
-    console.log("new msg",msg)
     if (msg.msgType == "say") {
         $("#chatbox").append("<p>"+msg.data+"</p>");
     }

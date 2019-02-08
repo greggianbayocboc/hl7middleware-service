@@ -8,7 +8,7 @@ import org.quartz.*
 import java.io.IOException
 
 
-class JobA : Job {
+class LisDirectoryScannerJob : Job {
     @Throws(JobExecutionException::class)
     override fun execute(arg0: JobExecutionContext) {
 
@@ -40,15 +40,15 @@ class JobA : Job {
                                 }
                             } catch (e: IOException) {
 
-                                println("error parsing" + e)
-                                throw e
+                               e.printStackTrace()
+
                             }
                         }
                     } else {
                         System.out.println("Directory is empty!")
                     }
                 }   catch (e: Exception) {
-                    throw e
+                    e.printStackTrace()
                     }
             }
         }catch (e:Exception){

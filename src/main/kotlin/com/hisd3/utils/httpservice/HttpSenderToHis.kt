@@ -36,6 +36,7 @@ open class HttpSenderToHis {
         try {
             var response = httpclient.execute(post)
         } catch (e: Exception) {
+
             e.printStackTrace()
             throw e
         }

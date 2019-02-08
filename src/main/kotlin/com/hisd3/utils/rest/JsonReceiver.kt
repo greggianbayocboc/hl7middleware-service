@@ -26,14 +26,19 @@ import java.sql.Timestamp
 import java.util.*
 import HL7DateTimeParser
 import ca.uhn.hl7v2.model.v25.datatype.CE
+import ca.uhn.hl7v2.model.v25.message.ACK
 import ca.uhn.hl7v2.util.Terser
 import com.hisd3.utils.hl7service.HL7DateTime
+import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+
 
 class JsonReceiver {
 
 
-    fun createOrmMsg(msgDto: Hl7OrmDto, args:ArgDto):String? {
+    fun createOrmMsg(msgDto: Hl7OrmDto, args:ArgDto): String? {
         var gson = Gson()
 //
 //            val msgDto = gson.fromJson(data, Hl7OrmDto::class.java)
@@ -216,7 +221,7 @@ class JsonReceiver {
 
         }
 
-    fun createAdtMsg(msgDto: Hl7OrmDto,args: ArgDto):String? {
+    fun createAdtMsg(msgDto: Hl7OrmDto,args: ArgDto): String? {
 
         val formatter2 = DateTimeFormatter.ofPattern("yyyyMMddHHmm")
         var context = DefaultHapiContext()
@@ -286,18 +291,31 @@ class JsonReceiver {
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
-
+        val parser = context.genericParser
         val useTls = false // Should we use TLS/SSL?
 //        var connection = context.newClient(args.risHost, args.risPort!!.toInt(), useTls)
         var connection = context.newClient(args.risHost, port!!, useTls)
+
             try {
 //              var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
 
                 var initiator = connection.initiator
-                var response = initiator.sendAndReceive(rawmsg)
+                var res = initiator.sendAndReceive(rawmsg)
+                println(res)
 
-               // connection.close()
-                return response.encode()
+                var msa :String? = null
+                try{
+
+                    msa = StringUtils.substring(
+                            res.toString(),
+                            StringUtils.indexOf(res.toString(),"MSA"),
+                            res.toString().length
+                    )
+                }catch (e: Exception){
+                    throw e
+                }
+
+              return StringUtils.trim(msa)
 
 
             } catch (e: IOException) {
@@ -313,6 +331,7 @@ class JsonReceiver {
     fun dirWritter(msgDto: Hl7OrmDto,args:ArgDto,encodedMessage: String): String? {
 
         var gson = Gson()
+        var ack :Message? = null
         try {
             /** writing files to shared folder in a network with credentials**/
 
@@ -339,12 +358,15 @@ class JsonReceiver {
             /*** writing files in local shared folder***/
 //                var file = Paths.get("//localhost/Shared/Outbox/"+msgDto.msh.messageControlId+".hl7")
 //                Files.write(file,encodedMessage.toByteArray())
+            ack?.generateACK()
 
         }catch(e: IOException) {
             throw IllegalArgumentException(e.message)
             e.printStackTrace()
         }
-        return gson.toJson("ok")
+        println(ack)
+
+        return  "AA"
     }
 
 

@@ -36,13 +36,13 @@ items:
     hisd3.smbUser  : "lisuser"
     hisd3.smbPass  : "p@ssw0rd"
     hisd3.smbUrl   : "smb://172.16.10.9/hl7host"
-    hisd3.hisd3Port: "443"
-    hisd3.hisd3Host: "https://demo.ace-mc-bohol.com"
+    hisd3.hisd3Port: "8080"
+    hisd3.hisd3Host: "127.0.0.1"
     hisd3.risHost  : "carestream.ace-mc-bohol.com"
     hisd3.ormRisPort  : "10101"
     hisd3.adtRisPort  : "10100"
-    hisd3.hisd3User : "adminuser"
-    hisd3.hisd3Pass : "password"
+    hisd3.hisd3User : "admin"
+    hisd3.hisd3Pass : "7yq7d&addL$4CAAD"
 - apiVersion: v1
   kind: ImageStream
   metadata:
