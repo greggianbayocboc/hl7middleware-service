@@ -10,11 +10,11 @@ buildnow (){
 
       if [ "$(uname)" = "Darwin" ]
      then
-       /usr/local/bin/docker build  -t hl7middleware:"$version"  --build-arg JAR_FILE=build/libs/hl7middleware.jar  .
+       docker build  -t hl7middleware:"$version"  --build-arg JAR_FILE=build/libs/hl7middleware.jar  .
 
      else
 
-      /usr/bin/docker build  -t  hl7middleware:"$version"  --build-arg JAR_FILE=build/libs/hl7middleware.jar  .
+      docker build  -t  hl7middleware:"$version"  --build-arg JAR_FILE=build/libs/hl7middleware.jar  .
 
      fi
 
@@ -26,11 +26,11 @@ tagdemo(){
     
      if [ "$(uname)" = "Darwin" ]
      then
-      /usr/local/bin/docker  tag   hl7middleware:"$version"    docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream:hl7middleware 
+      docker  tag   hl7middleware:"$version"    docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream:hl7middleware
    
      else
 
-     /usr/bin/docker  tag   hl7middleware:"$version"    docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream:hl7middleware 
+     docker  tag   hl7middleware:"$version"    docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream:hl7middleware
    
      fi
      
@@ -41,11 +41,11 @@ pushimagesdemo(){
 
     if [ "$(uname)" = "Darwin" ]
      then
-     /usr/local/bin/docker  push docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream
+     docker  push docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream
    
      else
 
-      /usr/bin/docker  push  docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream
+      docker  push  docker-registry-default.apps.master.ace-mc-bohol.com/hisd3demo/hl7middleware-imagestream
    
      fi
      

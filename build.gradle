@@ -95,6 +95,8 @@ dependencies {
     //
     // https://mvnrepository.com/artifact/org.quartz-scheduler/quartz
     compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.2.1'
+    // https://mvnrepository.com/artifact/com.github.eirslett/frontend-maven-plugin
+    compile group: 'com.github.eirslett', name: 'frontend-maven-plugin', version: '1.6'
 
 }
 

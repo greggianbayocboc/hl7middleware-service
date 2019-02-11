@@ -108,19 +108,19 @@ class JsonReceiver {
         //pv1.visitNumber.id.value = msgDto.pv1VisitNumer
         pv1.patientType.value=msgDto.pv1PatientClass
         pv1.assignedPatientLocation.bed.value=msgDto.bed
-        pv1.getAttendingDoctor(0).givenName.value=msgDto.pv1RequestingDrFname
-       // pv1.getAttendingDoctor(0).familyName.value=msgDto.pv1RequestingDrLname
-        pv1.getAdmittingDoctor(0).familyName.surname.value = msgDto.pv1RequestingDrLname
-        pv1.getAttendingDoctor(0).idNumber.value=msgDto.pv1RequestingDrId
 
+        pv1.getAdmittingDoctor(0).familyName.surname.value = msgDto.pv1RequestingDrFname
+        pv1.getAttendingDoctor(0).idNumber.value=msgDto.pv1RequestingDrId
+        pv1.getReferringDoctor(0).familyName.surname.value=msgDto.pv1RequestingDrFname
+        //pv1.getReferringDoctor(0).givenName.value=msgDto.pv1RequestingDrFname
         var order = orm.getORDER(0)
 
         var orc = orm.getORDER(0).getORC()
         orc.orc1_OrderControl.value="NW"
         orc.orderStatus.value="SC"
         orc.dateTimeOfTransaction.time.value=i
-        orc.getEnteredBy(0).idNumber.value=msgDto.orcRequestingDrId
-        orc.getEnteredBy(0).familyName.surname.value =msgDto.orcRequestingDrFname
+        orc.getEnteredBy(0).idNumber.value=msgDto.pv1RequestingDrId
+        orc.getEnteredBy(0).familyName.surname.value =msgDto.pv1RequestingDrLname
         orc.enteringOrganization.identifier.value= msgDto.hospitalName
         orc.placerOrderNumber.entityIdentifier.value = msgDto?.obrFileOrderNumber
         orc.fillerOrderNumber.entityIdentifier.value = msgDto?.obrFileOrderNumber
@@ -175,9 +175,10 @@ class JsonReceiver {
                 priority = "ROUTINE"
             }
             obr.priorityOBR.value = priority
-            obr.getOrderingProvider(0).idNumber
             obr.scheduledDateTime.time.value = msgDto.obrRequestDate
 
+            obr.getOrderingProvider(0).idNumber.value = msgDto.pv1RequestingDrId
+            obr.getOrderingProvider(0).familyName.surname.value =msgDto.pv1RequestingDrFname
             obr.universalServiceIdentifier.identifier.value = msgDto.obrServiceIdentifier
             obr.universalServiceIdentifier.text.value = msgDto.serviceCategory +"-" + msgDto.obrServiceName
             obr.obr19_PlacerField2.value =msgDto.modalityType
