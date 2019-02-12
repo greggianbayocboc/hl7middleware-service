@@ -67,11 +67,11 @@ class Application
             val parser = DefaultParser()
             val cmd = parser.parse(options, args)
 
-            var args = ArgDto()
+            val args = ArgDto()
                 args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"http://127.0.0.1"
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
-                args.risHost = cmd.getOptionValue("risHost") ?: "172.16.10.160"
-                //args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
+                //args.risHost = cmd.getOptionValue("risHost") ?: "172.16.10.160"
+                args.risHost = cmd.getOptionValue("risHost") ?: "172.16.17.190"
                 args.ormRisPort = cmd.getOptionValue("ormRisPort") ?: "10101"
                 args.adtRisPort = cmd.getOptionValue("adtRisPort") ?: "10100"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "HCLAB"
@@ -82,12 +82,12 @@ class Application
                 args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "7yq7d&addL\$4CAAD"
 
 
-            var gson = Gson()
+            val gson = Gson()
 
             if (cmd.hasOption("start")) {
 
                 path( "/tests"){
-                    var argumentsData = gson.toJson(args)
+                    val argumentsData = gson.toJson(args)
                     get("/showvars") { req, res ->
 
                         val accessControlRequestHeaders = req
@@ -121,7 +121,7 @@ class Application
                         val sampleObr = ArrayList<obritem>()
                         
                             for (i in 1..5) {
-                                var itemobr = obritem()
+                                val itemobr = obritem()
                                 itemobr.identifier = "PROCESSCODE" + i
                                 itemobr.nameservice = "Service" + i
 
@@ -138,23 +138,23 @@ class Application
                 path("/") {
                     post("jsonmsg"){req,res ->
 
-                        if(!req.body()?.isNullOrEmpty()!!) {
+                        if(!req.body()?.isEmpty()!!) {
 
-                            var data = req.body()
+                            val data = req.body()
                             val msgDto :Hl7OrmDto  = gson.fromJson(data, Hl7OrmDto::class.java)
 
                             try {
                                 when (msgDto.messageCode) {
                                     "ADT_A04" -> {
 
-                                        var returndata =  JsonReceiver().createAdtMsg(msgDto, args)
+                                        val returndata =  JsonReceiver().createAdtMsg(msgDto, args)
                                         res.status(200)
                                         res.type("application/json")
                                         res.body(returndata)
                                     }
 
                                     "ORM_O01" -> {
-                                        var resdata =JsonReceiver().createOrmMsg(msgDto, args)
+                                        val resdata =JsonReceiver().createOrmMsg(msgDto, args)
                                         res.status(200)
                                         res.type("application/json")
                                         res.body(resdata)
@@ -166,7 +166,7 @@ class Application
    //                             res.status(500)
   //                              res.body(e.message)
 
-                                println(e.message)
+                                //println(e.message)
                                 return@post Unit
 
                             }

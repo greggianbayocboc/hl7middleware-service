@@ -97,17 +97,17 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
      override fun processMessage(theMessage: Message?, theMetadata: MutableMap<String, Any>?): Message? {
 
         var gson = Gson()
-        var context = DefaultHapiContext()
-        var mcf = CanonicalModelClassFactory("2.5")
+        val context = DefaultHapiContext()
+        val mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
-        //println("Received message:\n")
-       // System.out.println("Meta=>" + theMetadata)
-       // val pgen = context.getGenericParser()
-       // val hapiMsg = pgen.parse(theMessage.toString())
+        println("Received message:\n")
+        println(theMessage.toString())
+
 
         val parser = context.pipeParser
 
-        val terser = Terser(theMessage)
+
+        //val terser = Terser(theMessage)
         var zdcOrig :String? = null
         var zdc :String? = null
 
@@ -130,10 +130,11 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
        // println("ZDC:" +zdc.toString())
 
 
-        var str = StringUtils.remove(theMessage.toString(),zdcOrig)
-        var xmlparser = context.getXMLParser()
-        var encodedMessage = xmlparser.encode(theMessage)
-        var msg = parser.parse(str) as ca.uhn.hl7v2.model.v25.message.ORU_R01
+        val str = StringUtils.remove(theMessage.toString(),zdcOrig)
+
+//        var xmlparser = context.getXMLParser()
+//        var encodedMessage = xmlparser.encode(theMessage)
+        val msg = parser.parse(theMessage.toString()) as ca.uhn.hl7v2.model.v25.message.ORU_R01
 
         val msh= getMSH(msg)
         val pid = getPID(msg)
@@ -143,23 +144,23 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         //Getting the orderslip number located in the visit number
 
         var visitNumber = pv1.visitNumber.idNumber.value?:""
-        var terserpId = te2.get("/.PID-3")
-        var patientid = pid.patientIdentifierList[0].idNumber.value
+        val terserpId = te2.get("/.PID-3")
+        val patientid = pid.patientIdentifierList[0].idNumber.value
 
         val casenum = pv1.visitNumber.idNumber.value?:""
-        var doctorEmpId = obr.principalResultInterpreter.nameOfPerson.idNumber.value?:""
+        val doctorEmpId = obr.principalResultInterpreter.nameOfPerson.idNumber.value?:""
 
-        var orc = getORC(msg)
+        val orc = getORC(msg)
         val messageControlId = msh.messageControlID.value?:""
         val accession = orc.fillerOrderNumber.entityIdentifier.value ?:orc.placerOrderNumber.entityIdentifier.value?:""
         val orderID = obr.placerOrderNumber.entityIdentifier.value?:obr.fillerOrderNumber.entityIdentifier.value
         //val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
-        var sender = theMetadata!!.get("SENDING_IP")
+        val sender = theMetadata!!.get("SENDING_IP")
 
         try {
             println("trying socket messaging")
-            socks.onText(null,"crisnil")
+            socks.onText(null,str)
         }catch (e: Exception){
             e.printStackTrace()
         }
@@ -168,16 +169,16 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val params =  Msgformat()
 
         //params.msgXML=encodedMessage
-        params.attachment = zdc?:null
+        params.attachment = zdc
         params.msgXML=str
         params.senderIp= sender.toString()
         params.bacthnum=orderID?:""
         params.processCode=obr.universalServiceIdentifier.ce1_Identifier.value
-        params.casenum = casenum?:""
+        params.casenum = casenum
         params.pId = patientid ?: terserpId
-        params.docEmpId = doctorEmpId?:""
+        params.docEmpId = doctorEmpId
         params.jsonList = MsgParse().msgToJson(theMessage!!)
-        var ack: Message
+        val ack: Message
         ack = try {
             HttpSenderToHis().postToHis(params, argument)
             theMessage.generateACK()
