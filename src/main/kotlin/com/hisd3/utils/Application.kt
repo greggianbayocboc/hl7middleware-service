@@ -39,7 +39,7 @@ class Application
              println(it)
          }*/
         // port(4567)
-         staticFiles.location("/public")
+         //staticFiles.location("/public")
          port(4567)
          staticFiles.expireTime(600L)
          //webSocket("/chat",WSocketChatHandler::class.java)
