@@ -1,16 +1,10 @@
 buildscript {
     ext.kotlin_version = '1.2.41'
-    ext.kotlinx_html_version = "0.6.4"
-    ext.kotlin_frontend_version = "0.0.30"
-    ext.react_version = "16.4.0-pre.31-kotlin-$kotlin_version"
-    ext.react_dom_version = "16.4.0-pre.31-kotlin-$kotlin_version"
     repositories {
-        jcenter()
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+        mavenCentral()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.kotlin:kotlin-frontend-plugin:0.0.31"
     }
 }
 plugins {
@@ -18,18 +12,16 @@ plugins {
 }
 
 group 'com.hisd3.utils'
-version '1.0-SNAPSHOT'
+version '1.0.1'
 
 sourceCompatibility = 1.8
 
 repositories {
-    mavenLocal()
-    jcenter()
+    mavenCentral()
 }
 
-apply plugin: 'kotlin2js'
-apply plugin: 'kotlin-dce-js'
-apply plugin: 'org.jetbrains.kotlin.frontend'
+apply plugin: 'application'
+apply plugin: 'kotlin'
 
 
 dependencies {
@@ -103,8 +95,7 @@ dependencies {
     //
     // https://mvnrepository.com/artifact/org.quartz-scheduler/quartz
     compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.2.1'
-    // https://mvnrepository.com/artifact/com.github.eirslett/frontend-maven-plugin
-    compile group: 'com.github.eirslett', name: 'frontend-maven-plugin', version: '1.6'
+    
 
 }
 
@@ -151,62 +142,7 @@ task generateNewVersionFile{
     new File(outputDir, "VERSION").write("$project.version")
 }
 
-kotlinFrontend {
-    downloadNodeJsVersion = "latest"
 
-    npm {
-//        dependency("kotlin", "1.1.0")
-        dependency "style-loader" // production dependency
-        dependency "react"
-        dependency "react-dom"
-        dependency "kotlin"
-        dependency "@jetbrains/kotlin-extensions"
-        dependency "@jetbrains/kotlin-react"
-    }
-
-    webpackBundle {
-        bundleName = "main"
-        contentPath = file('src/main/web')
-//        mode = 'development'
-        mode = 'production'
-    }
-
-    define "PRODUCTION", false
-    define "X", false
-
-//    rollupBundle {
-//        bundleName = "rolledUp"
-//    }
-
-//    allBundles {
-//        /* set properties for all bundles */
-//    }
-
-//    bundle("someBundler") {
-//        ....
-//    }
-}
-
-compileKotlin2Js {
-    kotlinOptions.metaInfo = true
-    kotlinOptions.outputFile = "$project.buildDir.path/js/${project.name}.js"
-    kotlinOptions.sourceMap = true
-    kotlinOptions.moduleKind = 'commonjs'
-    kotlinOptions.main = "call"
-}
-
-compileTestKotlin2Js {
-    kotlinOptions.metaInfo = true
-    kotlinOptions.outputFile = "$project.buildDir.path/js-tests/${project.name}-tests.js"
-    kotlinOptions.sourceMap = true
-    kotlinOptions.moduleKind = 'commonjs'
-//    kotlinOptions.moduleName = project.name + "-test"
-    kotlinOptions.main = "call"
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.3.1'
-}
 processResources{
     dependsOn generateNewVersionFile
 }
