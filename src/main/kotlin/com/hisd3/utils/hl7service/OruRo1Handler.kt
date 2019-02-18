@@ -4,19 +4,15 @@ import ca.uhn.hl7v2.AcknowledgmentCode
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v25.group.ORU_R01_ORDER_OBSERVATION
-import ca.uhn.hl7v2.model.v25.message.ACK
 import ca.uhn.hl7v2.model.v25.message.ORU_R01
 import ca.uhn.hl7v2.model.v25.segment.*
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
-import ca.uhn.hl7v2.parser.PipeParser
 import ca.uhn.hl7v2.protocol.ReceivingApplication
 import ca.uhn.hl7v2.protocol.ReceivingApplicationException
 import ca.uhn.hl7v2.util.Terser
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
-import com.hisd3.utils.Sockets.TutorialSocket
-import com.hisd3.utils.Sockets.WSocketChatHandler
+import com.hisd3.utils.Sockets.WebsocketClient
 import com.hisd3.utils.httpservice.HttpSenderToHis
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
@@ -76,11 +72,10 @@ class LabResultItemDTO {
 class OruRo1Handler<E> : ReceivingApplication<Message> {
 
     var argument = ArgDto()
-    var socks = TutorialSocket()
-    constructor(arges:ArgDto,socket:TutorialSocket)
+    constructor(arges:ArgDto)
     {
         argument = arges
-        socks = socket
+
     }
 
     /**
@@ -100,9 +95,6 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val context = DefaultHapiContext()
         val mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
-        println("Received message:\n")
-        println(theMessage.toString())
-
 
         val parser = context.pipeParser
 
@@ -127,11 +119,12 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
           println(e)
         }
-       // println("ZDC:" +zdc.toString())
+
 
 
         val str = StringUtils.remove(theMessage.toString(),zdcOrig)
-
+        println("Received message:\n")
+        println(str)
 //        var xmlparser = context.getXMLParser()
 //        var encodedMessage = xmlparser.encode(theMessage)
         val msg = parser.parse(theMessage.toString()) as ca.uhn.hl7v2.model.v25.message.ORU_R01
@@ -158,13 +151,25 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         // Getting the sender IP
         val sender = theMetadata!!.get("SENDING_IP")
 
+        val dest = "ws://localhost:4567/socketmessenging"
+        val client = WebSocketClient()
+        val socket = WebsocketClient()
         try {
-            println("trying socket messaging")
-            socks.onText(null,str)
-        }catch (e: Exception){
-            e.printStackTrace()
+            client.start()
+            val echoUri = URI(dest)
+            val request = ClientUpgradeRequest()
+            client.connect(socket, echoUri, request)
+            socket.sendMessage(str)
+            //Thread.sleep(1000L)
+        } catch (t: Throwable) {
+            t.printStackTrace()
+        } finally {
+            try {
+                client.stop()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-        //Parsing xml to json
 
         val params =  Msgformat()
 

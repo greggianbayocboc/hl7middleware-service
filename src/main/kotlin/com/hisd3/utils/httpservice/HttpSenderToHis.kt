@@ -34,7 +34,9 @@ open class HttpSenderToHis {
         val gson = Gson()
         post.entity = StringEntity(gson.toJson(params))
         try {
+            println("Sending to HIS")
             var response = httpclient.execute(post)
+            println("Response from HISD3 :" + response.statusLine.statusCode)
         } catch (e: Exception) {
 
             e.printStackTrace()

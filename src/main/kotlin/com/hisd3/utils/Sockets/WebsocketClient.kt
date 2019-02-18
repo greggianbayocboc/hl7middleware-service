@@ -9,11 +9,11 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage
 import org.eclipse.jetty.websocket.api.annotations.WebSocket
 
 @WebSocket
-class TutorialSocket {
+class WebsocketClient {
 
     var session: Session? = null
 
-   // var latch = CountDownLatch(1)
+    var latch =  CountDownLatch(1)
 
     @OnWebSocketMessage
     @Throws(IOException::class)
@@ -25,17 +25,22 @@ class TutorialSocket {
     fun onConnect(session: Session) {
         println("Connected to server")
         this.session = session
-        //latch.countDown()
+        latch.countDown()
     }
 
     fun sendMessage(str: String) {
         try {
+            println("Message sender:$str")
             session?.remote?.sendString(str)
+
         } catch (e: IOException) {
             // TODO Auto-generated catch block
             e.printStackTrace()
         }
 
+    }
+    fun getLatch(){
+        return latch.await()
     }
 
 

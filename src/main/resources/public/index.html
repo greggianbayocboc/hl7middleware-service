@@ -1,37 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Chat - Websocket Kotlin</title>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-
-    <style>
-        .full-height { height: 100%; }
-        .input-text  { height: 10%;  }
-        .chat-text   { height: 90%;  }
-        .border      { border: 1px black; }
-    </style>
-</head>
+<html>
 <body>
 <div>
     <input type="text" id="input" />
 </div>
 <div>
     <input type="button" id="connectBtn" value="CONNECT"
-           onclick="connect()" />
-    <input type="button" id="sendBtn"
-           value="SEND" onclick="send()"/>
+           onclick="connect()" /> <input type="button" id="sendBtn"
+                                         value="SEND" onclick="send()" disabled="true" />
 </div>
 <div id="output">
     <p>Output</p>
 </div>
 </body>
-<script src="jettysocket.js"></script>
-</body>
+
+<script type="text/javascript">
+    var webSocket;
+    var output = document.getElementById("output");
+    var connectBtn = document.getElementById("connectBtn");
+    var sendBtn = document.getElementById("sendBtn");
+
+    function connect() {
+        // open the connection if one does not exist
+        if (webSocket !== undefined
+            && webSocket.readyState !== WebSocket.CLOSED) {
+            return;
+        }
+        // Create a websocket
+        webSocket = new WebSocket("ws://localhost:4567/tutorialsokcet");
+
+        webSocket.onopen = function(event) {
+            updateOutput("Connected!");
+            connectBtn.disabled = true;
+            sendBtn.disabled = false;
+
+        };
+
+        webSocket.onmessage = function(event) {
+            updateOutput(event.data);
+        };
+
+        webSocket.onclose = function(event) {
+            updateOutput("Connection Closed");
+            connectBtn.disabled = false;
+            sendBtn.disabled = true;
+        };
+    }
+
+    function send() {
+        var text = document.getElementById("input").value;
+        webSocket.send(text);
+    }
+
+    function closeSocket() {
+        webSocket.close();
+    }
+
+    function updateOutput(text) {
+        output.innerHTML += "<br/>" + text;
+    }
+</script>
 </html>
-
-

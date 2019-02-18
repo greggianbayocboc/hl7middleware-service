@@ -36,7 +36,7 @@ class LisDirectoryScannerJob : Job {
                             try {
                                 var inFile = SmbFileInputStream(forprocess)
                                 if (Hl7FileReaderService().readMessage(inFile, null)!!) {
-                                    forprocess.delete()
+                                   // forprocess.delete()
                                 }
                             } catch (e: IOException) {
 

@@ -302,7 +302,7 @@ class JsonReceiver {
 
                 var initiator = connection.initiator
                 var res = initiator.sendAndReceive(rawmsg)
-                println(res)
+                println("middleware: response from RIS" + res)
 
                 var msa :String? = null
                 try{
@@ -365,7 +365,7 @@ class JsonReceiver {
             throw IllegalArgumentException(e.message)
             e.printStackTrace()
         }
-        println(ack)
+
 
         return  "AA"
     }
