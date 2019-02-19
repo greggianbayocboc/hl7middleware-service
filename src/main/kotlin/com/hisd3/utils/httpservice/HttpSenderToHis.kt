@@ -19,7 +19,7 @@ open class HttpSenderToHis {
 
 
     fun postToHis(params: Msgformat, argument: ArgDto): ResponseEntity<String>? {
-        val post = HttpPost(argument.hisd3Host + ":" + argument.hisd3Port + "/restapi/msgreceiver/hl7postResult")
+        val post = HttpPost(argument.hisd3Host + "/restapi/msgreceiver/hl7postResult")
 //      val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
 
         //val auth = "admin" + ":" + "7yq7d&addL$4CAAD"

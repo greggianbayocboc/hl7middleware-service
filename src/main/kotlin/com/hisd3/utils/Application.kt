@@ -67,7 +67,7 @@ class Application
 
             val args = ArgDto()
                 args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"http://127.0.0.1"
-                args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
+                args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"443"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 //args.risHost = cmd.getOptionValue("risHost") ?: "172.16.17.190"
                 args.ormRisPort = cmd.getOptionValue("ormRisPort") ?: "10101"
