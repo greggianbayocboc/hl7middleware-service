@@ -123,8 +123,8 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
 
         val str = StringUtils.remove(theMessage.toString(),zdcOrig)
-        println("Received message:\n")
-        println(str)
+        println("New message received:\n")
+ //       println(str)
 //        var xmlparser = context.getXMLParser()
 //        var encodedMessage = xmlparser.encode(theMessage)
         val msg = parser.parse(theMessage.toString()) as ca.uhn.hl7v2.model.v25.message.ORU_R01
