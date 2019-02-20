@@ -81,6 +81,7 @@ class JsonReceiver {
         pid.getPatientName(0).getSecondAndFurtherGivenNamesOrInitialsThereof().value =msgDto?.pidMiddleName
         pid.getPatientName(0).getGivenName().value =msgDto?.pidFirstName
         pid.getPatientName(0).getSuffixEgJRorIII().value=msgDto?.pidExtName
+
        // pid.dateTimeOfBirth.time.value = msgDto?.pidDob
         var dobs =  HL7DateTime(msgDto?.pidDob!!)
        // pid.pid7_DateOfBirth.timeOfAnEvent.value = msgDto?.pidDob
