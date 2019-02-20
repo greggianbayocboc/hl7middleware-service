@@ -18,7 +18,7 @@ class WebsocketClient {
     @OnWebSocketMessage
     @Throws(IOException::class)
     fun onText(session: Session?, message: String) {
-        println("Message received from server:$message")
+        println("Message received from server:\n $message")
     }
 
     @OnWebSocketConnect
@@ -30,7 +30,7 @@ class WebsocketClient {
 
     fun sendMessage(str: String) {
         try {
-            println("Message sender:$str")
+            println("Message: \n $str")
             session?.remote?.sendString(str)
 
         } catch (e: IOException) {
