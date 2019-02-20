@@ -42,7 +42,7 @@ class JsonReceiver {
         var gson = Gson()
 //
 //            val msgDto = gson.fromJson(data, Hl7OrmDto::class.java)
- //       println(msgDto)
+//        println(gson.toJson(msgDto))
 
 
 
@@ -76,17 +76,18 @@ class JsonReceiver {
         // Populate the PID Segment
         var pid = orm.getPATIENT().getPID()
 
+       // pid.pid5_PatientName[0].familyName.ownSurnamePrefix.value = msgDto?.pidMiddleName
         pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pidLastName
-        //pid.getPatientName(0).familyName.value  =msgDto?.pidLastName
+        pid.getPatientName(0).getSecondAndFurtherGivenNamesOrInitialsThereof().value =msgDto?.pidMiddleName
         pid.getPatientName(0).getGivenName().value =msgDto?.pidFirstName
-        pid.getPatientName(0).getSuffixEgJRorIII().setValue(msgDto?.pidExtName?:"")
+        pid.getPatientName(0).getSuffixEgJRorIII().value=msgDto?.pidExtName
        // pid.dateTimeOfBirth.time.value = msgDto?.pidDob
         var dobs =  HL7DateTime(msgDto?.pidDob!!)
        // pid.pid7_DateOfBirth.timeOfAnEvent.value = msgDto?.pidDob
         pid.dateTimeOfBirth.time.value =msgDto?.pidDob
-        pid.getPatientAddress(0).getCity().setValue(msgDto.pidCity)
+        pid.getPatientAddress(0).city.value =msgDto.pidCity
         pid.getPatientAddress(0).country.value=msgDto?.pidCountry
-        pid.getPatientAddress(0).streetAddress.streetName.value =msgDto.pidAddress
+        pid.getPatientAddress(0).streetAddress.streetName.value = StringUtils.trim(msgDto.pidAddress)
        // pid.getPatientAddress(0).streetAddress.value = msgDto.pidAddress
         pid.getPatientAddress(0).stateOrProvince.value=msgDto?.pidProvince
         pid.getPatientAddress(0).zipOrPostalCode.value=msgDto?.pidZip
@@ -302,7 +303,7 @@ class JsonReceiver {
 
                 var initiator = connection.initiator
                 var res = initiator.sendAndReceive(rawmsg)
-                println("middleware: response from RIS" + res)
+                println("middleware: response from RIS : " + res)
 
                 var msa :String? = null
                 try{

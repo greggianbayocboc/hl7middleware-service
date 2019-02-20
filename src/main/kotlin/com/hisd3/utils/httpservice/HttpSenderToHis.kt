@@ -46,4 +46,35 @@ open class HttpSenderToHis {
         val responseHeaders = org.springframework.http.HttpHeaders()
         return ResponseEntity("Message Receive", responseHeaders, HttpStatus.OK)
     }
+
+    fun testPostToHis(argument: ArgDto):String?{
+        println("initiate test post")
+        val post = HttpPost(argument.hisd3Host + "/restapi/msgreceiver/testpost")
+        var params = Msgformat()
+        params.senderIp = "hl7middleware"
+        params.processCode ="testing post"
+
+        val auth = argument.hisd3USer + ":" + argument.hisd3Pass
+        val encodedAuth = Base64.encodeBase64(
+                auth.toByteArray(Charset.forName("ISO-8859-1")))
+        val authHeader = "Basic " + String(encodedAuth)
+        post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
+        val httpclient = HttpClientBuilder.create().build()
+
+        post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+        val gson = Gson()
+        post.entity = StringEntity(gson.toJson(params))
+        var response : String? = null
+        try {
+            println("Sending to HIS")
+            var response = httpclient.execute(post)
+            println("Response from HISD3 :" + response.statusLine.statusCode)
+        } catch (e: Exception) {
+
+            e.printStackTrace()
+            throw e
+        }
+
+        return gson.toJson(response.toString())
+    }
 }

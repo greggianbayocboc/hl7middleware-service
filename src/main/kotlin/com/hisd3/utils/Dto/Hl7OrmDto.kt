@@ -28,6 +28,7 @@ class Hl7OrmDto {
 
     var pidLastName:String?=null
     var pidFirstName:String?=null
+    var pidMiddleName:String?=null
     var pidExtName:String?=null
     var pidGender:String?=null
     var pidDob: String?= null

@@ -9,6 +9,7 @@ import com.hisd3.utils.customtypes.IntegratedFacilities
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
 import com.hisd3.utils.hl7service.LisJobHandler
+import com.hisd3.utils.httpservice.HttpSenderToHis
 import com.hisd3.utils.rest.JsonReceiver
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
@@ -66,8 +67,8 @@ class Application
             val cmd = parser.parse(options, args)
 
             val args = ArgDto()
-                args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"http://127.0.0.1"
-                args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"443"
+                args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"http://127.0.0.1:8080"
+                args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 //args.risHost = cmd.getOptionValue("risHost") ?: "172.16.17.190"
                 args.ormRisPort = cmd.getOptionValue("ormRisPort") ?: "10101"
@@ -130,6 +131,13 @@ class Application
                             JsonReceiver().createOrmMsg(jData, args)
                         }catch (e : Exception){
                             throw  e
+                        }
+                    }
+                    get("/testpost"){req,res->
+                                HttpSenderToHis().testPostToHis(args)
+                        try{
+                    }catch (e :Exception){
+                        throw  e
                         }
                     }
                 }
