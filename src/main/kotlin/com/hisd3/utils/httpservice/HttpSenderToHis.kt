@@ -3,11 +3,14 @@ package com.hisd3.utils.httpservice
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.hl7service.Msgformat
+import com.mchange.v1.util.ClosableResource
 import org.apache.commons.codec.binary.Base64
 import org.apache.http.HttpHeaders
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
+import org.apache.http.impl.client.HttpClients
+import org.apache.http.util.EntityUtils
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.scheduling.annotation.Async
@@ -49,6 +52,8 @@ open class HttpSenderToHis {
 
     fun testPostToHis(argument: ArgDto):String?{
         println("initiate test post")
+
+        val httpclient = HttpClients.custom().build()
         val post = HttpPost(argument.hisd3Host + "/restapi/msgreceiver/testpost")
         var params = Msgformat()
         params.senderIp = "hl7middleware"
@@ -58,23 +63,26 @@ open class HttpSenderToHis {
         val encodedAuth = Base64.encodeBase64(
                 auth.toByteArray(Charset.forName("ISO-8859-1")))
         val authHeader = "Basic " + String(encodedAuth)
-        post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
-        val httpclient = HttpClientBuilder.create().build()
 
+        post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
+        post.setHeader(HttpHeaders.ACCEPT,"application/json")
         post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+
         val gson = Gson()
         post.entity = StringEntity(gson.toJson(params))
-        var response : String? = null
+        var res :String? =null
         try {
             println("Sending to HIS")
             var response = httpclient.execute(post)
             println("Response from HISD3 :" + response.statusLine.statusCode)
+            res = EntityUtils.toString(response.getEntity())
         } catch (e: Exception) {
 
             e.printStackTrace()
+            post.releaseConnection()
             throw e
         }
-
-        return gson.toJson(response.toString())
+        post.releaseConnection()
+        return res
     }
 }

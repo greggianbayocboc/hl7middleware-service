@@ -134,11 +134,8 @@ class Application
                         }
                     }
                     get("/testpost"){req,res->
-                                HttpSenderToHis().testPostToHis(args)
-                        try{
-                    }catch (e :Exception){
-                        throw  e
-                        }
+                        res.type("application.json")
+                        HttpSenderToHis().testPostToHis(args)
                     }
                 }
                 path("/") {
