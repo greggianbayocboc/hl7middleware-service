@@ -149,18 +149,13 @@ class Application
                             try {
                                 when (msgDto.messageCode) {
                                     "ADT_A04" -> {
-
-                                        val returndata =  JsonReceiver().createAdtMsg(msgDto, args)
-                                        res.status(200)
                                         res.type("application/json")
-                                        res.body(returndata)
+                                        JsonReceiver().createAdtMsg(msgDto, args)
                                     }
 
                                     "ORM_O01" -> {
-                                        val resdata =JsonReceiver().createOrmMsg(msgDto, args)
-                                        res.status(200)
                                         res.type("application/json")
-                                        res.body(resdata)
+                                        JsonReceiver().createOrmMsg(msgDto, args)
                                     }
                                     else ->"Sorry, Option not available yet"
                                 }

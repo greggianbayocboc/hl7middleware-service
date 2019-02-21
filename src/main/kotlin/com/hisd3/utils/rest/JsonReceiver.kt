@@ -80,7 +80,8 @@ class JsonReceiver {
         pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pidLastName
         pid.getPatientName(0).getSecondAndFurtherGivenNamesOrInitialsThereof().value =msgDto?.pidMiddleName
         pid.getPatientName(0).getGivenName().value =msgDto?.pidFirstName
-        pid.getPatientName(0).getSuffixEgJRorIII().value=msgDto?.pidExtName
+      //  pid.getPatientName(0).getSuffixEgJRorIII().value=msgDto?.pidExtName
+       // pid.getPatientName(0).getPrefixEgDR().value= "ENGR"
 
        // pid.dateTimeOfBirth.time.value = msgDto?.pidDob
         var dobs =  HL7DateTime(msgDto?.pidDob!!)
@@ -136,6 +137,8 @@ class JsonReceiver {
             obr.placerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
             obr.fillerOrderNumber.entityIdentifier.value=msgDto?.obrPlaceOrderNumber
             obr.requestedDateTime.time.value=msgDto?.obrRequestDate
+            obr.observationDateTime.time.value = i
+            obr.scheduledDateTime.time.value=i
             var priority:String?
             if(msgDto?.obrPriority == true){
                 priority  = "STAT"
@@ -177,8 +180,9 @@ class JsonReceiver {
                 priority = "ROUTINE"
             }
             obr.priorityOBR.value = priority
-            obr.scheduledDateTime.time.value = msgDto.obrRequestDate
-
+            obr.scheduledDateTime.time.value = i
+            obr.observationDateTime.time.value = i
+            obr.requestedDateTime.time.value=msgDto?.obrRequestDate
             obr.getOrderingProvider(0).idNumber.value = msgDto.pv1RequestingDrId
             obr.getOrderingProvider(0).familyName.surname.value =msgDto.pv1RequestingDrFname
             obr.universalServiceIdentifier.identifier.value = msgDto.obrServiceIdentifier
@@ -253,7 +257,7 @@ class JsonReceiver {
         var pid = adt.getPID()
         pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pidLastName
         pid.getPatientName(0).getGivenName().value =msgDto?.pidFirstName
-        pid.getPatientName(0).getSuffixEgJRorIII().setValue(msgDto?.pidExtName?:"")
+        pid.getPatientName(0).getSuffixEgJRorIII().value=msgDto?.pidExtName?:""
         pid.dateTimeOfBirth.time.value = msgDto?.pidDob
         pid.getPatientAddress(0).getCity().setValue(msgDto.pidCity)
         pid.getPatientAddress(0).country.value=msgDto?.pidCountry
@@ -334,7 +338,6 @@ class JsonReceiver {
     fun dirWritter(msgDto: Hl7OrmDto,args:ArgDto,encodedMessage: String): String? {
 
         var gson = Gson()
-        var ack :Message? = null
         try {
             /** writing files to shared folder in a network with credentials**/
 
@@ -361,13 +364,11 @@ class JsonReceiver {
             /*** writing files in local shared folder***/
 //                var file = Paths.get("//localhost/Shared/Outbox/"+msgDto.msh.messageControlId+".hl7")
 //                Files.write(file,encodedMessage.toByteArray())
-            ack?.generateACK()
 
         }catch(e: IOException) {
             throw IllegalArgumentException(e.message)
             e.printStackTrace()
         }
-
 
         return  "AA"
     }

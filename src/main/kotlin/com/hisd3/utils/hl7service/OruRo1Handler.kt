@@ -102,7 +102,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         //val terser = Terser(theMessage)
         var zdcOrig :String? = null
         var zdc :String? = null
-
+        var str :String?= null
         try{
 
 //          zdc =  terser.get("/.ZDC(0)-4")
@@ -114,15 +114,19 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
             zdc =  StringUtils.remove(zdcOrig,"ZDC|0|PDF|")
             zdc=StringUtils.trim(zdc)
+
             //println("ZDC:" +zdc)
         }catch (e:Exception){
 
-          println(e)
+          println("No Attachement Found : \n" + e)
         }
 
+        if(zdc !=null){
+            str = StringUtils.remove(theMessage.toString(),zdcOrig)
+        }else{
+            str = theMessage.toString()
+        }
 
-
-        val str = StringUtils.remove(theMessage.toString(),zdcOrig)
         println("New message received:\n")
  //       println(str)
 //        var xmlparser = context.getXMLParser()
@@ -159,7 +163,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
             val echoUri = URI(dest)
             val request = ClientUpgradeRequest()
             client.connect(socket, echoUri, request)
-            socket.sendMessage(str)
+            socket.sendMessage(str!!)
             //Thread.sleep(1000L)
         } catch (t: Throwable) {
             t.printStackTrace()
@@ -182,41 +186,19 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.casenum = casenum
         params.pId = patientid ?: terserpId
         params.docEmpId = doctorEmpId
-        params.jsonList = MsgParse().msgToJson(theMessage!!)
+        params.jsonList = MsgParse().msgToJson(msg)
         val ack: Message
         ack = try {
             HttpSenderToHis().postToHis(params, argument)
-            theMessage.generateACK()
+            theMessage!!.generateACK()
         }catch (e: HL7Exception){
             e.printStackTrace()
-            theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
+            theMessage!!.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
         }
 //        parsingXml(encodedMessage)
         return ack
     }
 
-//    @Async
-//    open fun postToHis(params :Msgformat){
-//        val post = HttpPost(argument.hisd3Host+":"+argument.hisd3Port+"/restapi/msgreceiver/hl7postResult")
-////      val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
-//
-//        //val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
-//        val auth = argument.hisd3USer + ":" + argument.hisd3Pass
-//        val encodedAuth = Base64.encodeBase64(
-//                auth.toByteArray(Charset.forName("ISO-8859-1")))
-//        val authHeader = "Basic " + String(encodedAuth)
-//        post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
-//        val httpclient = HttpClientBuilder.create().build()
-//
-//        post.setHeader(HttpHeaders.CONTENT_TYPE,"application/json")
-//        val gson = Gson()
-//        post.entity = StringEntity(gson.toJson(params))
-//        try{
-//            var response = httpclient.execute(post)
-//        }catch (e:Exception)
-//        {throw e}
-//
-//    }
 
     private fun getMSH(oru: ORU_R01): MSH {
         return oru.msh
