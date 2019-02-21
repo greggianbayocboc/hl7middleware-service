@@ -70,9 +70,8 @@ open class HttpSenderToHis {
         post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
         post.setHeader(HttpHeaders.ACCEPT,"application/json")
         post.setHeader(HttpHeaders.CONTENT_TYPE, "application/json")
-
-
         post.entity = StringEntity(gson.toJson(params))
+
         var res :String? =null
         try {
             println("Sending to HIS")
