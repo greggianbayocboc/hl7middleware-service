@@ -197,7 +197,7 @@ class JsonReceiver {
          * In other situation, more segments and fields would be populated
          */
         // Now, let's encode the message and look at the output
-        var  encodedMessage = parser.encode(orm)
+
        // println(encodedMessage)
         val useTls = false // Should we use TLS/SSL?
 //            try {
@@ -223,6 +223,11 @@ class JsonReceiver {
             }
 
             else {
+                val terser = Terser(orm)
+                terser.set("/.PID-5-1","")
+                terser.set("/.PID-5-3","")
+                terser.set("/.PID-5-2", msgDto?.pidLastName+", "+msgDto?.pidFirstName+" "+msgDto?.pidMiddleName+" "+msgDto?.pidExtName)
+                var  encodedMessage = parser.encode(orm)
                 return  dirWritter(msgDto, args, encodedMessage)
             }
 
