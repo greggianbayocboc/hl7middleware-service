@@ -1,4 +1,5 @@
-FROM hisd3base:1.0.3
+FROM middleware:latest
+#FROM hisd3base:1.0.3
 #FROM albertoclarit/hisd3base:latest
 
 
