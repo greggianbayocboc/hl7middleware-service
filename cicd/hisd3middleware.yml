@@ -161,7 +161,7 @@ objects:
               - "$(ADTRISPORT)"
               - "-hisd3User"
               - "$(HISD3USER)"
-              - "-hisd3PAss"
+              - "-hisd3Pass"
               - "$(HISD3PASS)"
           env:
               - name: SMBHOST
