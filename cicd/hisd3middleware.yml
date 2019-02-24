@@ -93,17 +93,17 @@ objects:
   metadata:
     name: hl7middleware-configmap
   data:
-    hisd3.smbHost  : "hclab.ace-mc-bohol.com"
-    hisd3.smbUser  : "lisuser"
-    hisd3.smbPass  : "p@ssw0rd"
-    hisd3.smbUrl   : "smb://172.16.10.9/hl7host"
-    hisd3.hisd3Port: "8080"
-    hisd3.hisd3Host: "127.0.0.1"
-    hisd3.risHost  : "carestream.ace-mc-bohol.com"
-    hisd3.ormRisPort  : "10101"
-    hisd3.adtRisPort  : "10100"
-    hisd3.hisd3User : "admin"
-    hisd3.hisd3Pass : "7yq7d&addL$4CAAD"
+     hisd3.adtRisPort: '10100'
+     hisd3.hisd3Host: 'https://hisd3.ace-mc-bohol.com'
+     hisd3.hisd3Pass: 7yq7d&addL$4CAAD
+     hisd3.hisd3Port: '443'
+     hisd3.hisd3User: admin
+     hisd3.ormRisPort: '10101'
+     hisd3.risHost: 172.16.10.160
+     hisd3.smbHost: hclab.ace-mc-bohol.com
+     hisd3.smbPass: p@ssw0rd
+     hisd3.smbUrl: 'smb://172.16.10.9/hl7host'
+     hisd3.smbUser: lisuser
 
 
 - apiVersion: v1
