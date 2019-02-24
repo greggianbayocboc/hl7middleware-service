@@ -1,10 +1,11 @@
-FROM albertoclarit/hisd3base:latest
+FROM hisd3base:1.0.3
+#FROM albertoclarit/hisd3base:latest
 
 
 VOLUME /tmp
 WORKDIR /app
 ARG JAR_FILE
-ADD ${JAR_FILE} /app/HISD3Middleware.jar
+ADD hl7middleware.jar /app/HISD3Middleware.jar
 
 RUN chmod a+w /app
 
