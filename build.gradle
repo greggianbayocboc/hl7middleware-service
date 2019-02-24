@@ -1,7 +1,11 @@
 buildscript {
     ext.kotlin_version = '1.2.41'
     repositories {
-        mavenCentral()
+       // mavenCentral()
+
+        maven {
+            url "http://nexus.ace-mc-bohol.com/repository/maven-public/"
+        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -17,7 +21,11 @@ version '1.0.1'
 sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+   // mavenCentral()
+
+    maven {
+        url "http://nexus.ace-mc-bohol.com/repository/maven-public/"
+    }
 }
 
 apply plugin: 'application'
