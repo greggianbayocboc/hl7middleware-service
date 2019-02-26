@@ -1,6 +1,7 @@
 package com.hisd3.utils
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.Hl7OrmDto
 import com.hisd3.utils.Dto.obritem
@@ -81,7 +82,7 @@ class Application
                 args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "7yq7d&addL\$4CAAD"
 
 
-            val gson = Gson()
+            val gson = GsonBuilder().disableHtmlEscaping().create()
 
             if (cmd.hasOption("start")) {
 

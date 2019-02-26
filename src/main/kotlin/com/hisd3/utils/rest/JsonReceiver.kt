@@ -25,15 +25,24 @@ import jdk.nashorn.internal.objects.NativeDate.getTime
 import java.sql.Timestamp
 import java.util.*
 import HL7DateTimeParser
+import ca.uhn.hl7v2.hoh.llp.Hl7OverHttpLowerLayerProtocol
+import ca.uhn.hl7v2.hoh.util.ServerRoleEnum
+import ca.uhn.hl7v2.llp.MinLowerLayerProtocol
+import ca.uhn.hl7v2.llp.MllpConstants
 import ca.uhn.hl7v2.model.v25.datatype.CE
 import ca.uhn.hl7v2.model.v25.message.ACK
+import ca.uhn.hl7v2.model.v25.segment.MSH
+import ca.uhn.hl7v2.model.v25.segment.PID
 import ca.uhn.hl7v2.util.Terser
 import com.hisd3.utils.hl7service.HL7DateTime
 import org.apache.commons.lang3.StringUtils
 import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 class JsonReceiver {
 
@@ -50,12 +59,21 @@ class JsonReceiver {
         var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
 
+        var  llp = Hl7OverHttpLowerLayerProtocol(ServerRoleEnum.CLIENT)
+        context.setLowerLayerProtocol(llp)
+        //val mllp = MinLowerLayerProtocol()
+        llp.setCharset("UTF-8")
+        context.setLowerLayerProtocol(llp)
+
             var orm = ORM_O01()
 
             orm.initQuickstart("ORM","O01","P")
             //orm.initQuickstart(msgDto.messageCode, msgDto.messageTriggerEvent, "D")
             var parser = context.getPipeParser()
+
             parser.getParserConfiguration().setIdGenerator(InMemoryIDGenerator())
+            parser.defaultEncoding
+
 
 //          val adt = p.parse(msg)
 
@@ -65,7 +83,7 @@ class JsonReceiver {
         msh.messageControlID.value = msgDto?.messageControlId?:"11111"
         msh.getSendingApplication().getNamespaceID().value = msgDto?.sendingApplication
         msh.sendingFacility.namespaceID.value =msgDto?.sendingFacility
-
+        msh.getCharacterSet(0).value= "UNICODE UTF-8"
         val i = DateTime.now().toString("yyyyMMddHHmmss")
 
         var date = Date()
@@ -227,8 +245,9 @@ class JsonReceiver {
                 terser.set("/.PID-5-1","")
                 terser.set("/.PID-5-3","")
                 terser.set("/.PID-5-2", msgDto?.pidLastName+", "+msgDto?.pidFirstName+" "+msgDto?.pidMiddleName+" "+msgDto?.pidExtName)
+                terser.set("/.MSH-18","8859/1")
                 var  encodedMessage = parser.encode(orm)
-                return  dirWritter(msgDto, args, encodedMessage)
+                return  dirWritter(msgDto, args, orm)
             }
 
         }
@@ -245,6 +264,7 @@ class JsonReceiver {
         adt.initQuickstart("ADT","A04","P")
 
         var parser = context.getPipeParser()
+        //var parser = context.getGenericParser()
         parser.getParserConfiguration().setIdGenerator(InMemoryIDGenerator())
 
         // Populate the MSH Segment
@@ -293,7 +313,7 @@ class JsonReceiver {
         }
 
         else {
-            return    dirWritter(msgDto,args, encodedMessage)
+            return    dirWritter(msgDto,args, adt)
         }
 
     }
@@ -303,7 +323,7 @@ class JsonReceiver {
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
-        val parser = context.genericParser
+ //       val parser = context.genericParser
         val useTls = false // Should we use TLS/SSL?
 //        var connection = context.newClient(args.risHost, args.risPort!!.toInt(), useTls)
         var connection = context.newClient(args.risHost, port!!, useTls)
@@ -340,9 +360,8 @@ class JsonReceiver {
          }
 
 
-    fun dirWritter(msgDto: Hl7OrmDto,args:ArgDto,encodedMessage: String): String? {
+    fun dirWritter(msgDto: Hl7OrmDto,args:ArgDto,encodedMessage: Message): String? {
 
-        var gson = Gson()
         try {
             /** writing files to shared folder in a network with credentials**/
 
@@ -360,16 +379,60 @@ class JsonReceiver {
                 e.printStackTrace()
             }
 
+            var context = DefaultHapiContext()
+            var mcf = CanonicalModelClassFactory("2.5")
+            context.setModelClassFactory(mcf)
+
+            var  llp = Hl7OverHttpLowerLayerProtocol(ServerRoleEnum.CLIENT)
+            context.setLowerLayerProtocol(llp)
+            //val mllp = MinLowerLayerProtocol()
+            llp.setCharset("UNICODE UTF-8")
+            context.setLowerLayerProtocol(llp)
+
+            var parser3 =context.getPipeParser()
+            System.setProperty(MllpConstants.CHARSET_KEY, "UNICODE UTF-8")
+
             val path = args.smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
             val sFile = SmbFile(path, ntlmPasswordAuthentication)
             var sfos =  SmbFileOutputStream(sFile)
-            sfos.write(encodedMessage.toByteArray())
+            sfos.write(parser3.encode(encodedMessage).toByteArray())
             sfos.close()
-            println("Written file" + msgDto.messageControlId.toString())
-            /*** writing files in local shared folder***/
-//                var file = Paths.get("//localhost/Shared/Outbox/"+msgDto.msh.messageControlId+".hl7")
-//                Files.write(file,encodedMessage.toByteArray())
 
+
+//            var context = DefaultHapiContext()
+//            var mcf = CanonicalModelClassFactory("2.5")
+//            context.setModelClassFactory(mcf)
+//
+//            var  llp = Hl7OverHttpLowerLayerProtocol(ServerRoleEnum.CLIENT)
+//            context.setLowerLayerProtocol(llp)
+//            //val mllp = MinLowerLayerProtocol()
+//            llp.setCharset("ISO-8859-1")
+//            context.setLowerLayerProtocol(llp)
+//
+//            var parser3 =context.getPipeParser()
+//
+//            System.setProperty(MllpConstants.CHARSET_KEY, "ISO-8859-1")
+//            // @override parser3.doEncode(encodedMessage,"iso-8859-1")
+//
+//           // var hlmess = parser3.encode(encodedMessage)
+//
+//            //var b = (encodedMessage.encode().toByteArray())
+//            //println("Written file" + msgDto.messageControlId.toString())
+//            /*** writing files in local shared folder***/
+//
+//                var file = File("//localhost/Shared/Order/"+msgDto.messageControlId+".hl7")
+//
+//            if (!file.exists()) {
+//                file.createNewFile()
+//            }
+//
+//            System.out.println("Serializing message to file...")
+//
+//            var outputStream = FileOutputStream(file)
+//            outputStream.write(parser3.encode(encodedMessage).toByteArray())
+//            outputStream.flush()
+//
+//            outputStream?.close()
         }catch(e: IOException) {
             throw IllegalArgumentException(e.message)
             e.printStackTrace()

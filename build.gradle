@@ -23,6 +23,7 @@ repositories {
 apply plugin: 'application'
 apply plugin: 'kotlin'
 
+compileJava.options.encoding = 'UTF-8'
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
