@@ -245,7 +245,7 @@ class JsonReceiver {
                 terser.set("/.PID-5-1","")
                 terser.set("/.PID-5-3","")
                 terser.set("/.PID-5-2", msgDto?.pidLastName+", "+msgDto?.pidFirstName+" "+msgDto?.pidMiddleName+" "+msgDto?.pidExtName)
-                terser.set("/.MSH-18","8859/1")
+                terser.set("/.MSH-18","UNICODE UTF-8")
                 var  encodedMessage = parser.encode(orm)
                 return  dirWritter(msgDto, args, orm)
             }
@@ -386,7 +386,7 @@ class JsonReceiver {
             var  llp = Hl7OverHttpLowerLayerProtocol(ServerRoleEnum.CLIENT)
             context.setLowerLayerProtocol(llp)
             //val mllp = MinLowerLayerProtocol()
-            llp.setCharset("UNICODE UTF-8")
+            //llp.setCharset("UNICODE UTF-8")
             context.setLowerLayerProtocol(llp)
 
             var parser3 =context.getPipeParser()
