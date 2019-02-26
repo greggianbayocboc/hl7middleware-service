@@ -396,31 +396,14 @@ class JsonReceiver {
             val sFile = SmbFile(path, ntlmPasswordAuthentication)
             var sfos =  SmbFileOutputStream(sFile)
             sfos.write(parser3.encode(encodedMessage).toByteArray())
+            sfos.flush()
             sfos.close()
+            println("Written file" + msgDto.messageControlId.toString())
 
 
-//            var context = DefaultHapiContext()
-//            var mcf = CanonicalModelClassFactory("2.5")
-//            context.setModelClassFactory(mcf)
-//
-//            var  llp = Hl7OverHttpLowerLayerProtocol(ServerRoleEnum.CLIENT)
-//            context.setLowerLayerProtocol(llp)
-//            //val mllp = MinLowerLayerProtocol()
-//            llp.setCharset("ISO-8859-1")
-//            context.setLowerLayerProtocol(llp)
-//
-//            var parser3 =context.getPipeParser()
-//
-//            System.setProperty(MllpConstants.CHARSET_KEY, "ISO-8859-1")
-//            // @override parser3.doEncode(encodedMessage,"iso-8859-1")
-//
-//           // var hlmess = parser3.encode(encodedMessage)
-//
-//            //var b = (encodedMessage.encode().toByteArray())
-//            //println("Written file" + msgDto.messageControlId.toString())
-//            /*** writing files in local shared folder***/
-//
-//                var file = File("//localhost/Shared/Order/"+msgDto.messageControlId+".hl7")
+            /*** writing files in local shared folder***/
+
+//            var file = File("//localhost/Shared/Order/"+msgDto.messageControlId+".hl7")
 //
 //            if (!file.exists()) {
 //                file.createNewFile()
