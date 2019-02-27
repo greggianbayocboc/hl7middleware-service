@@ -1,0 +1,275 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: $HISD3_MIDDLEWARE_DEPLOYMENT_PROJECT-template
+  group: hisd3
+metadata:
+  annotations:
+    iconClass: icon-spring
+    tags: hisd3
+  name: hisd3
+message: "Welcome to HISD3 HL7  Middleware  Setup Configuration. Please use expenv to make configurations"
+objects:
+# Needs the root image for Docker building later
+- apiVersion: v1
+  groupNames: null
+  kind: RoleBinding
+  metadata:
+    name: default_admin
+  roleRef:
+    name: admin
+  subjects:
+  - kind: ServiceAccount
+    name: default
+
+# Global Image Stream Reference
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: hisd3base
+  spec:
+    dockerImageRepository: albertoclarit/hisd3base
+    tags:
+    - from:
+        kind: DockerImage
+        name: hisd3base:$HISD3_BASE_IMAGE_VER
+      name: $HISD3_BASE_IMAGE_VER
+      importPolicy:
+        scheduled: true
+
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: $HISD3_MIDDLEWARE_DEPLOYMENT_PROJECT-pipeline
+    creationTimestamp: null
+    labels:
+      app: $HISD3_MIDDLEWARE_DEPLOYMENT_PROJECT
+  spec:
+    triggers: []
+    runPolicy: Serial
+    source:
+      type: Git
+      git:
+        uri: 'https://gitlab.com/AceTech/HL7Middleware.git'
+        ref: master
+      sourceSecret:
+        name: "hisd3gitlabsecret"
+    strategy:
+      type: JenkinsPipeline
+      jenkinsPipelineStrategy:
+        jenkinsfilePath: Jenkinsfile
+
+
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: hisd3-hl7middleware
+  spec:
+    type: ClusterIP
+    ports:
+    - name: http
+      port: 80
+      targetPort: 4567
+      protocol: TCP
+    selector:
+      app: hisd3-hl7middleware
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: hisd3-hl7service
+  spec:
+    type: NodePort
+    ports:
+    - name: hl7
+      port: 22222
+      targetPort: 22222
+      protocol: TCP
+    selector:
+      app: hisd3-hl7middleware
+
+
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: hl7middleware-configmap
+  data:
+     hisd3.adtRisPort: '10100'
+     hisd3.hisd3Host: 'https://hisd3.ace-mc-bohol.com'
+     hisd3.hisd3Pass: 7yq7d&addL$4CAAD
+     hisd3.hisd3Port: '443'
+     hisd3.hisd3User: admin
+     hisd3.ormRisPort: '10101'
+     hisd3.risHost: 172.16.10.160
+     hisd3.smbHost: hclab.ace-mc-bohol.com
+     hisd3.smbPass: p@ssw0rd
+     hisd3.smbUrl: 'smb://172.16.10.9/hl7host'
+     hisd3.smbUser: lisuser
+
+
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: hisd3-hl7middleware
+    labels:
+      app: hl7middleware
+  spec:
+    replicas: 1
+    selector:
+        app: hisd3-hl7middleware
+    triggers:
+          - type: "ConfigChange"
+          - imageChangeParams:
+              automatic: true
+              containerNames:
+               - "hisd3-hl7middleware"
+              from:
+                 kind: "ImageStreamTag"
+                 name: "middleware:latest"
+                 namespace: "$HISD3_MIDDLEWARE_DEPLOYMENT_PROJECT"
+            type: "ImageChange"
+
+    template:
+      metadata:
+        labels:
+          app: hisd3-hl7middleware
+      spec:
+#        serviceAccountName: hisd3-sa
+        containers:
+        - name: hisd3-hl7middleware
+          image: middleware:latest
+          ports:
+          - containerPort: 8080
+          args:
+              - -start
+              - "-smbHost"
+              - "$(SMBHOST)"
+              - "-smbUser"
+              - "$(SMBUSER)"
+              - "-smbPass"
+              - "$(SMBPASS)"
+              - "-smbUrl"
+              - "$(SMBURL)"
+              - "-hisd3Port"
+              - "$(HISD3PORT)"
+              - "-hisd3Host"
+              - "$(HISD3HOST)"
+              - "-risHost"
+              - "$(RISHOST)"
+              - "-ormRisPort"
+              - "$(ORMRISPORT)"
+              - "-adtRisPort"
+              - "$(ADTRISPORT)"
+              - "-hisd3User"
+              - "$(HISD3USER)"
+              - "-hisd3Pass"
+              - "$(HISD3PASS)"
+          env:
+              - name: SMBHOST
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbHost
+              - name: SMBUSER
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbUser
+              - name: SMBPASS
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbPass
+              - name: SMBURL
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.smbUrl
+              - name: HISD3PORT
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.hisd3Port
+              - name: HISD3HOST
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.hisd3Host
+              - name: RISHOST
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.risHost
+              - name: ORMRISPORT
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.ormRisPort
+              - name: ADTRISPORT
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.adtRisPort
+              - name: HISD3USER
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.hisd3User
+              - name: HISD3PASS
+                valueFrom:
+                      configMapKeyRef:
+                        name: hl7middleware-configmap
+                        key: hisd3.hisd3Pass
+          readinessProbe:
+                        httpGet:
+                          path: /tests/ping
+                          port: 4567
+                          httpHeaders:
+                          - name: X-Custom-Header
+                            value: Awesome
+                        initialDelaySeconds: 10
+                        periodSeconds: 30
+                        successThreshold: 1
+                        timeoutSeconds: 20
+          livenessProbe:
+                httpGet:
+                  path: /tests/ping
+                  port: 4567
+                  httpHeaders:
+                  - name: X-Custom-Header
+                    value: Awesome
+                initialDelaySeconds: 10
+                periodSeconds: 20
+                successThreshold: 1
+                timeoutSeconds: 20
+
+
+- apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: $HISD3_MIDDLEWARE_DEPLOYMENT_PROJECT-installer
+  spec:
+    activeDeadlineSeconds: 400
+    completions: 1
+    parallelism: 1
+    template:
+      spec:
+        containers:
+        - env:
+          - name: $HISD3_MIDDLEWARE_DEPLOYMENT_PROJECT
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          command:
+          - /bin/bash
+          - -x
+          - -c
+          - |
+            oc create secret generic  hisd3gitlabsecret --from-literal=username=albertoclarit --from-literal=password=h_9dgxhyNc-GsW9zq-Nr --type=kubernetes.io/basic-auth
+            oc process -f https://raw.githubusercontent.com/albertoclarit/slave/master/slave.yml | oc create -f -
+
+          image: openshift/origin:v3.11.0
+          name: $HISD3_MIDDLEWARE_DEPLOYMENT_PROJECT-job
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        restartPolicy: Never
