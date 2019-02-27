@@ -83,7 +83,7 @@ class JsonReceiver {
         msh.messageControlID.value = msgDto?.messageControlId?:"11111"
         msh.getSendingApplication().getNamespaceID().value = msgDto?.sendingApplication
         msh.sendingFacility.namespaceID.value =msgDto?.sendingFacility
-        msh.getCharacterSet(0).value= "UNICODE UTF-8"
+        //msh.getCharacterSet(0).value= "UNICODE UTF-8"
         val i = DateTime.now().toString("yyyyMMddHHmmss")
 
         var date = Date()
@@ -383,14 +383,14 @@ class JsonReceiver {
             var mcf = CanonicalModelClassFactory("2.5")
             context.setModelClassFactory(mcf)
 
-            var  llp = Hl7OverHttpLowerLayerProtocol(ServerRoleEnum.CLIENT)
-            context.setLowerLayerProtocol(llp)
+//            var  llp = Hl7OverHttpLowerLayerProtocol(ServerRoleEnum.CLIENT)
+//            context.setLowerLayerProtocol(llp)
             //val mllp = MinLowerLayerProtocol()
             //llp.setCharset("UNICODE UTF-8")
-            context.setLowerLayerProtocol(llp)
+            //context.setLowerLayerProtocol(llp)
 
             var parser3 =context.getPipeParser()
-            System.setProperty(MllpConstants.CHARSET_KEY, "UNICODE UTF-8")
+           // System.setProperty(MllpConstants.CHARSET_KEY, "UNICODE UTF-8")
 
             val path = args.smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
             val sFile = SmbFile(path, ntlmPasswordAuthentication)

@@ -184,7 +184,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.bacthnum=orderID?:""
         params.processCode=obr.universalServiceIdentifier.ce1_Identifier.value
         params.casenum = casenum
-        params.pId = patientid ?: terserpId
+        params.pId = terserpId?:patientid
         params.docEmpId = doctorEmpId
         params.jsonList = MsgParse().msgToJson(msg)
         val ack: Message

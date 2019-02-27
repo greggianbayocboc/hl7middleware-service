@@ -68,7 +68,7 @@ class Application
             val cmd = parser.parse(options, args)
 
             val args = ArgDto()
-                args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"https://127.0.0.1:8080"
+                args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"http://127.0.0.1:8080"
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
                 //args.risHost = cmd.getOptionValue("risHost") ?: "172.16.17.190"
@@ -180,7 +180,7 @@ class Application
                 }
 
                 HL7ServiceListener().startLisenter(args)
-//                LisJobHandler().LisDirectoryScanner(args)
+                LisJobHandler().LisDirectoryScanner(args)
 //                CardioExams().cardiosched()
 //                try{
 //                     Hl7DirectoryWatcher().startDirWatching(args)
