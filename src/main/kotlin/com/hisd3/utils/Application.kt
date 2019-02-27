@@ -180,7 +180,7 @@ class Application
                 }
 
                 HL7ServiceListener().startLisenter(args)
-                LisJobHandler().LisDirectoryScanner(args)
+//                LisJobHandler().LisDirectoryScanner(args)
 //                CardioExams().cardiosched()
 //                try{
 //                     Hl7DirectoryWatcher().startDirWatching(args)
