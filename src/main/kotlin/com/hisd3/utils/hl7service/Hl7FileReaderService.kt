@@ -13,7 +13,7 @@ import java.io.*
 
 class Hl7FileReaderService {
 
-    fun readMessage(theFile: SmbFileInputStream, theMetadata : Map<String, Any>?): Boolean? {
+    fun readMessage(theFile: BufferedReader, theMetadata : Map<String, Any>?): Boolean? {
 
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")
@@ -34,11 +34,16 @@ class Hl7FileReaderService {
                             val next = iter.next()
                             var initiator = conn?.initiator
                             var response = initiator?.sendAndReceive(next)
+                            println(response)
                             if (response is ACK) {
 
-//                                val ack = response as ACK
+                                var err = response.getERR()
+                                if(err != null){
+                                    theFile.close()
+                                    return false
+                                }
                                 var ackcode = response.getMSA().acknowledgmentCode.value
-
+                                println(ackcode)
                                 if (ackcode != "AA") {
                                     theFile.close()
                                     return false

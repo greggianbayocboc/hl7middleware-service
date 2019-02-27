@@ -244,7 +244,7 @@ class JsonReceiver {
                 val terser = Terser(orm)
                 terser.set("/.PID-5-1","")
                 terser.set("/.PID-5-3","")
-                terser.set("/.PID-5-2", msgDto?.pidLastName+", "+msgDto?.pidFirstName+" "+msgDto?.pidMiddleName+" "+msgDto?.pidExtName)
+                terser.set("/.PID-5-2", msgDto?.pidFullname)
                 terser.set("/.MSH-18","UNICODE UTF-8")
                 var  encodedMessage = parser.encode(orm)
                 return  dirWritter(msgDto, args, orm)
@@ -392,30 +392,30 @@ class JsonReceiver {
             var parser3 =context.getPipeParser()
            // System.setProperty(MllpConstants.CHARSET_KEY, "UNICODE UTF-8")
 
-            val path = args.smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
-            val sFile = SmbFile(path, ntlmPasswordAuthentication)
-            var sfos =  SmbFileOutputStream(sFile)
-            sfos.write(parser3.encode(encodedMessage).toByteArray())
-            sfos.flush()
-            sfos.close()
-            println("Written file" + msgDto.messageControlId.toString())
+//            val path = args.smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
+//            val sFile = SmbFile(path, ntlmPasswordAuthentication)
+//            var sfos =  SmbFileOutputStream(sFile)
+//            sfos.write(parser3.encode(encodedMessage).toByteArray())
+//            sfos.flush()
+//            sfos.close()
+//            println("Written file" + msgDto.messageControlId.toString())
 
 
             /*** writing files in local shared folder***/
 
-//            var file = File("//localhost/Shared/Order/"+msgDto.messageControlId+".hl7")
-//
-//            if (!file.exists()) {
-//                file.createNewFile()
-//            }
-//
-//            System.out.println("Serializing message to file...")
-//
-//            var outputStream = FileOutputStream(file)
-//            outputStream.write(parser3.encode(encodedMessage).toByteArray())
-//            outputStream.flush()
-//
-//            outputStream?.close()
+            var file = File("//localhost/Shared/Order/"+msgDto.messageControlId+".hl7")
+
+            if (!file.exists()) {
+                file.createNewFile()
+            }
+
+            System.out.println("Serializing message to file...")
+
+            var outputStream = FileOutputStream(file)
+            outputStream.write(parser3.encode(encodedMessage).toByteArray())
+            outputStream.flush()
+
+            outputStream?.close()
         }catch(e: IOException) {
             throw IllegalArgumentException(e.message)
             e.printStackTrace()

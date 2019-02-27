@@ -11,6 +11,7 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.impl.client.HttpClients
 import org.apache.http.util.EntityUtils
+import org.joda.time.DateTime
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.scheduling.annotation.Async
@@ -39,14 +40,12 @@ open class HttpSenderToHis {
         post.entity = StringEntity(gson.toJson(params))
         var res :String? =null
         try {
-            println("Sending to HIS")
+            println("Sending to HIS" + DateTime.now())
             var response = httpclient.execute(post)
             println("Response from HISD3 :" + response.statusLine.statusCode)
             res = EntityUtils.toString(response.getEntity())
         } catch (e: Exception) {
-
             e.printStackTrace()
-            throw e
         }
 
         return res
@@ -76,8 +75,8 @@ open class HttpSenderToHis {
         try {
             println("Sending to HIS")
             var response = httpclient.execute(post)
-            println("Response from HISD3 :" + response.statusLine.statusCode)
-            res = EntityUtils.toString(response.getEntity())
+            println("Response from HISD3 :" + EntityUtils.toString(response.getEntity()))
+            res = response.statusLine.statusCode.toString()
         } catch (e: Exception) {
 
             e.printStackTrace()

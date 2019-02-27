@@ -27,6 +27,7 @@ class LisJobHandler : org.quartz.Job {
             jobDataMap.put("user", args.smbUser)
             jobDataMap.put("pass", args.smbPass)
             jobDataMap.put("smb", args.smbUrl)
+            jobDataMap.put("host", args.smbHost)
 
             val jobA = JobBuilder.newJob(LisDirectoryScannerJob::class.java).withIdentity("jobA", "group1")
                     .usingJobData(jobDataMap)

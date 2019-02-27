@@ -37,6 +37,7 @@ class Hl7OrmDto {
     var pidPatientNo:String?=null
     var pidCitizenship:String?=null
     var pidAlternatePid:String?=null
+    var pidFullname:String?=null
 
     var pv1VisitNumer:String?=null
     var pv1CaseNumer:String?=null

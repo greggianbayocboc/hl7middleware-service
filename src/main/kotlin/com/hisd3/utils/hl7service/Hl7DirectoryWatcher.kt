@@ -66,7 +66,7 @@ class Hl7DirectoryWatcher {
                            val url = args.smbUrl+"/Result/"+it.context()
                            val forprocess = SmbFile(url, auth)
                                try {
-                                  var inFile = SmbFileInputStream(forprocess)
+                                  var inFile = BufferedReader(InputStreamReader(SmbFileInputStream(forprocess)))
 
                                   if(Hl7FileReaderService().readMessage(inFile, null)!!){
                                       forprocess.delete()
@@ -98,7 +98,7 @@ class Hl7DirectoryWatcher {
                 val forprocess = SmbFile(url, auth)
 
                 try {
-                    var inFile = SmbFileInputStream(forprocess)
+                    var inFile = BufferedReader(InputStreamReader(SmbFileInputStream(forprocess)))
                     if(Hl7FileReaderService().readMessage(inFile, null)!!){
                         forprocess.delete()
                     }

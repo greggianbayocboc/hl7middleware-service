@@ -189,8 +189,12 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.jsonList = MsgParse().msgToJson(msg)
         val ack: Message
         ack = try {
-            HttpSenderToHis().postToHis(params, argument)
-            theMessage!!.generateACK()
+            var res = HttpSenderToHis().postToHis(params, argument)
+           if(res =="200"){
+               theMessage!!.generateACK()
+           }else {
+               theMessage!!.generateACK(AcknowledgmentCode.AA, HL7Exception("No Match"))
+           }
         }catch (e: HL7Exception){
             e.printStackTrace()
             theMessage!!.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
