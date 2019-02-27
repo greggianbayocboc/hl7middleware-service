@@ -11,25 +11,25 @@ import java.util.HashMap
 
 class MsgParse {
 
-    fun msgToJson( msg : Message): String {
+    fun msgToJson( msg : ORU_R01): String {
 
 
         val dataList = ArrayList<Any>()
         val params = HashMap<String, Any?>()
         var data = LabResultDTO()
 
-        val oru = msg as ORU_R01
+        //val oru = msg as ORU_R01
 
-        val msh = getMSH(oru)
-        val pid = getPID(oru)
-        val pv1 = getPV1(oru)
-        val orc = getORC(oru)
+        val msh = getMSH(msg)
+        val pid = getPID(msg)
+        val pv1 = getPV1(msg)
+        val orc = getORC(msg)
         val obrervation= getOBR(msg)
 
         var messageControlId = msh.getMessageControlID().getValue()
         var obr:OBR? = null
 
-        var patientResult = oru.getPATIENT_RESULT()
+        var patientResult = msg.getPATIENT_RESULT()
         var numObr = patientResult.getORDER_OBSERVATIONReps()
 
         for (i in 0..numObr - 1) {
@@ -101,9 +101,9 @@ class MsgParse {
         var resultInterpreter = obrervation?.principalResultInterpreter.nameOfPerson.cnn3_GivenName.value + obrervation?.principalResultInterpreter.nameOfPerson.cnn2_FamilyName.value?:""
         var interpreterID = obrervation?.principalResultInterpreter.nameOfPerson.idNumber.value?:""
 
-        data.parameterData.observationrequest = observation
-        data.parameterData.interpreter = resultInterpreter
-        data.parameterData.interpreterId = interpreterID
+        data.parameterData.observationrequest = observation?:""
+        data.parameterData.interpreter = resultInterpreter?:""
+        data.parameterData.interpreterId = interpreterID?:""
 //        params.put("interpreterID",interpreterID)
 //        params.put("responsibleobserver",resultInterpreter)
 //        params.put("revenuecenter", sendingFacilty)

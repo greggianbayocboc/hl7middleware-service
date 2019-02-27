@@ -4,19 +4,15 @@ import ca.uhn.hl7v2.AcknowledgmentCode
 import ca.uhn.hl7v2.DefaultHapiContext
 import ca.uhn.hl7v2.HL7Exception
 import ca.uhn.hl7v2.model.Message
-import ca.uhn.hl7v2.model.v25.group.ORU_R01_ORDER_OBSERVATION
-import ca.uhn.hl7v2.model.v25.message.ACK
 import ca.uhn.hl7v2.model.v25.message.ORU_R01
 import ca.uhn.hl7v2.model.v25.segment.*
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
-import ca.uhn.hl7v2.parser.PipeParser
 import ca.uhn.hl7v2.protocol.ReceivingApplication
 import ca.uhn.hl7v2.protocol.ReceivingApplicationException
 import ca.uhn.hl7v2.util.Terser
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.ArgDto
-import com.hisd3.utils.Sockets.TutorialSocket
-import com.hisd3.utils.Sockets.WSocketChatHandler
+import com.hisd3.utils.Sockets.WebsocketClient
 import com.hisd3.utils.httpservice.HttpSenderToHis
 import org.apache.commons.lang3.StringUtils
 import java.net.URI
@@ -76,11 +72,10 @@ class LabResultItemDTO {
 class OruRo1Handler<E> : ReceivingApplication<Message> {
 
     var argument = ArgDto()
-    var socks = TutorialSocket()
-    constructor(arges:ArgDto,socket:TutorialSocket)
+    constructor(arges:ArgDto)
     {
         argument = arges
-        socks = socket
+
     }
 
     /**
@@ -97,20 +92,17 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
      override fun processMessage(theMessage: Message?, theMetadata: MutableMap<String, Any>?): Message? {
 
         var gson = Gson()
-        var context = DefaultHapiContext()
-        var mcf = CanonicalModelClassFactory("2.5")
+        val context = DefaultHapiContext()
+        val mcf = CanonicalModelClassFactory("2.5")
         context.setModelClassFactory(mcf)
-        //println("Received message:\n")
-       // System.out.println("Meta=>" + theMetadata)
-       // val pgen = context.getGenericParser()
-       // val hapiMsg = pgen.parse(theMessage.toString())
 
         val parser = context.pipeParser
 
-        val terser = Terser(theMessage)
+
+        //val terser = Terser(theMessage)
         var zdcOrig :String? = null
         var zdc :String? = null
-
+        var str :String?= null
         try{
 
 //          zdc =  terser.get("/.ZDC(0)-4")
@@ -122,18 +114,24 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
             zdc =  StringUtils.remove(zdcOrig,"ZDC|0|PDF|")
             zdc=StringUtils.trim(zdc)
+
             //println("ZDC:" +zdc)
         }catch (e:Exception){
 
-          println(e)
+          println("No Attachement Found : \n" + e)
         }
-       // println("ZDC:" +zdc.toString())
 
+        if(zdc !=null){
+            str = StringUtils.remove(theMessage.toString(),zdcOrig)
+        }else{
+            str = theMessage.toString()
+        }
 
-        var str = StringUtils.remove(theMessage.toString(),zdcOrig)
-        var xmlparser = context.getXMLParser()
-        var encodedMessage = xmlparser.encode(theMessage)
-        var msg = parser.parse(str) as ca.uhn.hl7v2.model.v25.message.ORU_R01
+        println("New message received:\n")
+ //       println(str)
+//        var xmlparser = context.getXMLParser()
+//        var encodedMessage = xmlparser.encode(theMessage)
+        val msg = parser.parse(theMessage.toString()) as ca.uhn.hl7v2.model.v25.message.ORU_R01
 
         val msh= getMSH(msg)
         val pid = getPID(msg)
@@ -143,74 +141,64 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         //Getting the orderslip number located in the visit number
 
         var visitNumber = pv1.visitNumber.idNumber.value?:""
-        var terserpId = te2.get("/.PID-3")
-        var patientid = pid.patientIdentifierList[0].idNumber.value
+        val terserpId = te2.get("/.PID-3")
+        val patientid = pid.patientIdentifierList[0].idNumber.value
 
         val casenum = pv1.visitNumber.idNumber.value?:""
-        var doctorEmpId = obr.principalResultInterpreter.nameOfPerson.idNumber.value?:""
+        val doctorEmpId = obr.principalResultInterpreter.nameOfPerson.idNumber.value?:""
 
-        var orc = getORC(msg)
+        val orc = getORC(msg)
         val messageControlId = msh.messageControlID.value?:""
         val accession = orc.fillerOrderNumber.entityIdentifier.value ?:orc.placerOrderNumber.entityIdentifier.value?:""
         val orderID = obr.placerOrderNumber.entityIdentifier.value?:obr.fillerOrderNumber.entityIdentifier.value
         //val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
-        var sender = theMetadata!!.get("SENDING_IP")
+        val sender = theMetadata!!.get("SENDING_IP")
 
+        val dest = "ws://localhost:4567/socketmessenging"
+        val client = WebSocketClient()
+        val socket = WebsocketClient()
         try {
-            println("trying socket messaging")
-            socks.onText(null,"crisnil")
-        }catch (e: Exception){
-            e.printStackTrace()
+            client.start()
+            val echoUri = URI(dest)
+            val request = ClientUpgradeRequest()
+            client.connect(socket, echoUri, request)
+            socket.sendMessage(str!!)
+            //Thread.sleep(1000L)
+        } catch (t: Throwable) {
+            t.printStackTrace()
+        } finally {
+            try {
+                client.stop()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
-        //Parsing xml to json
 
         val params =  Msgformat()
 
         //params.msgXML=encodedMessage
-        params.attachment = zdc?:null
+        params.attachment = zdc
         params.msgXML=str
         params.senderIp= sender.toString()
         params.bacthnum=orderID?:""
         params.processCode=obr.universalServiceIdentifier.ce1_Identifier.value
-        params.casenum = casenum?:""
+        params.casenum = casenum
         params.pId = patientid ?: terserpId
-        params.docEmpId = doctorEmpId?:""
-        params.jsonList = MsgParse().msgToJson(theMessage!!)
-        var ack: Message
+        params.docEmpId = doctorEmpId
+        params.jsonList = MsgParse().msgToJson(msg)
+        val ack: Message
         ack = try {
             HttpSenderToHis().postToHis(params, argument)
-            theMessage.generateACK()
+            theMessage!!.generateACK()
         }catch (e: HL7Exception){
             e.printStackTrace()
-            theMessage.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
+            theMessage!!.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
         }
 //        parsingXml(encodedMessage)
         return ack
     }
 
-//    @Async
-//    open fun postToHis(params :Msgformat){
-//        val post = HttpPost(argument.hisd3Host+":"+argument.hisd3Port+"/restapi/msgreceiver/hl7postResult")
-////      val post = HttpPost("http://127.0.0.1:8080/restapi/msgreceiver/hl7postResult")
-//
-//        //val auth = "admin" + ":" + "7yq7d&addL$4CAAD"
-//        val auth = argument.hisd3USer + ":" + argument.hisd3Pass
-//        val encodedAuth = Base64.encodeBase64(
-//                auth.toByteArray(Charset.forName("ISO-8859-1")))
-//        val authHeader = "Basic " + String(encodedAuth)
-//        post.setHeader(HttpHeaders.AUTHORIZATION, authHeader)
-//        val httpclient = HttpClientBuilder.create().build()
-//
-//        post.setHeader(HttpHeaders.CONTENT_TYPE,"application/json")
-//        val gson = Gson()
-//        post.entity = StringEntity(gson.toJson(params))
-//        try{
-//            var response = httpclient.execute(post)
-//        }catch (e:Exception)
-//        {throw e}
-//
-//    }
 
     private fun getMSH(oru: ORU_R01): MSH {
         return oru.msh

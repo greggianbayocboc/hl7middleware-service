@@ -1,16 +1,16 @@
 package com.hisd3.utils
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.hisd3.utils.Dto.ArgDto
 import com.hisd3.utils.Dto.Hl7OrmDto
 import com.hisd3.utils.Dto.obritem
-import com.hisd3.utils.Sockets.TutorialSocket
-import com.hisd3.utils.Sockets.WSocketChatHandler
+import com.hisd3.utils.Sockets.WebsocketClient
 import com.hisd3.utils.customtypes.IntegratedFacilities
-import com.hisd3.utils.hl7service.CardioExams
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
 import com.hisd3.utils.hl7service.LisJobHandler
+import com.hisd3.utils.httpservice.HttpSenderToHis
 import com.hisd3.utils.rest.JsonReceiver
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
@@ -43,7 +43,7 @@ class Application
          port(4567)
          staticFiles.expireTime(600L)
          //webSocket("/chat",WSocketChatHandler::class.java)
-        // webSocket("/tutorialsokcet",TutorialSocket::class.java)
+         webSocket("/socketmessenging",WebsocketClient::class.java)
 
          val options = Options()
 
@@ -67,11 +67,11 @@ class Application
             val parser = DefaultParser()
             val cmd = parser.parse(options, args)
 
-            var args = ArgDto()
-                args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"http://127.0.0.1"
+            val args = ArgDto()
+                args.hisd3Host =cmd.getOptionValue("hisd3Host")?:"https://127.0.0.1:8080"
                 args.hisd3Port =cmd.getOptionValue("hisd3Port")?:"8080"
-               // args.risHost = cmd.getOptionValue("risHost") ?: "172.16.10.160"
                 args.risHost = cmd.getOptionValue("risHost") ?: "127.0.0.1"
+                //args.risHost = cmd.getOptionValue("risHost") ?: "172.16.17.190"
                 args.ormRisPort = cmd.getOptionValue("ormRisPort") ?: "10101"
                 args.adtRisPort = cmd.getOptionValue("adtRisPort") ?: "10100"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "HCLAB"
@@ -82,12 +82,12 @@ class Application
                 args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "7yq7d&addL\$4CAAD"
 
 
-            var gson = Gson()
+            val gson = GsonBuilder().disableHtmlEscaping().create()
 
             if (cmd.hasOption("start")) {
 
                 path( "/tests"){
-                    var argumentsData = gson.toJson(args)
+                    val argumentsData = gson.toJson(args)
                     get("/showvars") { req, res ->
 
                         val accessControlRequestHeaders = req
@@ -121,7 +121,7 @@ class Application
                         val sampleObr = ArrayList<obritem>()
                         
                             for (i in 1..5) {
-                                var itemobr = obritem()
+                                val itemobr = obritem()
                                 itemobr.identifier = "PROCESSCODE" + i
                                 itemobr.nameservice = "Service" + i
 
@@ -134,30 +134,29 @@ class Application
                             throw  e
                         }
                     }
+                    get("/testpost"){req,res->
+                        res.type("application.json")
+                        HttpSenderToHis().testPostToHis(args)
+                    }
                 }
                 path("/") {
                     post("jsonmsg"){req,res ->
 
-                        if(!req.body()?.isNullOrEmpty()!!) {
+                        if(!req.body()?.isEmpty()!!) {
 
-                            var data = req.body()
+                            val data = req.body()
                             val msgDto :Hl7OrmDto  = gson.fromJson(data, Hl7OrmDto::class.java)
 
                             try {
                                 when (msgDto.messageCode) {
                                     "ADT_A04" -> {
-
-                                        var returndata =  JsonReceiver().createAdtMsg(msgDto, args)
-                                        res.status(200)
                                         res.type("application/json")
-                                        res.body(returndata)
+                                        JsonReceiver().createAdtMsg(msgDto, args)
                                     }
 
                                     "ORM_O01" -> {
-                                        var resdata =JsonReceiver().createOrmMsg(msgDto, args)
-                                        res.status(200)
                                         res.type("application/json")
-                                        res.body(resdata)
+                                        JsonReceiver().createOrmMsg(msgDto, args)
                                     }
                                     else ->"Sorry, Option not available yet"
                                 }
@@ -166,7 +165,7 @@ class Application
    //                             res.status(500)
   //                              res.body(e.message)
 
-                                println(e.message)
+                                //println(e.message)
                                 return@post Unit
 
                             }
