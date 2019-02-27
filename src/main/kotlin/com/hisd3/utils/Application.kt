@@ -76,7 +76,7 @@ class Application
                 args.adtRisPort = cmd.getOptionValue("adtRisPort") ?: "10100"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "HCLAB"
                 args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/Hl7Host"
-                args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"
+                args.smbUser = cmd.getOptionValue("smbUser") ?: "LISUSER"
                 args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"
                 args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "admin"
                 args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "7yq7d&addL\$4CAAD"

@@ -1,15 +1,16 @@
 package com.hisd3.utils.hl7service
 
+import ca.uhn.hl7v2.llp.HL7Reader
+import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
 import com.hisd3.utils.Dto.ArgDto
 import jcifs.smb.NtlmPasswordAuthentication
 import jcifs.smb.SmbFile
 import jcifs.smb.SmbFileInputStream
 import org.apache.commons.io.FileUtils
+import org.omg.CORBA.Environment
 import org.quartz.*
 import sun.invoke.empty.Empty
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
+import java.io.*
 
 
 class LisDirectoryScannerJob : Job {
@@ -28,35 +29,37 @@ class LisDirectoryScannerJob : Job {
         var sFile : SmbFile
         try {
             sFile = SmbFile(smbpath, auth)
-
                 try {
                     System.out.println("Checking Unread Messages")
-                    if (sFile.list().isNotEmpty()) {
+                    if (sFile.listFiles().isNotEmpty() ) {
                         System.out.println("Directory is not empty!")
-                        sFile.list().forEach {
+                        println("\n " + sFile.list().toString())
+                        sFile.listFiles().forEach {
+                            if(!it.isDirectory){
+                                try {
+                                    var inFile = SmbFileInputStream(it)
+                                    var res = Hl7FileReaderService().readMessage(inFile, null)!!
+                                    if ( res == true) {
+                                        println("response: "+ res)
+                                        it.delete()
+                                    }
+                                    else{
+                                        println("false res: " + res)
+                                       var newPath = SmbFile(smbpath+"/UNMATCH/"+it.name, auth)
+                                       it.copyTo (newPath)
+                                       it.delete()
+                                    }
+                                } catch (e: IOException) {
 
-                            val url = smbpath + it
-                            val forprocess = SmbFile(url, auth)
+                                   e.printStackTrace()
 
-                            try {
-                                var inFile = BufferedReader(InputStreamReader(SmbFileInputStream(forprocess)))
-                                var res = Hl7FileReaderService().readMessage(inFile, null)!!
-                                if ( res == true) {
-                                    println("response: "+ res)
-                                    forprocess.delete()
                                 }
-                                else{
-                                    println("false res: " + res)
-                                   var newPath = SmbFile(smbpath+"/UNMATCH/"+forprocess.name, auth)
-                                   forprocess.copyTo (newPath)
-                                   forprocess.delete()
-                                }
-                            } catch (e: IOException) {
 
-                               e.printStackTrace()
-
+                            }else{
+                                println("not a file")
                             }
                         }
+
                     } else {
                         System.out.println("Directory is empty!")
                     }

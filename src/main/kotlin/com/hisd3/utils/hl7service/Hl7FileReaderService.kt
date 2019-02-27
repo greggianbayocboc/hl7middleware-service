@@ -7,13 +7,14 @@ import ca.uhn.hl7v2.app.Connection
 import ca.uhn.hl7v2.model.v25.message.ACK
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
+import jcifs.smb.SmbFile
 import jcifs.smb.SmbFileInputStream
 import java.io.*
 
 
 class Hl7FileReaderService {
 
-    fun readMessage(theFile: BufferedReader, theMetadata : Map<String, Any>?): Boolean? {
+    fun readMessage(theFile: SmbFileInputStream, theMetadata : Map<String, Any>?): Boolean? {
 
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")

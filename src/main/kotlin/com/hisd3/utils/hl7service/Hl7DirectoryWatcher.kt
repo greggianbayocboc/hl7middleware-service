@@ -66,11 +66,11 @@ class Hl7DirectoryWatcher {
                            val url = args.smbUrl+"/Result/"+it.context()
                            val forprocess = SmbFile(url, auth)
                                try {
-                                  var inFile = BufferedReader(InputStreamReader(SmbFileInputStream(forprocess)))
+                                  var inFile = SmbFileInputStream(forprocess.name)
 
-                                  if(Hl7FileReaderService().readMessage(inFile, null)!!){
-                                      forprocess.delete()
-                                  }
+//                                  if(Hl7FileReaderService().readMessage(inFile, null)!!){
+//                                      forprocess.delete()
+//                                  }
 
                                } catch (e: IOException) {
                                    println("error parsing" + e)
@@ -98,10 +98,10 @@ class Hl7DirectoryWatcher {
                 val forprocess = SmbFile(url, auth)
 
                 try {
-                    var inFile = BufferedReader(InputStreamReader(SmbFileInputStream(forprocess)))
-                    if(Hl7FileReaderService().readMessage(inFile, null)!!){
-                        forprocess.delete()
-                    }
+                    var inFile = SmbFileInputStream(forprocess)
+//                    if(Hl7FileReaderService().readMessage(inFile, null)!!){
+//                        forprocess.delete()
+//                    }
                 } catch (e: IOException) {
                     println("error parsing" + e)
                 }
