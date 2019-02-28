@@ -1,6 +1,7 @@
 package com.hisd3.utils.hl7service
 
 import ca.uhn.hl7v2.DefaultHapiContext
+import ca.uhn.hl7v2.app.TwoPortService
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import com.hisd3.utils.Dto.ArgDto
 import java.util.concurrent.ArrayBlockingQueue
@@ -21,7 +22,7 @@ class   HL7ServiceListener {
 
 
 
-        var executor = ThreadPoolExecutor(10,100,30,TimeUnit.SECONDS,ArrayBlockingQueue<Runnable>(100))
+        var executor = ThreadPoolExecutor(20,100,30,TimeUnit.SECONDS,ArrayBlockingQueue<Runnable>(200))
 
         var port = 22222 // The port to listen on
         val useTls = false // Should we use TLS/SSL?
@@ -31,6 +32,7 @@ class   HL7ServiceListener {
         context.setModelClassFactory(mcf)
         context.setExecutorService(executor)
 
+        var twoports = TwoPortService(22222,22223)
         var server = context.newServer(port, useTls)
 
         val oruHandler = OruRo1Handler<Any>(args)
@@ -42,9 +44,11 @@ class   HL7ServiceListener {
         //server.registerApplication(handler)
         server.registerConnectionListener(MyConnectionListener())
         server.setExceptionHandler(MyExceptionHandler())
-        server.startAndWait()
-        //System.out.println("Start HL7 Service Listener")
 
+        server.startAndWait()
+       // server.startAndWait()
+        System.out.println("Started HL7 Service Listener")
+        //executor.shutdown()
     }
 
 }

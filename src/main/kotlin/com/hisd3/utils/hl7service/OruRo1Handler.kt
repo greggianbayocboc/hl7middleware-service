@@ -150,7 +150,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val orc = getORC(msg)
         val messageControlId = msh.messageControlID.value?:""
         val accession = orc.fillerOrderNumber.entityIdentifier.value ?:orc.placerOrderNumber.entityIdentifier.value?:""
-        val orderID = obr.placerOrderNumber.entityIdentifier.value?:obr.fillerOrderNumber.entityIdentifier.value
+        val batchnum = te2.get("/.OBR-2")?:te2.get("/.OBR-3")
         //val accession = obr.fillerOrderNumber.entityIdentifier.value
         // Getting the sender IP
         val sender = theMetadata!!.get("SENDING_IP")
@@ -181,8 +181,8 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.attachment = zdc
         params.msgXML=str
         params.senderIp= sender.toString()
-        params.bacthnum=orderID?:""
-        params.processCode=obr.universalServiceIdentifier.ce1_Identifier.value
+        params.bacthnum= batchnum
+        params.processCode= obr.universalServiceIdentifier.ce1_Identifier.value
         params.casenum = casenum
         params.pId = terserpId?:patientid
         params.docEmpId = doctorEmpId

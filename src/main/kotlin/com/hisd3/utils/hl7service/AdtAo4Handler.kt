@@ -39,26 +39,26 @@ class AdtAo4Handler<E> : ReceivingApplication<Message> {
         }
 
         val str = StringUtils.remove(theMessage.toString(),zdcOrig)
-        val dest = "ws://localhost:4567/tutorialsokcet"
-        val client = WebSocketClient()
-        try {
-            val socket = WebsocketClient()
-            client.start()
-            val echoUri = URI(dest)
-            val request = ClientUpgradeRequest()
-            client.connect(socket, echoUri, request)
-            socket.sendMessage(str)
-            //Thread.sleep(1000L)
-        } catch (t: Throwable) {
-            t.printStackTrace()
-        }
-        finally {
-            try {
-                client.stop()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+//        val dest = "ws://localhost:4567/tutorialsokcet"
+//        val client = WebSocketClient()
+//        try {
+//            val socket = WebsocketClient()
+//            client.start()
+//            val echoUri = URI(dest)
+//            val request = ClientUpgradeRequest()
+//            client.connect(socket, echoUri, request)
+//            socket.sendMessage(str)
+//            //Thread.sleep(1000L)
+//        } catch (t: Throwable) {
+//            t.printStackTrace()
+//        }
+//        finally {
+//            try {
+//                client.stop()
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
 
 
         var ack: Message

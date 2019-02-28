@@ -40,9 +40,9 @@ open class HttpSenderToHis {
         post.entity = StringEntity(gson.toJson(params))
         var res :String? =null
         try {
-            println("Sending to HIS" + DateTime.now())
+            println("Sending to HIS " + DateTime.now())
             var response = httpclient.execute(post)
-            println("Response from HISD3 :" + response.statusLine.statusCode)
+            println("Response from HISD3 : " + response.statusLine.statusCode)
             res = EntityUtils.toString(response.getEntity())
         } catch (e: Exception) {
             e.printStackTrace()
