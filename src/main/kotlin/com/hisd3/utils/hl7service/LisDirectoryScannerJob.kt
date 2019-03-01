@@ -53,6 +53,8 @@ class LisDirectoryScannerJob : Job {
                                    e.printStackTrace()
 
                                 }
+                            }else{
+                                println("No unread messages")
                             }
                         }
 

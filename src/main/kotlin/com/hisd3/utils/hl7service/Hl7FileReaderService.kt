@@ -21,7 +21,7 @@ class Hl7FileReaderService {
         context.setModelClassFactory(mcf)
 
         var parser = context.getPipeParser()
-
+        var bool :Boolean? = null
             try {
                 val iter = Hl7InputStreamMessageIterator(theFile)
                 var conn: Connection? = null
@@ -38,20 +38,22 @@ class Hl7FileReaderService {
                             println(response)
                             if (response is ACK) {
 
-                                var err = response.getERR()
-                                if(err != null){
-                                    theFile.close()
-                                    return false
-                                }
                                 var ackcode = response.getMSA().acknowledgmentCode.value
                                 println(ackcode)
-                                if (ackcode != "AA") {
+                                bool = if (ackcode != "AA") {
                                     theFile.close()
-                                    return false
+                                    false
+                                }else{
+                                    var err = response.getERR()
+                                    if(err != null){
+                                        theFile.close()
+                                        false
+                                    }else{
+                                        true
+                                    }
                                 }
                             }
                             theFile.close()
-                            return true
                             println(response.toString())
 
                         } catch (e: IOException) {
@@ -59,14 +61,14 @@ class Hl7FileReaderService {
                            // throw HL7Exception(e)
                             System.out.println("Didn't send out this message!")
                             conn?.close()
-                            return false
+                            bool = false
                         }
-//                    conn?.close()
-//                    conn = null
+                   conn?.close()
+                   conn = null
                 }
             } catch (e: IOException) {
                 System.err.println("Missing file: "+e)
             }
-        return null
+        return bool
     }
 }
