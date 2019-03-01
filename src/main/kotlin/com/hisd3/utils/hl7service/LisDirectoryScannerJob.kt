@@ -32,7 +32,6 @@ class LisDirectoryScannerJob : Job {
                 try {
                     System.out.println("Checking Unread Messages")
                     if (sFile.listFiles().isNotEmpty() ) {
-                        System.out.println("Directory is not empty!")
                         println("\n " + sFile.list().toString())
                         sFile.listFiles().forEach {
                             if(!it.isDirectory){
@@ -54,9 +53,6 @@ class LisDirectoryScannerJob : Job {
                                    e.printStackTrace()
 
                                 }
-
-                            }else{
-                                println("not a file")
                             }
                         }
 

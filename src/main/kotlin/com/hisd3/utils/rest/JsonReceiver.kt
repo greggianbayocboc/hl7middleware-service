@@ -398,7 +398,7 @@ class JsonReceiver {
             sfos.write(parser3.encode(encodedMessage).toByteArray())
             sfos.flush()
             sfos.close()
-            println("Written file" + msgDto.messageControlId.toString())
+            println("Written file : " + msgDto.pidPatientId.toString())
 
 
             /*** writing files in local shared folder***/
