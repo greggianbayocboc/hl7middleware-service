@@ -14,7 +14,7 @@ import java.io.*
 
 class Hl7FileReaderService {
 
-    fun readMessage(theFile: SmbFileInputStream, theMetadata : Map<String, Any>?): Boolean? {
+    fun readMessage(theFile: SmbFileInputStream, theMetadata : Map<String, Any>?): Boolean {
 
         var context = DefaultHapiContext()
         var mcf = CanonicalModelClassFactory("2.5")
@@ -37,21 +37,14 @@ class Hl7FileReaderService {
                             var response = initiator?.sendAndReceive(next)
                             println(response)
                             if (response is ACK) {
-
                                 var ackcode = response.getMSA().acknowledgmentCode.value
                                 println(ackcode)
-                                bool = if (ackcode != "AA") {
-                                    theFile.close()
-                                    false
-                                }else{
-                                    var err = response.getERR()
-                                    if(err != null){
-                                        theFile.close()
-                                        false
-                                    }else{
-                                        true
-                                    }
+                                if (ackcode == "AA") {
+                                     var errors = response.getERR()
+                                    bool = errors == null
+
                                 }
+
                             }
                             theFile.close()
                             println(response.toString())
@@ -61,6 +54,7 @@ class Hl7FileReaderService {
                            // throw HL7Exception(e)
                             System.out.println("Didn't send out this message!")
                             conn?.close()
+                            theFile.close()
                             bool = false
                         }
                    conn?.close()
@@ -69,6 +63,6 @@ class Hl7FileReaderService {
             } catch (e: IOException) {
                 System.err.println("Missing file: "+e)
             }
-        return bool
+        return bool!!
     }
 }

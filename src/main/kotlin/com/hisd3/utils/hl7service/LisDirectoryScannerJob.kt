@@ -37,21 +37,18 @@ class LisDirectoryScannerJob : Job {
                             if(!it.isDirectory){
                                 try {
                                     var inFile = SmbFileInputStream(it)
-                                    var res = Hl7FileReaderService().readMessage(inFile, null)!!
-                                    if ( res == true) {
-                                        println("response: "+ res)
+                                   if(Hl7FileReaderService().readMessage(inFile, null)) {
                                         it.delete()
-                                    }
-                                    else{
-                                        println("false res: " + res)
+
+                                   }else{
+
                                        var newPath = SmbFile(smbpath+"/UNMATCH/"+it.name, auth)
                                        it.copyTo (newPath)
                                        it.delete()
-                                    }
+                                   }
                                 } catch (e: IOException) {
 
                                    e.printStackTrace()
-
                                 }
                             }else{
                                 println("No unread messages")
