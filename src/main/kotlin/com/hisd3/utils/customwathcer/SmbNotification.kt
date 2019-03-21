@@ -111,7 +111,7 @@ constructor(url: String,
                     var inFile = SmbFileInputStream(it)
                     //var bMess = BufferedInputStream(inFile)
                     Hl7FileReaderService().readMessage(inFile, null)
-                    //forprocess.delete()
+                    it.delete()
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }

@@ -39,7 +39,7 @@ class SmbNotifier {
                             var inFile = SmbFileInputStream(forprocess)
                             //var bMess = BufferedInputStream(inFile)
                             Hl7FileReaderService().readMessage(inFile, null)
-                            //forprocess.delete()
+                            forprocess.delete()
                             println("File read "+ forprocess.toString())
                         } catch (e: IOException) {
 
