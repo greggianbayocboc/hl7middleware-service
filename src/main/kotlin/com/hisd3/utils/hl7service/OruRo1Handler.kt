@@ -155,25 +155,25 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         // Getting the sender IP
         val sender = theMetadata!!.get("SENDING_IP")
 
-        val dest = "ws://localhost:4567/socketmessenging"
-        val client = WebSocketClient()
-        val socket = WebsocketClient()
-        try {
-            client.start()
-            val echoUri = URI(dest)
-            val request = ClientUpgradeRequest()
-            client.connect(socket, echoUri, request)
-            socket.sendMessage(str!!)
-            //Thread.sleep(1000L)
-        } catch (t: Throwable) {
-            t.printStackTrace()
-        } finally {
-            try {
-                client.stop()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+//        val dest = "ws://localhost:4567/socketmessenging"
+//        val client = WebSocketClient()
+//        val socket = WebsocketClient()
+//        try {
+//            client.start()
+//            val echoUri = URI(dest)
+//            val request = ClientUpgradeRequest()
+//            client.connect(socket, echoUri, request)
+//            socket.sendMessage(str!!)
+//            //Thread.sleep(1000L)
+//        } catch (t: Throwable) {
+//            t.printStackTrace()
+//        } finally {
+//            try {
+//                client.stop()
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
 
         val params =  Msgformat()
 
@@ -189,12 +189,9 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         params.jsonList = MsgParse().msgToJson(msg)
         val ack: Message
         ack = try {
-            var res = HttpSenderToHis().postToHis(params, argument)
-           if(res =="200"){
+               HttpSenderToHis().postToHis(params, argument)
                theMessage!!.generateACK()
-           }else {
-               theMessage!!.generateACK(AcknowledgmentCode.AA, HL7Exception("No Match"))
-           }
+
         }catch (e: HL7Exception){
             e.printStackTrace()
             theMessage!!.generateACK(AcknowledgmentCode.AE, HL7Exception(e))

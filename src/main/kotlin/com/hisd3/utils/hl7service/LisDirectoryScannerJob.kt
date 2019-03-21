@@ -37,15 +37,10 @@ class LisDirectoryScannerJob : Job {
                             if(!it.isDirectory){
                                 try {
                                     var inFile = SmbFileInputStream(it)
-                                   if(Hl7FileReaderService().readMessage(inFile, null)) {
-                                        it.delete()
-
-                                   }else{
-
-                                       var newPath = SmbFile(smbpath+"/UNMATCH/"+it.name, auth)
-                                       it.copyTo (newPath)
-                                       it.delete()
-                                   }
+                                    var bMess = BufferedInputStream(inFile)
+                                   Hl7FileReaderService().readMessage(inFile, null)
+                                    //    it.delete()
+                                    println("File " + it.name)
                                 } catch (e: IOException) {
 
                                    e.printStackTrace()

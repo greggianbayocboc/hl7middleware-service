@@ -7,9 +7,13 @@ import ca.uhn.hl7v2.app.Connection
 import ca.uhn.hl7v2.model.v25.message.ACK
 import ca.uhn.hl7v2.parser.CanonicalModelClassFactory
 import ca.uhn.hl7v2.util.Hl7InputStreamMessageIterator
+import jcifs.smb.NtlmPasswordAuthentication
 import jcifs.smb.SmbFile
 import jcifs.smb.SmbFileInputStream
 import java.io.*
+import java.io.BufferedInputStream
+
+
 
 
 class Hl7FileReaderService {
@@ -21,48 +25,60 @@ class Hl7FileReaderService {
         context.setModelClassFactory(mcf)
 
         var parser = context.getPipeParser()
+
         var bool :Boolean? = null
-            try {
                 val iter = Hl7InputStreamMessageIterator(theFile)
                 var conn: Connection? = null
-                while (iter.hasNext()) {
 
+                while (iter.hasNext()) {
                     if (conn == null) {
                         val useTls = false // Should we use TLS/SSL?
                         conn = context.newClient("127.0.0.1", 22222, useTls)
                     }
-                        try {
-                            val next = iter.next()
-                            var initiator = conn?.initiator
-                            var response = initiator?.sendAndReceive(next)
-                            println(response)
-                            if (response is ACK) {
-                                var ackcode = response.getMSA().acknowledgmentCode.value
-                                println(ackcode)
-                                if (ackcode == "AA") {
-                                     var errors = response.getERR()
-                                    bool = errors == null
+                     val next = iter.next()
 
-                                }
-
-                            }
-                            theFile.close()
-                            println(response.toString())
-
-                        } catch (e: IOException) {
-                           //throw IllegalArgumentException(e.message)
-                           // throw HL7Exception(e)
-                            System.out.println("Didn't send out this message!")
-                            conn?.close()
-                            theFile.close()
-                            bool = false
-                        }
+                    println("message : "+ next.toString())
+                     var initiator = conn?.initiator
+                     try {
+                         var response = initiator?.sendAndReceive(next)
+                         println("response : "+ response)
+                         if (response is ACK) {
+                             var ackcode = response.getMSA().acknowledgmentCode.value
+                             println(ackcode)
+                             if (ackcode == "AA") {
+                                 bool = true
+                             }
+                         }
+                         conn?.close()
+                     }catch (e: Exception){
+                         e.printStackTrace()
+                     }
                    conn?.close()
                    conn = null
                 }
-            } catch (e: IOException) {
-                System.err.println("Missing file: "+e)
-            }
+        theFile.close()
         return bool!!
+    }
+
+    fun readSMb(filename: String, auth: NtlmPasswordAuthentication?,url:String):Boolean{
+
+        val url = url+"/Result/"+filename
+        val forprocess = SmbFile(url, auth)
+            if(!forprocess.isDirectory){
+                try {
+                    var inFile = SmbFileInputStream(forprocess)
+                    //var bMess = BufferedInputStream(inFile)
+                    readMessage(inFile, null)
+                    //forprocess.delete()
+                    println("File read "+ forprocess.toString())
+                } catch (e: IOException) {
+
+                    e.printStackTrace()
+                }
+            }else{
+                println("File Created is not a message")
+            }
+
+        return true
     }
 }

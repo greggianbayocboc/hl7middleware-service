@@ -7,8 +7,10 @@ import com.hisd3.utils.Dto.Hl7OrmDto
 import com.hisd3.utils.Dto.obritem
 import com.hisd3.utils.Sockets.WebsocketClient
 import com.hisd3.utils.customtypes.IntegratedFacilities
+import com.hisd3.utils.customwathcer.SmbNotifier
 import com.hisd3.utils.hl7service.HL7ServiceListener
 import com.hisd3.utils.hl7service.HL7Test
+import com.hisd3.utils.hl7service.Hl7DirectoryWatcher
 import com.hisd3.utils.hl7service.LisJobHandler
 import com.hisd3.utils.httpservice.HttpSenderToHis
 import com.hisd3.utils.rest.JsonReceiver
@@ -76,10 +78,10 @@ class Application
                 args.adtRisPort = cmd.getOptionValue("adtRisPort") ?: "10100"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "HCLAB"
                 args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/Hl7Host"
-                args.smbUser = cmd.getOptionValue("smbUser") ?: "LISUSER"
+                args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"
                 args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"
                 args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "admin"
-                args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "7yq7d&addL\$4CAAD"
+                args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "password"
 
 
             val gson = GsonBuilder().disableHtmlEscaping().create()
@@ -176,10 +178,9 @@ class Application
 //                        res.status(200)
 //                        "ok"
                     }
-
                 }
-
                 HL7ServiceListener().startLisenter(args)
+                SmbNotifier().notify(args)
 //                LisJobHandler().LisDirectoryScanner(args)
 //                CardioExams().cardiosched()
 //                try{

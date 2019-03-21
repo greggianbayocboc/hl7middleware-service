@@ -5,6 +5,7 @@ import jcifs.smb.NtlmPasswordAuthentication
 
 import jcifs.smb.SmbFile
 import jcifs.smb.SmbFileInputStream
+import org.apache.commons.lang.StringUtils
 import java.io.*
 import java.nio.file.*
 
@@ -15,9 +16,7 @@ class Hl7DirectoryWatcher {
     private fun Path.watch() : WatchService {
         //Create a watch service
 
-
         val watchService = this.fileSystem.newWatchService()
-
         //Register the service, specifying which events to watch
         register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.OVERFLOW, StandardWatchEventKinds.ENTRY_DELETE)
 
@@ -28,9 +27,9 @@ class Hl7DirectoryWatcher {
 
     fun startDirWatching( args:ArgDto) {
         var auth = NtlmPasswordAuthentication(null,args.smbUser, args.smbPass)
-        val smbpath = args.smbUrl+"/Result/"
-        var sFile :SmbFile
-        sFile = SmbFile(smbpath, auth)
+        val smbpath = args.smbUrl+"/Result"
+
+        var sFile = SmbFile(smbpath, auth)
 //        try{
 //            System.out.println("Checking Unread Messages")
 //            if(sFile.list().isNotEmpty()){
@@ -41,12 +40,13 @@ class Hl7DirectoryWatcher {
 //            throw e
 //        }
 
-       try {
            System.out.println("Start HL7 Directory Watcher")
 
 //           val myDir = Paths.get("c:/Shared")
-           sFile?.connect()
-           val paths =sFile?.uncPath
+
+           sFile.connect()
+
+           val paths =sFile.uncPath
 
            System.out.println(paths)
 
@@ -64,17 +64,23 @@ class Hl7DirectoryWatcher {
                        "ENTRY_CREATE" -> {
                            println("${it.context()} was created")
                            val url = args.smbUrl+"/Result/"+it.context()
-                           val forprocess = SmbFile(url, auth)
-                               try {
-                                  var inFile = SmbFileInputStream(forprocess.name)
+                           val forprocess = SmbFile(url, auth).let{
+                               if(!it.isDirectory){
+                                   try {
+                                       var inFile = SmbFileInputStream(it)
+                                       var bMess = BufferedInputStream(inFile)
+                                       Hl7FileReaderService().readMessage(inFile, null)
+                                           //it.delete()
+                                           println("File read "+ it.toString())
+                                   } catch (e: IOException) {
 
-//                                  if(Hl7FileReaderService().readMessage(inFile, null)!!){
-//                                      forprocess.delete()
-//                                  }
-
-                               } catch (e: IOException) {
-                                   println("error parsing" + e)
+                                       e.printStackTrace()
+                                   }
+                               }else{
+                                   println("File Created is not a message")
                                }
+                           }
+
                        }
                        "ENTRY_MODIFY" -> println("${it.context()} was modified")
                        "OVERFLOW" -> println("${it.context()} overflow")
@@ -86,9 +92,6 @@ class Hl7DirectoryWatcher {
 
            }
 
-   } catch (x: IOException) {
-        System.err.println("watcher error: "+ x)
-    }
    }
 
    fun fileScrapper ( sFile :SmbFile,smbpath:String,auth :NtlmPasswordAuthentication){
