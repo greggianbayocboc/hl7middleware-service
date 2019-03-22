@@ -12,7 +12,6 @@ import org.quartz.*
 import sun.invoke.empty.Empty
 import java.io.*
 
-
 class LisDirectoryScannerJob : Job {
     @Throws(JobExecutionException::class)
     override fun execute(arg0: JobExecutionContext) {

@@ -181,13 +181,7 @@ class Application
                 }
                 HL7ServiceListener().startLisenter(args)
                 SmbNotifier().notify(args)
-//                LisJobHandler().LisDirectoryScanner(args)
-//                CardioExams().cardiosched()
-//                try{
-//                     Hl7DirectoryWatcher().startDirWatching(args)
-//                }catch (e : Exception){
-//                    throw e
-//                }
+
             }
 
  }

@@ -95,9 +95,9 @@ class JsonReceiver {
         var pid = orm.getPATIENT().getPID()
 
        // pid.pid5_PatientName[0].familyName.ownSurnamePrefix.value = msgDto?.pidMiddleName
-        pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pidLastName
-        pid.getPatientName(0).getSecondAndFurtherGivenNamesOrInitialsThereof().value =msgDto?.pidMiddleName
-        pid.getPatientName(0).getGivenName().value =msgDto?.pidFirstName
+        pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pidLastName?.replace("Ñ","N")
+        pid.getPatientName(0).getSecondAndFurtherGivenNamesOrInitialsThereof().value =msgDto?.pidMiddleName?.replace("Ñ","N")
+        pid.getPatientName(0).getGivenName().value =msgDto?.pidFirstName?.replace("Ñ","N")
       //  pid.getPatientName(0).getSuffixEgJRorIII().value=msgDto?.pidExtName
        // pid.getPatientName(0).getPrefixEgDR().value= "ENGR"
 
@@ -130,9 +130,9 @@ class JsonReceiver {
         pv1.patientType.value=msgDto.pv1PatientClass
         pv1.assignedPatientLocation.bed.value=msgDto.bed
 
-        pv1.getAdmittingDoctor(0).familyName.surname.value = msgDto.pv1RequestingDrFname
-        pv1.getAttendingDoctor(0).idNumber.value=msgDto.pv1RequestingDrId
-        pv1.getReferringDoctor(0).familyName.surname.value=msgDto.pv1RequestingDrFname
+        pv1.getAdmittingDoctor(0).familyName.surname.value = msgDto.pv1RequestingDrFname?.replace("Ñ","N")
+        pv1.getAttendingDoctor(0).idNumber.value=msgDto.pv1RequestingDrId?.replace("Ñ","N")
+        pv1.getReferringDoctor(0).familyName.surname.value=msgDto.pv1RequestingDrFname?.replace("Ñ","N")
         //pv1.getReferringDoctor(0).givenName.value=msgDto.pv1RequestingDrFname
         var order = orm.getORDER(0)
 
@@ -169,17 +169,6 @@ class JsonReceiver {
                 {
                     // Populate the OBR Segment
 
-                   // obr.setIDOBR.value = x.toString()
-                   // obr.universalServiceIdentifier.identifier.value = obritem.identifier
-                  //  obr.universalServiceIdentifier.text.value = obritem.nameservice
-                   // obr.placerOrderNumber.entityIdentifier.value = obritem.obrFileOrderNumber
-                  //  obr.getPlacerOrderNumber(0).entityIdentifier.value = obritem.obrFileOrderNumber
-                  //  obr.getFillerOrderNumber().entityIdentifier.value = obritem.obrFileOrderNumber
-//                    obr.requestedDateTime.time.value = obritem.observationDate
-//                    obr.observationDateTime.time.value  = obritem.observationDate
-//                    obr.scheduledDateTime.time.value = obritem.observationDate
-
-                    //obr.priority.value = priority
                     terser.set("/.OBR-4("+x+")-1", obritem.identifier)
                     terser.set("/.OBR-4("+x+")-2", obritem.nameservice)
 
@@ -280,8 +269,9 @@ class JsonReceiver {
 
         // Populate the PID Segment
         var pid = adt.getPID()
-        pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pidLastName
-        pid.getPatientName(0).getGivenName().value =msgDto?.pidFirstName
+        pid.getPatientName(0).getFamilyName().surname.value =msgDto?.pidLastName?.replace("Ñ","N")
+        pid.getPatientName(0).getSecondAndFurtherGivenNamesOrInitialsThereof().value =msgDto?.pidMiddleName?.replace("Ñ","N")
+        pid.getPatientName(0).getGivenName().value =msgDto?.pidFirstName?.replace("Ñ","N")
         pid.getPatientName(0).getSuffixEgJRorIII().value=msgDto?.pidExtName?:""
         pid.dateTimeOfBirth.time.value = msgDto?.pidDob
         pid.getPatientAddress(0).getCity().setValue(msgDto.pidCity)
@@ -300,9 +290,9 @@ class JsonReceiver {
         pv1.patientClass.value = msgDto.pv1PatientClass
         pv1.visitNumber.idNumber.value =msgDto.pv1VisitNumer
         pv1.patientType.value=msgDto.pv1PatientClass
-        pv1.assignedPatientLocation.bed.value=msgDto.bed
-        pv1.getAttendingDoctor(0).givenName.value=msgDto.pv1RequestingDrFname
-        pv1.getAttendingDoctor(0).familyName.surname.value=msgDto.pv1RequestingDrLname
+        pv1.assignedPatientLocation.bed.value= msgDto.bed
+        pv1.getAttendingDoctor(0).givenName.value=msgDto.pv1RequestingDrFname?.replace("Ñ","N")
+        pv1.getAttendingDoctor(0).familyName.surname.value= msgDto.pv1RequestingDrLname?.replace("Ñ","N")
         pv1.getAttendingDoctor(0).idNumber.value=msgDto.pv1RequestingDrId
 
         var  encodedMessage = parser.encode(adt)
