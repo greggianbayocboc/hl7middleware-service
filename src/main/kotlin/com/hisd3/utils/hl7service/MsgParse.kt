@@ -14,7 +14,7 @@ class MsgParse {
     fun msgToJson( msg : ORU_R01): String {
 
 
-        val dataList = ArrayList<Any>()
+        val dataList = ArrayList<LabResultItemDTO>()
         val params = HashMap<String, Any?>()
         var data = LabResultDTO()
 
@@ -77,7 +77,7 @@ class MsgParse {
                 }
                 item.cu_referencerange = obx?.referencesRange?.value
                 //System.out.println("item" + item)
-
+                item.responsibleobserver = obx?.getObx16_ResponsibleObserver(0)?.familyName?.surname?.value
                 dataList.add(item)
 
             }
@@ -104,6 +104,7 @@ class MsgParse {
         data.parameterData.observationrequest = observation?:""
         data.parameterData.interpreter = resultInterpreter?:""
         data.parameterData.interpreterId = interpreterID?:""
+
 //        params.put("interpreterID",interpreterID)
 //        params.put("responsibleobserver",resultInterpreter)
 //        params.put("revenuecenter", sendingFacilty)

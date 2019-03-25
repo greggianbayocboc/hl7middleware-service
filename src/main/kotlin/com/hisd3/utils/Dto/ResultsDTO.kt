@@ -1,10 +1,11 @@
 package com.hisd3.utils.Dto
 
+import com.hisd3.utils.hl7service.LabResultItemDTO
 import java.util.HashMap
 
 class LabResultDTO{
     var parameterData = Paramdata()
-    var labResultsList : ArrayList<Any>?=null
+    var labResultsList : ArrayList<LabResultItemDTO>?=null
 }
 
 class Paramdata (
