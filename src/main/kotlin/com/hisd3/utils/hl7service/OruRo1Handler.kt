@@ -178,7 +178,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         val params =  Msgformat()
 
         //params.msgXML=encodedMessage
-        params.attachment = zdc
+        //params.attachment = zdc
         params.msgXML=str
         params.senderIp= sender.toString()
         params.bacthnum= batchnum
