@@ -171,8 +171,9 @@ class Application
                                 return@post Unit
 
                             }
-                        }else{
-                            halt(401,"req.body is empty")
+                        }else {
+                            res.type("application/json")
+                            res.body("req.body is empty")
                         }
 //                        res.body()
 //                        res.status(200)
