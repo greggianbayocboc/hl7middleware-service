@@ -320,7 +320,7 @@ class JsonReceiver {
 
             try {
 //              var connection = context.newClient(msgDto.recievingFacility.ipAddress, 22223, useTls)
-
+                println("Sending Msg to RIS \n" + rawmsg.toString() +"\n")
                 var initiator = connection.initiator
                 var res = initiator.sendAndReceive(rawmsg)
                 println("middleware: response from RIS : " + res)
