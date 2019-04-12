@@ -15,6 +15,7 @@ class MsgParse {
 
 
         val dataList = ArrayList<LabResultItemDTO>()
+        var commentsDto = ArrayList<NteDto>()
         val params = HashMap<String, Any?>()
         var data = LabResultDTO()
 
@@ -38,16 +39,19 @@ class MsgParse {
             obr = orderObs.getOBR()
 
             val comments = StringBuilder()
-
+            var comment1 = NteDto()
             val parent = obr.getParent() as ORU_R01_ORDER_OBSERVATION
             val totalNTEs = parent.nteReps
             for (iNTE in 0..totalNTEs - 1) {
                 for (obxComment in parent.getNTE(iNTE).comment) {
                     if (comments.length > 0) {
                         comments.append(" ")
+
                     }
                     comments.append(obxComment.value)
+                    comment1.comments = comments.toString()
                 }
+                commentsDto.add(comment1)
             }
 
             var numObs = orderObs.getOBSERVATIONReps()
@@ -113,6 +117,7 @@ class MsgParse {
 
 //        data.parameterData = params
         data.labResultsList = dataList
+        data.comments = commentsDto
         var gson = Gson()
         println(data)
         return gson.toJson(data)

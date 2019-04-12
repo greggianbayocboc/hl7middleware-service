@@ -68,6 +68,9 @@ class LabResultItemDTO {
     var responsibleobserver:String?=""
 
 }
+class NteDto{
+    var comments :String? = ""
+}
 
 class OruRo1Handler<E> : ReceivingApplication<Message> {
 
