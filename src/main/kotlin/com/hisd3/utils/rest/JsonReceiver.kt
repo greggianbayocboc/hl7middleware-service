@@ -291,7 +291,8 @@ class JsonReceiver {
         pv1.patientClass.value = msgDto.pv1PatientClass
         pv1.visitNumber.idNumber.value =msgDto.pv1VisitNumer
         pv1.patientType.value=msgDto.pv1PatientClass
-        pv1.assignedPatientLocation.room.value = if (!msgDto.pv1Room.isNullOrEmpty()) msgDto.pv1Room else "Demo Room"
+        pv1.assignedPatientLocation.room.value = "DemoRoom"
+        //pv1.assignedPatientLocation.room.value = if (!msgDto.pv1Room.isNullOrEmpty()) msgDto.pv1Room else "Demo Room"
         pv1.assignedPatientLocation.bed.value= msgDto.bed
         pv1.getAttendingDoctor(0).givenName.value=msgDto.pv1RequestingDrFname?.replace("Ñ","N")
         pv1.getAttendingDoctor(0).familyName.surname.value= msgDto.pv1RequestingDrLname?.replace("Ñ","N")
