@@ -40,8 +40,8 @@ class Application
 
              println(it)
          }*/
-        // port(4567)
-         staticFiles.location("/public")
+         port(4567)
+         staticFiles.location("/public/build")
          port(4567)
          staticFiles.expireTime(600L)
          //webSocket("/chat",WSocketChatHandler::class.java)
@@ -105,8 +105,8 @@ class Application
                             res.header("Access-Control-Allow-Methods",
                                     accessControlRequestMethod)
                         }
-
-                        argumentsData
+                        res.type("application/json")
+                       argumentsData
                     }
 
                     get("/ping") { req, res -> "OK" }

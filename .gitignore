@@ -2,3 +2,5 @@
 /.gradle/
 /.idea/
 /out/
+/web/node_modules/
+/web/build/
