@@ -359,7 +359,7 @@ class JsonReceiver {
 
             val ntlmPasswordAuthentication = NtlmPasswordAuthentication(args.smbHost,args.smbUser, args.smbPass)
 
-            val shared = args.smbUrl+"/Order/TEST"
+            val shared = args.smbUrl+"/Order"
             val directory = SmbFile(shared,ntlmPasswordAuthentication)
 
             try{
@@ -384,7 +384,7 @@ class JsonReceiver {
             var parser3 =context.getPipeParser()
            // System.setProperty(MllpConstants.CHARSET_KEY, "UNICODE UTF-8")
 
-            val path = args.smbUrl+"/Order/TEST/"+msgDto.messageControlId+".hl7"
+            val path = args.smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
             val sFile = SmbFile(path, ntlmPasswordAuthentication)
             var sfos =  SmbFileOutputStream(sFile)
             sfos.write(parser3.encode(encodedMessage).toByteArray())
