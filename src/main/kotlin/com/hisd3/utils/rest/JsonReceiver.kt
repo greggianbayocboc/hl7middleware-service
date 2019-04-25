@@ -131,9 +131,13 @@ class JsonReceiver {
         pv1.patientType.value=msgDto.pv1PatientClass
         pv1.assignedPatientLocation.bed.value=msgDto.bed
         pv1.assignedPatientLocation.room.value = if (!msgDto.pv1Room.isNullOrEmpty()) msgDto.pv1Room else "OPD"
+        pv1.getAdmittingDoctor(0).idNumber.value=msgDto.pv1RequestingDrId?:"NOCODE"
         pv1.getAdmittingDoctor(0).familyName.surname.value = msgDto.pv1RequestingDrFname?.replace("Ñ","N")
         pv1.getAttendingDoctor(0).idNumber.value=msgDto.pv1RequestingDrId?.replace("Ñ","N")
+        pv1.getReferringDoctor(0).idNumber.value=msgDto.pv1RequestingDrId?:"NOCODE"
         pv1.getReferringDoctor(0).familyName.surname.value=msgDto.pv1RequestingDrFname?.replace("Ñ","N")
+        pv1.getAttendingDoctor(0).idNumber.value=msgDto.pv1RequestingDrId?:"NOCODE"
+        pv1.getAttendingDoctor(0).familyName.surname.value=msgDto.pv1RequestingDrFname?.replace("Ñ","N")
         //pv1.getReferringDoctor(0).givenName.value=msgDto.pv1RequestingDrFname
         var order = orm.getORDER(0)
 
@@ -359,7 +363,7 @@ class JsonReceiver {
 
             val ntlmPasswordAuthentication = NtlmPasswordAuthentication(args.smbHost,args.smbUser, args.smbPass)
 
-            val shared = args.smbUrl+"/Order"
+            val shared = args.smbUrl+"/Order/TEST"
             val directory = SmbFile(shared,ntlmPasswordAuthentication)
 
             try{
@@ -384,7 +388,7 @@ class JsonReceiver {
             var parser3 =context.getPipeParser()
            // System.setProperty(MllpConstants.CHARSET_KEY, "UNICODE UTF-8")
 
-            val path = args.smbUrl+"/Order/"+msgDto.messageControlId+".hl7"
+            val path = args.smbUrl+"/Order/TEST/"+msgDto.messageControlId+".hl7"
             val sFile = SmbFile(path, ntlmPasswordAuthentication)
             var sfos =  SmbFileOutputStream(sFile)
             sfos.write(parser3.encode(encodedMessage).toByteArray())
