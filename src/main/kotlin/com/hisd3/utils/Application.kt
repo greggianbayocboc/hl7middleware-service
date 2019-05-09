@@ -77,7 +77,7 @@ class Application
                 args.ormRisPort = cmd.getOptionValue("ormRisPort") ?: "10101"
                 args.adtRisPort = cmd.getOptionValue("adtRisPort") ?: "10100"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "HCLAB"
-                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/Hl7Host"
+                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://127.0.0.1/shared"
                 args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"
                 args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"
                 args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "admin"

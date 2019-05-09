@@ -22,7 +22,7 @@ import java.nio.charset.Charset
 open class HttpSenderToHis {
 
 
-    fun postToHis(params: Msgformat, argument: ArgDto): String? {
+    fun postToHis(params: Msgformat, argument: ArgDto){
 
         val gson = Gson()
         val httpclient = HttpClientBuilder.create().build()
@@ -48,7 +48,7 @@ open class HttpSenderToHis {
             e.printStackTrace()
         }
 
-        return res
+       // return res
     }
 
     fun testPostToHis(argument: ArgDto):String?{
