@@ -115,8 +115,8 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
                     theMessage.toString().length
             )
 
-            zdc =  StringUtils.remove(zdcOrig,"ZDC|0|PDF|")
-            zdc=StringUtils.trim(zdc)
+            zdc = StringUtils.remove(zdcOrig,"ZDC|0|PDF|")
+            zdc = StringUtils.trim(zdc)
 
             println("Found attachement at ZDC section")
         }catch (e:Exception){
@@ -131,7 +131,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
         }
 
         println("New message received:\n")
- //       println(str)
+        println(str)
 //        var xmlparser = context.getXMLParser()
 //        var encodedMessage = xmlparser.encode(theMessage)
         val msg = parser.parse(theMessage.toString()) as ca.uhn.hl7v2.model.v25.message.ORU_R01
@@ -180,7 +180,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
         val params =  Msgformat()
 
-        //params.msgXML=encodedMessage
+      //params.msgXML=encodedMessage
         params.attachment = zdc
         params.msgXML=str
         params.senderIp= sender.toString()
@@ -199,7 +199,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
             e.printStackTrace()
             theMessage!!.generateACK(AcknowledgmentCode.AE, HL7Exception(e))
         }
-//        parsingXml(encodedMessage)
+//      parsingXml(encodedMessage)
         return ack
     }
 

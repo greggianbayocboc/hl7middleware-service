@@ -119,7 +119,7 @@ class MsgParse {
         data.labResultsList = dataList
         data.comments = commentsDto
         var gson = Gson()
-        println(data)
+        //println(data)
         return gson.toJson(data)
     }
 
