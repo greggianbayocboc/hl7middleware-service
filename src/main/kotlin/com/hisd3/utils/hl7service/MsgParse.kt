@@ -1,9 +1,12 @@
 package com.hisd3.utils.hl7service
 
 import ca.uhn.hl7v2.model.Message
+import ca.uhn.hl7v2.model.v25.group.ORU_R01_OBSERVATION
 import ca.uhn.hl7v2.model.v25.group.ORU_R01_ORDER_OBSERVATION
+import ca.uhn.hl7v2.model.v25.group.ORU_R01_PATIENT_RESULT
 import ca.uhn.hl7v2.model.v25.message.ORU_R01
 import ca.uhn.hl7v2.model.v25.segment.*
+import ca.uhn.hl7v2.util.Terser
 import com.google.gson.Gson
 import com.hisd3.utils.Dto.LabResultDTO
 import java.util.ArrayList
@@ -40,17 +43,26 @@ class MsgParse {
 
             val comments = StringBuilder()
             var comment1 = NteDto()
-            val parent = obr.getParent() as ORU_R01_ORDER_OBSERVATION
-            val totalNTEs = parent.nteReps
-            for (iNTE in 0..totalNTEs - 1) {
-                for (obxComment in parent.getNTE(iNTE).comment) {
-                    if (comments.length > 0) {
-                        comments.append(" ")
+            val terser = Terser(msg)
+            //val parent = obr.getParent() as ORU_R01_ORDER_OBSERVATION
+           var parent = orderObs.getNTE()
+            val totalNTEs = orderObs.nteReps
 
-                    }
-                    comments.append(obxComment.value)
-                    comment1.comments = comments.toString()
-                }
+            for (iNTE in 0..totalNTEs - 1) {
+
+                var  commentsval =  terser.get("/.OBSERVATION(${i})/NTE(${iNTE})-3")
+
+//            var  commentsval = parent.comment.get(iNTE).
+
+                comment1.comments = commentsval.toString().replace("\\.br\\","")
+//               println(parent.getComment(iNTE).value.toString())
+ //               for (obxComment in parent.getComment(iNTE).value) {
+//                    if (comments.length > 0) {
+//                        comments.append(" ")
+//                    }
+//                    comments.append(obxComment)
+ //                   comment1.comments = comments.toString()
+                //}
                 commentsDto.add(comment1)
             }
 
@@ -68,11 +80,13 @@ class MsgParse {
                 val itr = values.iterator()
                 var itemValue = ""
                 while (itr.hasNext()) {
+
                     val element = itr.next()
                     itemValue += element.data.toString()
                     //item.value=element.data.toString()
-                    System.out.print(element.toString() + " ")
+                    //System.out.print(element.toString() + " ")
                 }
+
                 item.value = itemValue
 
                 if (obx.units?.ce1_Identifier?.value != null) {
@@ -87,6 +101,9 @@ class MsgParse {
             }
 
         }
+
+
+
         var observation:String? = null
         if(obr?.universalServiceIdentifier?.ce2_Text!=null){
                      observation = obr.universalServiceIdentifier.ce1_Identifier.value+"-"+ obr.universalServiceIdentifier.ce2_Text.value

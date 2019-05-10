@@ -118,7 +118,6 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
             zdc = StringUtils.remove(zdcOrig,"ZDC|0|PDF|")
             zdc = StringUtils.trim(zdc)
 
-            println("Found attachement at ZDC section")
         }catch (e:Exception){
 
           println("No Attachement Found : \n" + e)
@@ -126,6 +125,7 @@ class OruRo1Handler<E> : ReceivingApplication<Message> {
 
         if(zdc !=null){
             str = StringUtils.remove(theMessage.toString(),zdcOrig)
+            println("Found attachement at ZDC section")
         }else{
             str = theMessage.toString()
         }
