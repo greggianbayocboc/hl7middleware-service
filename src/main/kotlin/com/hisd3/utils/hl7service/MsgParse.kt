@@ -53,8 +53,9 @@ class MsgParse {
                 var  commentsval =  terser.get("/.OBSERVATION(${i})/NTE(${iNTE})-3")
 
 //            var  commentsval = parent.comment.get(iNTE).
-
+                if(commentsval !=null)
                 comment1.comments = commentsval.toString().replace("\\.br\\","")
+                else ""
 //               println(parent.getComment(iNTE).value.toString())
  //               for (obxComment in parent.getComment(iNTE).value) {
 //                    if (comments.length > 0) {
