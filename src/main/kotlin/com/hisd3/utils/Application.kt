@@ -121,7 +121,7 @@ class Application
                             jData.pidPatientId = "P111111"
                             jData.integratedFacilities = IntegratedFacilities.RIS
                         val sampleObr = ArrayList<obritem>()
-                        
+
                             for (i in 1..5) {
                                 val itemobr = obritem()
                                 itemobr.identifier = "PROCESSCODE" + i
@@ -181,7 +181,7 @@ class Application
                     }
                 }
                 HL7ServiceListener().startLisenter(args)
-                SmbNotifier().notify(args)
+                //SmbNotifier().notify(args)
 
             }
 
