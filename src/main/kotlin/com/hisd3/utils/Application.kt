@@ -62,6 +62,7 @@ class Application
             options.addOption("smbUser", true, "smb username")
             options.addOption("smbPass", true, "smb password")
             options.addOption("start", false, "start hl7 rest service")
+            options.addOption("directoryScan", false, "start hl7 rest service")
 
             val formatter = HelpFormatter()
             formatter.printHelp("[jarfile] options", options)
@@ -82,6 +83,7 @@ class Application
                 args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"
                 args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "admin"
                 args.hisd3Pass = cmd.getOptionValue("hisd3Pass") ?: "password"
+                args.directoryScan = cmd.getOptionValue("directoryScan") ?: "active"
 
 
             val gson = GsonBuilder().disableHtmlEscaping().create()
@@ -180,7 +182,7 @@ class Application
 //                        "ok"
                     }
                 }
-               // HL7ServiceListener().startLisenter(args)
+                HL7ServiceListener().startLisenter(args)
                 SmbNotifier().notify(args)
 
             }

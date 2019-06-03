@@ -13,4 +13,5 @@ class ArgDto {
     var hisd3Pass: String? = null
     var adtRisPort: String? = null
     var ormRisPort:String?=null
+    var directoryScan:String?=null
 }
