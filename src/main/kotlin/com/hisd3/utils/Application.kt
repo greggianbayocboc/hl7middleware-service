@@ -180,7 +180,7 @@ class Application
 //                        "ok"
                     }
                 }
-                HL7ServiceListener().startLisenter(args)
+               // HL7ServiceListener().startLisenter(args)
                 SmbNotifier().notify(args)
 
             }

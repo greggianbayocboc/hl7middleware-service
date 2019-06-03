@@ -123,6 +123,7 @@ class MsgParse {
         var resultInterpreter = obrervation?.principalResultInterpreter.nameOfPerson.cnn3_GivenName.value + obrervation?.principalResultInterpreter.nameOfPerson.cnn2_FamilyName.value?:""
         var interpreterID = obrervation?.principalResultInterpreter.nameOfPerson.idNumber.value?:""
 
+        data.parameterData.processCoe = ""
         data.parameterData.observationrequest = observation?:""
         data.parameterData.interpreter = resultInterpreter?:""
         data.parameterData.interpreterId = interpreterID?:""
