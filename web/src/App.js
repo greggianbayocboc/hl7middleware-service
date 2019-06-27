@@ -12,7 +12,8 @@ class App extends Component {
       .then(response => response.json())
       .then(response => {
           console.log("s",response);
-          this.setState({message: JSON.stringify(response)})
+          var obj = response.hisd3Host
+          this.setState({message: obj})
 
       });
   }
