@@ -24,7 +24,7 @@ class SmbNotifier {
 
     fun run(url: String, domain: String?, user: String, pass: String) {
         //val userInfo = "$domain;$user:$pass"
-        auth = NtlmPasswordAuthentication(null,user,pass)
+        auth = NtlmPasswordAuthentication("",user,pass)
         var path = url+"/Result/"
         handler = object : NotificationHandler() {
 
@@ -40,9 +40,8 @@ class SmbNotifier {
                             //var bMess = BufferedInputStream(inFile)
                             Hl7FileReaderService().readMessage(inFile, null)
                             forprocess.delete()
-                            println("File read "+ forprocess.toString())
+                            println("File read "+ inFile.toString())
                         } catch (e: IOException) {
-
                             e.printStackTrace()
                         }
                     }else{
@@ -57,7 +56,6 @@ class SmbNotifier {
         }
         try {
             notifier = SmbNotification(path, auth, handler)
-
             notifier!!.listen(500)
             while (true)
             ;
@@ -65,7 +63,6 @@ class SmbNotifier {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
         fun notify(args: ArgDto) {

@@ -26,7 +26,7 @@ class Hl7FileReaderService {
 
         var parser = context.getPipeParser()
 
-        var bool :Boolean? = null
+        var bool :Boolean? = false
                 val iter = Hl7InputStreamMessageIterator(theFile)
                 var conn: Connection? = null
 
