@@ -1,11 +1,11 @@
 buildscript {
     ext.kotlin_version = '1.3.20'
     repositories {
-       // mavenCentral()
+        mavenCentral()
 
-        maven {
-            url "http://nexus.ace-mc-bohol.com/repository/maven-public/"
-        }
+//        maven {
+//            url "http://nexus.ace-mc-bohol.com/repository/maven-public/"
+//        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -24,11 +24,11 @@ version '1.0.1'
 sourceCompatibility = 1.8
 
 repositories {
-   // mavenCentral()
+    mavenCentral()
 
-    maven {
-        url "http://nexus.ace-mc-bohol.com/repository/maven-public/"
-    }
+//    maven {
+//        url "http://nexus.ace-mc-bohol.com/repository/maven-public/"
+//    }
 }
 
 apply plugin: 'application'
@@ -55,6 +55,10 @@ dependencies {
     // crisnels lib
 
     // https://mvnrepository.com/artifact/com.j2html/j2html
+    compile group: 'org.hibernate', name: 'hibernate-core', version: '5.2.10.Final'
+    compile group: 'postgresql', name: 'postgresql', version: '9.1-901-1.jdbc4'
+
+
     compile group: 'com.j2html', name: 'j2html', version: '0.7'
 
     compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.9.6'

@@ -21,6 +21,10 @@ import org.apache.commons.cli.ParseException
 import spark.Spark.*
 import spark.kotlin.port
 import spark.kotlin.staticFiles
+import org.apache.tools.ant.ProjectHelper.configure
+import org.hibernate.cfg.Configuration
+import spark.Filter
+import spark.Spark
 
 
 class Application
@@ -29,22 +33,12 @@ class Application
         get("/bootup") { req, res -> "Test" }
     }
 
-
-
      @Throws(ParseException::class)
      fun main(args: Array<String>) {
 
-
-        /* println("Printing Arguments")
-         args.forEach {
-
-             println(it)
-         }*/
-         port(4567)
          staticFiles.location("/public/build")
          port(4567)
          staticFiles.expireTime(600L)
-         //webSocket("/chat",WSocketChatHandler::class.java)
          webSocket("/socketmessenging",WebsocketClient::class.java)
 
          val options = Options()
@@ -57,7 +51,7 @@ class Application
             options.addOption("ormRisPort", true, "ORM RIS Port")
             options.addOption("adtRisPort", true, "ADT RIS Port")
             options.addOption("smbHost", true, "SMB Host/Machine")
-            options.addOption("smbUrl", true, "SMB smburl")
+            options.addOption("smbUrl", true, "SMB Url")
             options.addOption("smbDir", true, "Directory")
             options.addOption("smbUser", true, "smb username")
             options.addOption("smbPass", true, "smb password")
@@ -78,7 +72,7 @@ class Application
                 args.ormRisPort = cmd.getOptionValue("ormRisPort") ?: "10101"
                 args.adtRisPort = cmd.getOptionValue("adtRisPort") ?: "10100"
                 args.smbHost = cmd.getOptionValue("smbHost") ?: "HCLAB"
-                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://127.0.0.1/shared"
+                args.smbUrl = cmd.getOptionValue("smbUrl") ?: "smb://172.16.10.9/hl7host"
                 args.smbUser = cmd.getOptionValue("smbUser") ?: "lisuser"
                 args.smbPass = cmd.getOptionValue("smbPass") ?: "p@ssw0rd"
                 args.hisd3USer = cmd.getOptionValue("hisd3User") ?: "admin"
@@ -88,25 +82,14 @@ class Application
 
             val gson = GsonBuilder().disableHtmlEscaping().create()
 
-            if (cmd.hasOption("start")) {
+         enableCORS("*","GET,POST,OPTIONS,DELETE","")
+
+
+         if (cmd.hasOption("start")) {
 
                 path( "/tests"){
                     val argumentsData = gson.toJson(args)
                     get("/showvars") { req, res ->
-
-                        val accessControlRequestHeaders = req
-                                .headers("Access-Control-Request-Headers")
-                        if (accessControlRequestHeaders != null) {
-                            res.header("Access-Control-Allow-Headers",
-                                    accessControlRequestHeaders)
-                        }
-
-                        val accessControlRequestMethod = req
-                                .headers("Access-Control-Request-Method")
-                        if (accessControlRequestMethod != null) {
-                            res.header("Access-Control-Allow-Methods",
-                                    accessControlRequestMethod)
-                        }
                         res.type("application/json")
                        argumentsData
                     }
@@ -143,6 +126,7 @@ class Application
                         HttpSenderToHis().testPostToHis(args)
                     }
                 }
+
                 path("/") {
                     post("jsonmsg"){req,res ->
 
@@ -184,10 +168,37 @@ class Application
                 }
                 HL7ServiceListener().startLisenter(args)
                 SmbNotifier().notify(args)
-
             }
 
  }
+
+private fun enableCORS(origin: String, methods: String, headers: String) {
+
+    Spark.options("/*") { request, response ->
+
+        val accessControlRequestHeaders = request.headers("Access-Control-Request-Headers")
+        if (accessControlRequestHeaders != null) {
+            response.header("Access-Control-Allow-Headers", accessControlRequestHeaders)
+        }
+
+        val accessControlRequestMethod = request.headers("Access-Control-Request-Method")
+        if (accessControlRequestMethod != null) {
+            response.header("Access-Control-Allow-Methods", accessControlRequestMethod)
+        }
+
+        "OK"
+    }
+
+    Spark.before(Filter { request, response ->
+        response.header("Access-Control-Allow-Origin", origin)
+        response.header("Access-Control-Request-Method", methods)
+        response.header("Access-Control-Allow-Headers", headers)
+        // Note: this may or may not be necessary in your particular application
+        response.type("application/json")
+    })
+}
+
+
 
 
 
